@@ -17,19 +17,7 @@ public class Constants {
     // public static final double kDriveWheelTrackRadiusWidthMeters = kDriveWheelTrackWidthInches / 2.0 * 0.0254;
     public static final double kTrackScrubFactor = 1.0;
 
-    // Robot Dynamicss
 
-    // Motor Controllers (CAN IDs)
-
-    // Encoders (Rio DIO)
-
-    // Power Limits
-    public static final double kDriveVoltageOpenLoopCompSaturation = 12.0;
-    public static final double kDriveVoltageClosedLoopCompSaturation = 9.0;
-    public static final double kClosedLoopDriveVoltageRampRate = 0.0;
-    public static final double kOpenLoopDriveVoltageRampRate = 0.50;
-    // public static final int kDriveCurrentThrottledLimit = 30; // amps
-    // public static final int kDriveCurrentUnThrottledLimit = 80; // amps
     
     public static final double kMaxTrackerDistance = 20.0;
     public static final double kMaxGoalTrackAge = 2.5;

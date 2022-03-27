@@ -20,7 +20,15 @@ public class XboxDriver {
         return mController.getJoystick(Side.RIGHT, Axis.X);
     }
 
-    public double getRoationY() {
-        return mController.getJoystick(Side.RIGHT, Axis.X);
+    public double getRotationY() {
+        return mController.getJoystick(Side.RIGHT, Axis.Y);
+    }
+
+    public int getDPad() {
+        return mController.getDPad();
+    }
+
+    public boolean wantShift() {
+        return mController.getTrigger(Side.LEFT);
     }
 }
