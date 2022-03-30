@@ -87,7 +87,7 @@ public class Robot extends TimedRobot {
     mDrive.setSwerveDrive(throttle, strafe, rotation);
 
     if (wantZero) {
-      mDrive.zeroDrive();
+      mDrive.setSwerveDrive(0, 0, 0);
     }
 
     mSubsystemManager.executeEnabledLoops(timestamp);
