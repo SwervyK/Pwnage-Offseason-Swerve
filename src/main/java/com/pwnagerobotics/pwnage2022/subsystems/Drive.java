@@ -43,12 +43,25 @@ public class Drive extends Subsystem {
   private static final AnalogEncoder kEncoderBackLeftRotation = new AnalogEncoder(1);
   private static final AnalogEncoder kEncoderFrontRightRotation = new AnalogEncoder(2);
   private static final AnalogEncoder kEncoderBackRightRotation = new AnalogEncoder(3);
+
+  //PID
+  private static final PIDController kFrontLeftPID = new PIDController(0.7, 0.015, 0);
+  private static final PIDController kBackLeftPID = new PIDController(0.7, 0.015, 0);
+  private static final PIDController kFrontRightPID = new PIDController(0.7, 0.015, 0);
+  private static final PIDController kBackRightPID = new PIDController(0.7, 0.015, 0);
   
   private static final double kMaxEncoderValue = 0.974;
   private double mRotationError = 0.08;
   private double mDriveSlowDown = 1;
   private double mTurnSlowDown = 0.8;
   
+  public Drive() {
+      kFrontLeftPID.setIntegratorRange(0, 1);
+      kBackLeftPID.setIntegratorRange(0, 1);
+      kFrontRightPID.setIntegratorRange(0, 1);
+      kBackRightPID.setIntegratorRange(0, 1);
+  }
+
   public synchronized void setSwerveDrive(double throttle, double strafe, double rotation) {
     double angle = Math.toDegrees(Math.atan2(strafe, throttle));
     angle = (angle >= 0) ? angle : angle + 360;
@@ -58,24 +71,24 @@ public class Drive extends Subsystem {
     
     if (rotation > 0) {
       angle = 0.25/2;
-      setModule(kMotorFrontLeftDrive, kMotorFrontLeftRotation, kEncoderFrontLeftRotation, RotationEncoderOffset.kEncoderFrontLeftOffset, angle, -rotation);
+      setModule(kMotorFrontLeftDrive, kMotorFrontLeftRotation, kEncoderFrontLeftRotation, RotationEncoderOffset.kEncoderFrontLeftOffset, angle, -rotation, kFrontLeftPID);
       angle = 0.25/2 + 0.75;
-      setModule(kMotorBackLeftDrive, kMotorBackLeftRotation, kEncoderBackLeftRotation, RotationEncoderOffset.kEncoderBackLeftOffset, angle, rotation);
+      setModule(kMotorBackLeftDrive, kMotorBackLeftRotation, kEncoderBackLeftRotation, RotationEncoderOffset.kEncoderBackLeftOffset, angle, rotation, kBackLeftPID);
       angle = 0.25/2 + 0.25;
-      setModule(kMotorFrontRightDrive, kMotorFrontRightRotation, kEncoderFrontRightRotation, RotationEncoderOffset.kEncoderFrontRightOffset, angle, -rotation);
+      setModule(kMotorFrontRightDrive, kMotorFrontRightRotation, kEncoderFrontRightRotation, RotationEncoderOffset.kEncoderFrontRightOffset, angle, -rotation, kFrontRightPID);
       angle = 0.25/2 + 0.50;
-      setModule(kMotorBackRightDrive, kMotorBackRightRotation, kEncoderBackRightRotation, RotationEncoderOffset.kEncoderBackRightOffset, angle, -rotation);
+      setModule(kMotorBackRightDrive, kMotorBackRightRotation, kEncoderBackRightRotation, RotationEncoderOffset.kEncoderBackRightOffset, angle, -rotation, kBackRightPID);
     }
     else {
-      setModule(kMotorFrontLeftDrive, kMotorFrontLeftRotation, kEncoderFrontLeftRotation, RotationEncoderOffset.kEncoderFrontLeftOffset, angle, -speed);
-      setModule(kMotorBackLeftDrive, kMotorBackLeftRotation, kEncoderBackLeftRotation, RotationEncoderOffset.kEncoderBackLeftOffset, angle, speed);
-      setModule(kMotorFrontRightDrive, kMotorFrontRightRotation, kEncoderFrontRightRotation, RotationEncoderOffset.kEncoderFrontRightOffset, angle, -speed);
-      setModule(kMotorBackRightDrive, kMotorBackRightRotation, kEncoderBackRightRotation, RotationEncoderOffset.kEncoderBackRightOffset, angle, -speed);
+      setModule(kMotorFrontLeftDrive, kMotorFrontLeftRotation, kEncoderFrontLeftRotation, RotationEncoderOffset.kEncoderFrontLeftOffset, angle, -speed, kFrontLeftPID);
+      setModule(kMotorBackLeftDrive, kMotorBackLeftRotation, kEncoderBackLeftRotation, RotationEncoderOffset.kEncoderBackLeftOffset, angle, speed, kBackLeftPID);
+      setModule(kMotorFrontRightDrive, kMotorFrontRightRotation, kEncoderFrontRightRotation, RotationEncoderOffset.kEncoderFrontRightOffset, angle, -speed, kFrontRightPID);
+      setModule(kMotorBackRightDrive, kMotorBackRightRotation, kEncoderBackRightRotation, RotationEncoderOffset.kEncoderBackRightOffset, angle, -speed, kBackRightPID);
     }
   }
   
-  private void setModule(MotorController driveController, MotorController rotationConstrooler, AnalogEncoder rotaionEncoder,
-  double rotationOffset, double rotation, double speed) 
+  private void setModule(MotorController driveController, MotorController rotationController, AnalogEncoder rotaionEncoder,
+  double rotationOffset, double rotation, double speed, PIDController pidController)
   {
     // Postion
     double wantedPosition = rotation + rotationOffset;
@@ -91,12 +104,13 @@ public class Drive extends Subsystem {
     }
 
     driveController.set(speed * mDriveSlowDown);
-    if (Math.abs(rotaionEncoder.getAbsolutePosition() - wantedPosition) > mRotationError) {
-      rotationConstrooler.set(1 * mTurnSlowDown * Math.signum(distance));
-    }
-    else {
-      rotationConstrooler.set(0);
-    }
+    rotationController.set(pidController.calculate(rotaionEncoder.getAbsolutePosition(), wantedPosition));
+    // if (Math.abs(rotaionEncoder.getAbsolutePosition() - wantedPosition) > mRotationError) {
+    //   rotationConstrooler.set(1 * mTurnSlowDown * Math.signum(distance));
+    // }
+    // else {
+    //   rotationConstrooler.set(0);
+    // }
   }
   
   private double getDistance(double encoder, double controller) {
