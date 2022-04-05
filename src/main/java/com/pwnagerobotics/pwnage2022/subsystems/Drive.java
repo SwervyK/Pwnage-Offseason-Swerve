@@ -51,9 +51,8 @@ public class Drive extends Subsystem {
   private static final PIDController kBackRightPID = new PIDController(0.7, 0.015, 0);
   
   private static final double kMaxEncoderValue = 0.974;
-  private double mRotationError = 0.08;
-  private double mDriveSlowDown = 1;
-  private double mTurnSlowDown = 0.8;
+  private double mDriveSlowDown = 0.5;
+  private double mTurnSlowDown = 0.5;
   
   public Drive() {
       kFrontLeftPID.setIntegratorRange(0, 1);
@@ -96,16 +95,20 @@ public class Drive extends Subsystem {
 
     // Distance
     double distance = getDistance(rotaionEncoder.getAbsolutePosition(), wantedPosition);
-    if (distance > 0.25) {
+    if (Math.abs(distance) > 0.25) {
       wantedPosition -= 0.5;
       if (wantedPosition < 0) wantedPosition += kMaxEncoderValue;
-      distance -= 0.25;
+      distance = getDistance(rotaionEncoder.getAbsolutePosition(), wantedPosition);
       speed *= -1;
     }
 
     driveController.set(speed * mDriveSlowDown);
-    rotationController.set(pidController.calculate(rotaionEncoder.getAbsolutePosition(), wantedPosition));
-    // if (Math.abs(rotaionEncoder.getAbsolutePosition() - wantedPosition) > mRotationError) {
+
+    // PID
+    rotationController.set(pidController.calculate(rotaionEncoder.getAbsolutePosition(), wantedPosition) * mTurnSlowDown);
+
+    // Bang Bang
+    // if (Math.abs(rotaionEncoder.getAbsolutePosition() - wantedPosition) > 0) {
     //   rotationConstrooler.set(1 * mTurnSlowDown * Math.signum(distance));
     // }
     // else {
