@@ -55,10 +55,10 @@ public class Drive extends Subsystem {
   private double mTurnSlowDown = 0.5;
   
   public Drive() {
-      kFrontLeftPID.setIntegratorRange(0, 1);
-      kBackLeftPID.setIntegratorRange(0, 1);
-      kFrontRightPID.setIntegratorRange(0, 1);
-      kBackRightPID.setIntegratorRange(0, 1);
+      kFrontLeftPID.enableContinuousInput(0, 1);
+      kBackLeftPID.enableContinuousInput(0, 1);
+      kFrontRightPID.enableContinuousInput(0, 1);
+      kBackRightPID.enableContinuousInput(0, 1);
   }
 
   public synchronized void setSwerveDrive(double throttle, double strafe, double rotation) {
