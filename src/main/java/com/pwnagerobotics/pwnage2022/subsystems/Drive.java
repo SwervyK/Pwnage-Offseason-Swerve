@@ -17,7 +17,7 @@ public class Drive extends Subsystem {
     if (mInstance == null) mInstance = new Drive();
     return mInstance;
   }
-  
+
   // Zeros
   public static class RotationEncoderOffset {
     public static final double kEncoderFrontLeftOffset = 0.601;
@@ -61,14 +61,26 @@ public class Drive extends Subsystem {
       kBackRightPID.enableContinuousInput(0, 1);
   }
 
-  public synchronized void setSwerveDrive(double throttle, double strafe, double rotation) {
+  public synchronized void setRobotCentricSwerveDrive(double throttle, double strafe, double rotation) {
     double angle = Math.toDegrees(Math.atan2(strafe, throttle));
     angle = (angle >= 0) ? angle : angle + 360;
     angle /= 360;
     double speed = Math.sqrt(Math.pow(Math.abs(strafe), 2) + Math.pow(Math.abs(throttle), 2));
     speed = (speed >= 1) ? 1 : speed;
-    
-    if (rotation > 0) {
+
+    // If not moving have wheels rotate to make harder to push
+    if (throttle == 0 && strafe == 0) {
+      angle = 0.25/2;
+      setModule(kMotorFrontLeftDrive, kMotorFrontLeftRotation, kEncoderFrontLeftRotation, RotationEncoderOffset.kEncoderFrontLeftOffset, angle, 0, kFrontLeftPID);
+      angle = 0.25/2 + 0.75;
+      setModule(kMotorBackLeftDrive, kMotorBackLeftRotation, kEncoderBackLeftRotation, RotationEncoderOffset.kEncoderBackLeftOffset, angle, 0, kBackLeftPID);
+      angle = 0.25/2 + 0.25;
+      setModule(kMotorFrontRightDrive, kMotorFrontRightRotation, kEncoderFrontRightRotation, RotationEncoderOffset.kEncoderFrontRightOffset, angle, 0, kFrontRightPID);
+      angle = 0.25/2 + 0.50;
+      setModule(kMotorBackRightDrive, kMotorBackRightRotation, kEncoderBackRightRotation, RotationEncoderOffset.kEncoderBackRightOffset, angle, 0, kBackRightPID);
+    }
+    // Rotation
+    else if (rotation > 0) {
       angle = 0.25/2;
       setModule(kMotorFrontLeftDrive, kMotorFrontLeftRotation, kEncoderFrontLeftRotation, RotationEncoderOffset.kEncoderFrontLeftOffset, angle, -rotation, kFrontLeftPID);
       angle = 0.25/2 + 0.75;
@@ -78,6 +90,7 @@ public class Drive extends Subsystem {
       angle = 0.25/2 + 0.50;
       setModule(kMotorBackRightDrive, kMotorBackRightRotation, kEncoderBackRightRotation, RotationEncoderOffset.kEncoderBackRightOffset, angle, -rotation, kBackRightPID);
     }
+    // Throttle/Strafe
     else {
       setModule(kMotorFrontLeftDrive, kMotorFrontLeftRotation, kEncoderFrontLeftRotation, RotationEncoderOffset.kEncoderFrontLeftOffset, angle, -speed, kFrontLeftPID);
       setModule(kMotorBackLeftDrive, kMotorBackLeftRotation, kEncoderBackLeftRotation, RotationEncoderOffset.kEncoderBackLeftOffset, angle, speed, kBackLeftPID);
@@ -85,6 +98,14 @@ public class Drive extends Subsystem {
       setModule(kMotorBackRightDrive, kMotorBackRightRotation, kEncoderBackRightRotation, RotationEncoderOffset.kEncoderBackRightOffset, angle, -speed, kBackRightPID);
     }
   }
+
+  public synchronized void setFieldCentricSwerveDrive(double throttle, double strafe, double rotation) {
+    double angle = Math.toDegrees(Math.atan2(strafe, throttle));
+    angle = (angle >= 0) ? angle : angle + 360;
+    angle /= 360;
+    double speed = Math.sqrt(Math.pow(Math.abs(strafe), 2) + Math.pow(Math.abs(throttle), 2));
+    speed = (speed >= 1) ? 1 : speed;
+  } 
   
   private void setModule(MotorController driveController, MotorController rotationController, AnalogEncoder rotaionEncoder,
   double rotationOffset, double rotation, double speed, PIDController pidController)
