@@ -84,10 +84,10 @@ public class Robot extends TimedRobot {
     double strafe = mDriver.getPositionX();
     boolean wantZero = mDriver.getDPad() == 0;
 
-    mDrive.setSwerveDrive(throttle, strafe, rotation);
+    mDrive.setRobotCentricSwerveDrive(throttle, strafe, rotation);
 
     if (wantZero) {
-      mDrive.setSwerveDrive(0, 0, 0);
+      mDrive.setRobotCentricSwerveDrive(0, 0, 0);
     }
 
     mSubsystemManager.executeEnabledLoops(timestamp);
