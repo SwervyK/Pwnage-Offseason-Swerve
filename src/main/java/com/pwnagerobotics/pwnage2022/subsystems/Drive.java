@@ -52,14 +52,19 @@ public class Drive extends Subsystem {
   private static final PIDController kBackRightPID = new PIDController(0.7, 0.015, 0);
   
   private static final double kMaxEncoderValue = 1.0; // 0.974 OLD
+  private static final double kDeadband = 0.05;
   private double mDriveSlowDown = 0.5;
   private double mTurnSlowDown = 0.5;
   
   public Drive() {
       kFrontLeftPID.enableContinuousInput(0, kMaxEncoderValue*360);
+      kFrontLeftPID.setTolerance(1);
       kBackLeftPID.enableContinuousInput(0, kMaxEncoderValue*360);
+      kBackLeftPID.setTolerance(1);
       kFrontRightPID.enableContinuousInput(0, kMaxEncoderValue*360);
+      kFrontRightPID.setTolerance(1);
       kBackRightPID.enableContinuousInput(0, kMaxEncoderValue*360);
+      kBackRightPID.setTolerance(1);
   }
 
   public synchronized void setRobotCentricSwerveDrive(double throttle, double strafe, double rotation) {
@@ -67,9 +72,13 @@ public class Drive extends Subsystem {
     angle = (angle >= 0) ? angle : angle + 360;
     double speed = Math.sqrt(Math.pow(Math.abs(strafe), 2) + Math.pow(Math.abs(throttle), 2));
     speed = (speed >= 1) ? 1 : speed;
+    if (Math.abs(speed) < kDeadband) {
+      speed = 0;
+      angle = 0;
+    }
     SmartDashboard.putNumber("Controller angle", angle);
     // // If not moving have wheels rotate to make harder to push
-    // if (throttle == 0 && strafe == 0) {
+    // if (speed == 0 && angle == 0) {
     //   angle = 0.25/2;
     //   setModule(kMotorFrontLeftDrive, kMotorFrontLeftRotation, kEncoderFrontLeftRotation, RotationEncoderOffset.kEncoderFrontLeftOffset, angle, 0, kFrontLeftPID);
     //   angle = 0.25/2 + 0.75;
@@ -106,33 +115,39 @@ public class Drive extends Subsystem {
   double rotationOffset, double rotation, double speed, PIDController pidController)
   {
     // Postion
-    double currentPosition = rotationEncoder.getAbsolutePosition() * 360;
-    double wantedPosition = rotation + rotationOffset * 360;
-    if (wantedPosition > kMaxEncoderValue) wantedPosition -= kMaxEncoderValue;
+    double currentPosition = (rotationEncoder.getAbsolutePosition() - rotationOffset) * 360;
+    if (currentPosition < 0) currentPosition += 360;
+    double wantedPosition = rotation;
 
     // Distance
     double distance = getDistance(currentPosition, wantedPosition);
 
     // 90 flip
-    if (Math.abs(distance) > 90) { // Maybe change to > 90
+    if (Math.abs(distance) > 90 && Math.abs(distance) < 270) { // Maybe make a smaller range
       wantedPosition -= 180;
-      if (wantedPosition < 0) wantedPosition += 1;
+      if (wantedPosition < 0) wantedPosition += 360;
       distance = getDistance(currentPosition, wantedPosition);
       speed *= -1;
     }
 
     // Drive
-    driveController.set(speed * mDriveSlowDown);
+    // driveController.set(speed * mDriveSlowDown);
 
     // Rotation
     // PID
     if (pidController.atSetpoint()) {
-      rotationController.set(0);
+      // rotationController.set(0);
     }
     else {
-      rotationController.set(pidController.calculate(currentPosition, wantedPosition));
+      //rotationController.set(pidController.calculate(currentPosition, wantedPosition)/64);
     }
-    SmartDashboard.putNumber("PID value", pidController.calculate(currentPosition, wantedPosition));
+    if (rotationOffset == 0.590) {
+      SmartDashboard.putNumber("PID value", pidController.calculate(currentPosition, wantedPosition));
+      SmartDashboard.putBoolean("Is At Setpoint", pidController.atSetpoint());
+      SmartDashboard.putNumber("Distance", distance);
+      SmartDashboard.putNumber("Current Position", currentPosition);
+      SmartDashboard.putNumber("Wanted Position", wantedPosition);
+    }
     // Bang Bang
     // if (Math.abs(rotaionEncoder.getAbsolutePosition() - wantedPosition) > 0.08) {
     //   rotationController.set(1 * mTurnSlowDown * Math.signum(distance));
@@ -143,15 +158,11 @@ public class Drive extends Subsystem {
   }
   
   private double getDistance(double encoder, double controller) {
-    if (controller > encoder) {
-      return (encoder - controller) * ((controller - encoder > 180) ? -1 : 1);
+    double result = encoder - controller;
+    if (Math.abs(result) > 180) {
+        result += 360 * -Math.signum(result);
     }
-    if (encoder > controller) {
-      return (encoder - controller) * ((encoder - controller > 180) ? -1 : 1);
-    }
-    else {
-      return 0;
-    }
+    return result;
   }
   
   @Override
