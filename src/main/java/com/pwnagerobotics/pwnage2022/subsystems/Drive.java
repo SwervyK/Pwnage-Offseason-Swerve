@@ -53,19 +53,34 @@ public class Drive extends Subsystem {
   private static final PIDController kBackRightPID = new PIDController(0.7, 0.015, 0);
   
   private static final double kMaxEncoderValue = 1.0; // 0.974 OLD
-  private static final double kDeadband = 0.05;
-  private double mDriveSlowDown = 0.5;
-  private double mTurnSlowDown = 0.5;
+  private static final double kControllerDeadband = 0.05;
+  private static final double kRotationDeadband = 2;
+  private static final double kMaxPIDValue = 64;
+  private static final double kDriveSlowDown = 0.4;
+  private static final double kTurnSlowDown = 0.4;
   
   public Drive() {
-      kFrontLeftPID.enableContinuousInput(0, kMaxEncoderValue*360);
-      kFrontLeftPID.setTolerance(1);
-      kBackLeftPID.enableContinuousInput(0, kMaxEncoderValue*360);
-      kBackLeftPID.setTolerance(1);
-      kFrontRightPID.enableContinuousInput(0, kMaxEncoderValue*360);
-      kFrontRightPID.setTolerance(1);
-      kBackRightPID.enableContinuousInput(0, kMaxEncoderValue*360);
-      kBackRightPID.setTolerance(1);
+      kFrontLeftPID.enableContinuousInput(-90, 90);
+      kFrontLeftPID.setTolerance(kRotationDeadband);
+      kBackLeftPID.enableContinuousInput(-90, 90);
+      kBackLeftPID.setTolerance(kRotationDeadband);
+      kFrontRightPID.enableContinuousInput(-90, 90);
+      kFrontRightPID.setTolerance(kRotationDeadband);
+      kBackRightPID.enableContinuousInput(-90, 90);
+      kBackRightPID.setTolerance(kRotationDeadband);
+      SmartDashboard.putNumber("p", 0.7);
+      SmartDashboard.putNumber("i", 0.015);
+      SmartDashboard.putNumber("d", 0);
+  }
+
+  public void updatePID() {
+    double p = SmartDashboard.getNumber("p", 0);
+    double i = SmartDashboard.getNumber("i", 0);
+    double d = SmartDashboard.getNumber("d", 0);
+    kFrontLeftPID.setPID(p, i, d);
+    kBackLeftPID.setPID(p, i, d);
+    kFrontRightPID.setPID(p, i, d);
+    kBackRightPID.setPID(p, i, d);
   }
 
   public synchronized void setRobotCentricSwerveDrive(double throttle, double strafe, double rotation) {
@@ -73,11 +88,12 @@ public class Drive extends Subsystem {
     angle = (angle >= 0) ? angle : angle + 360;
     double speed = Math.sqrt(Math.pow(Math.abs(strafe), 2) + Math.pow(Math.abs(throttle), 2));
     speed = (speed >= 1) ? 1 : speed;
-    if (Math.abs(speed) < kDeadband) {
+    SmartDashboard.putNumber("Controller angle", angle);
+    if (Math.abs(speed) < kControllerDeadband) {
       speed = 0;
       angle = 0;
     }
-    SmartDashboard.putNumber("Controller angle", angle);
+    updatePID();
     // // If not moving have wheels rotate to make harder to push
     // if (speed == 0 && angle == 0) {
     //   angle = 0.25/2;
@@ -90,7 +106,7 @@ public class Drive extends Subsystem {
     //   setModule(kMotorBackRightDrive, kMotorBackRightRotation, kEncoderBackRightRotation, RotationEncoderOffset.kEncoderBackRightOffset, angle, 0, kBackRightPID);
     // }
     // // Rotation
-    // else if (rotation > 0) {
+    // else if (Math.abs(rotation) > kControllerDeadband) {
     //   angle = 0.25/2;
     //   setModule(kMotorFrontLeftDrive, kMotorFrontLeftRotation, kEncoderFrontLeftRotation, RotationEncoderOffset.kEncoderFrontLeftOffset, angle, -rotation, kFrontLeftPID);
     //   angle = 0.25/2 + 0.75;
@@ -132,35 +148,27 @@ public class Drive extends Subsystem {
     }
 
     // Drive
-    // driveController.set(speed * mDriveSlowDown);
+    // driveController.set(speed * kDriveSlowDown);
 
     // Rotation
-    // PID
+    double rotationSpeed = pidController.calculate(0, -distance)/kMaxPIDValue * kTurnSlowDown;
     if (pidController.atSetpoint()) {
-      // rotationController.set(0);
+      rotationController.set(0);
     }
     else {
-      //rotationController.set(pidController.calculate(currentPosition, wantedPosition)/64);
+      rotationController.set(rotationSpeed);
     }
-    if (rotationOffset == 0.590) {
-      SmartDashboard.putNumber("PID value", pidController.calculate(currentPosition, wantedPosition));
-      SmartDashboard.putBoolean("Is At Setpoint", pidController.atSetpoint());
-      SmartDashboard.putNumber("Distance", distance);
-      SmartDashboard.putNumber("Current Position", currentPosition);
-      SmartDashboard.putNumber("Wanted Position", wantedPosition);
-    }
-    // Bang Bang
-    // if (Math.abs(rotaionEncoder.getAbsolutePosition() - wantedPosition) > 0.08) {
-    //   rotationController.set(1 * mTurnSlowDown * Math.signum(distance));
-    // }
-    // else {
-    //   rotationController.set(0);
-    // }
-  }
 
-public static void main(String[] args) {
-  
-}
+    if (rotationOffset == 0.590) {
+      SmartDashboard.putNumber("Full Speed", rotationSpeed * kMaxPIDValue);
+      SmartDashboard.putNumber("Motor Speed", rotationSpeed);
+      SmartDashboard.putNumber("Wanted Pos", wantedPosition);
+      SmartDashboard.putNumber("Distance", distance);
+      SmartDashboard.putBoolean("Is at Pos", pidController.atSetpoint());
+      SmartDashboard.putNumber("Current Pos", currentPosition);
+      SmartDashboard.putNumber("Encoder Pos", rotationEncoder.getAbsolutePosition());
+    }
+  }
 
   private Vector2d addMovementComponents(double forwardMagnitude, double rotation1, double rotationalMagnitude, double rotation2){
       Vector2d forwardVector = new Vector2d(forwardMagnitude * Math.cos(rotation2 * 3.14 / 180), forwardMagnitude * Math.cos(rotation2 * 3.14 / 180));

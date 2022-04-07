@@ -40,16 +40,18 @@ public class SwerveVisuial {
     
     public static class Drive extends JPanel {
         
-        private static double rotationEncoder = 59.8;
+        private static double rotationEncoder = 0.0;
         private static double wantedPosition = 0.0;
-        private static double offset = 46.7;
+        private static double offset = 0.0;
+        private static double maxValue = 0.0;
         private static int speed = 1;
-        private static PIDController pidController = new PIDController(0.7, 0.015, 0);
+        private static PIDController pidController = new PIDController(0.9, 0.15, 0);
 
         public Drive() {
             super.repaint();
             super.setVisible(true);
-            pidController.enableContinuousInput(0, 360);
+            pidController.enableContinuousInput(-90, 90);
+            pidController.setTolerance(2);
         }
         
         @Override
@@ -118,16 +120,12 @@ public class SwerveVisuial {
             
             double motorValue = 0;
             // PID
-            motorValue = pidController.calculate(encoderPosition, wantedPosition);
+            motorValue = pidController.calculate(0, -distance);
             motorValue /= 64;
-            // Bang Bang
-            // if ((int)(Math.abs(encoderPosition - wantedPosition)*1000) > 0) {
-            //     motorValue = 1 * Math.signum(distance);
-            // }
-            // else {
-            //     motorValue = 0;
-            // }
+            if (pidController.atSetpoint()) motorValue = 0;
 
+            // if (motorValue > maxValue) maxValue = motorValue;
+            // System.out.println(maxValue);
             // Testing
             text.setText("Controller: " + (int)rotationPosition +" | Encoder: " + (int)rotationEncoder + " | Wanted: " + (int)wantedPosition + " | Motor: " + (int)(motorValue*100.0)/100.0 + " | Distance: " + (int)distance);
             if (Math.abs(motorValue) != 0) rotationEncoder += motorValue/10.0;

@@ -33,4 +33,12 @@ public class XboxDriver {
     public boolean wantShift() {
         return mController.getTrigger(Side.LEFT);
     }
+
+    private double handleDeadband(double value) {
+        if (Math.abs(value) < mDeadband) {
+            return 0;
+        } else {
+            return value;
+        }
+    }
 }
