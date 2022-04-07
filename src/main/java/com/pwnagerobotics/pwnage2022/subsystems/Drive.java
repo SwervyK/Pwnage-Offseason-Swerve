@@ -2,6 +2,7 @@ package com.pwnagerobotics.pwnage2022.subsystems;
 
 import com.pwnagerobotics.pwnage2022.subsystems.Drive;
 
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.AnalogEncoder;
 import edu.wpi.first.wpilibj.drive.Vector2d;
@@ -102,7 +103,45 @@ public class Drive extends Subsystem {
 
   public synchronized void setFieldCentricSwerveDrive(double throttle, double strafe, double rotation) {
   } 
+
+  private Vector2d addVector2d(Vector2d v1, Vector2d v2){
+    return new Vector2d(v1.x + v2.x, v1.y + v2.y);
+  }
+
+  private Vector2d scaleVector2d(Vector2d v, double scalar){
+    return new Vector2d(v.x * scalar, v.y * scalar);
+  }
+
+  private double getVectorAngle(Vector2d v){
+    double angle = Math.atan(v.y / v.x) * 180 / 3.14;
+    if(v.x < 0){
+      angle += 180;
+    }else if(v.y < 0){
+      angle = 180 - angle;
+    }
+    return angle;
+  }
   
+  public void setVectorBasedSwerveDrive(double forwardSpeed, double rotationSpeed, double robotAngle){
+    Vector2d FRVector, FLVector, BRVector, BLVector;
+    FRVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 135);
+    FLVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 225);
+    BRVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 45);
+    BLVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 315);
+    setModule(kMotorFrontLeftDrive, kMotorFrontLeftRotation,
+        kEncoderFrontLeftRotation, RotationEncoderOffset.kEncoderFrontLeftOffset,
+        getVectorAngle(FLVector), FLVector.magnitude(), kFrontLeftPID);
+    setModule(kMotorFrontRightDrive, kMotorFrontRightRotation,
+        kEncoderFrontRightRotation, RotationEncoderOffset.kEncoderFrontRightOffset,
+        getVectorAngle(FRVector), FRVector.magnitude(), kFrontRightPID);
+    setModule(kMotorBackLeftDrive, kMotorBackLeftRotation,
+        kEncoderBackLeftRotation, RotationEncoderOffset.kEncoderBackLeftOffset,
+        getVectorAngle(BLVector), BLVector.magnitude(), kBackLeftPID);
+    setModule(kMotorBackRightDrive, kMotorBackRightRotation,
+        kEncoderBackRightRotation, RotationEncoderOffset.kEncoderBackRightOffset,
+        getVectorAngle(BRVector), BRVector.magnitude(), kBackRightPID);
+  }
+
   private void setModule(MotorController driveController, MotorController rotationController, AnalogEncoder rotationEncoder,
   double rotationOffset, double rotation, double speed, PIDController pidController)
   {
@@ -142,10 +181,6 @@ public class Drive extends Subsystem {
     //   rotationController.set(0);
     // }
   }
-
-public static void main(String[] args) {
-  
-}
 
   private Vector2d addMovementComponents(double forwardMagnitude, double rotation1, double rotationalMagnitude, double rotation2){
       Vector2d forwardVector = new Vector2d(forwardMagnitude * Math.cos(rotation2 * 3.14 / 180), forwardMagnitude * Math.cos(rotation2 * 3.14 / 180));
