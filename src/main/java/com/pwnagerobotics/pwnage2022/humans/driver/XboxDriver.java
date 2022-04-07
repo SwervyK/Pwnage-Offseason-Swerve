@@ -4,7 +4,6 @@ import com.pwnagerobotics.lib.drivers.XboxController;
 import com.pwnagerobotics.lib.drivers.XboxController.Axis;
 import com.pwnagerobotics.lib.drivers.XboxController.Button;
 import com.pwnagerobotics.lib.drivers.XboxController.Side;
-import com.team254.lib.util.Deadband;
 
 public class XboxDriver {
     private final double mDeadband = 0.1;

@@ -1,14 +1,10 @@
 package com.pwnagerobotics.pwnage2022.subsystems;
 
+import com.pwnagerobotics.pwnage2022.Constants;
+import com.pwnagerobotics.pwnage2022.lib.SwerveModule;
 import com.pwnagerobotics.pwnage2022.subsystems.Drive;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.AnalogEncoder;
-import edu.wpi.first.wpilibj.drive.Vector2d;
-import edu.wpi.first.wpilibj.motorcontrol.MotorController;
-import edu.wpi.first.wpilibj.motorcontrol.PWMMotorController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.PIDCommand;
 
 import com.team254.lib.subsystems.Subsystem;
 
@@ -19,70 +15,32 @@ public class Drive extends Subsystem {
     if (mInstance == null) mInstance = new Drive();
     return mInstance;
   }
-
-  // Zeros
-  public static class RotationEncoderOffset {
-    public static final double kEncoderFrontLeftOffset = 0.601;
-    public static final double kEncoderBackLeftOffset = 0.185;
-    public static final double kEncoderFrontRightOffset = 0.590;
-    public static final double kEncoderBackRightOffset = 0.248;
-  }
   
-  // Right
-  private final MotorController kMotorFrontRightRotation = new PWMMotorController("motor0", 0) {};
-  private final MotorController kMotorFrontRightDrive = new PWMMotorController("motor1", 1) {};
-  private final MotorController kMotorBackRightRotation = new PWMMotorController("motor2", 2) {};
-  private final MotorController kMotorBackRightDrive = new PWMMotorController("motor3", 3) {};
-  
-  // Left
-  private final MotorController kMotorFrontLeftRotation = new PWMMotorController("motor4", 4) {};
-  private final MotorController kMotorFrontLeftDrive = new PWMMotorController("motor5", 5) {};
-  private final MotorController kMotorBackLeftRotation = new PWMMotorController("motor6", 6) {};
-  private final MotorController kMotorBackLeftDrive = new PWMMotorController("motor9", 9) {};
-  
-  // Rotation Encoders
-  private static final AnalogEncoder kEncoderFrontLeftRotation = new AnalogEncoder(0);
-  private static final AnalogEncoder kEncoderBackLeftRotation = new AnalogEncoder(1);
-  private static final AnalogEncoder kEncoderFrontRightRotation = new AnalogEncoder(2);
-  private static final AnalogEncoder kEncoderBackRightRotation = new AnalogEncoder(3);
-
-  //PID
-  private static final PIDController kFrontLeftPID = new PIDController(0.7, 0.015, 0);
-  private static final PIDController kBackLeftPID = new PIDController(0.7, 0.015, 0);
-  private static final PIDController kFrontRightPID = new PIDController(0.7, 0.015, 0);
-  private static final PIDController kBackRightPID = new PIDController(0.7, 0.015, 0);
-  
-  private static final double kMaxEncoderValue = 1.0; // 0.974 OLD
   private static final double kControllerDeadband = 0.05;
-  private static final double kRotationDeadband = 2;
-  private static final double kMaxPIDValue = 64;
-  private static final double kDriveSlowDown = 0.4;
-  private static final double kTurnSlowDown = 0.4;
-  
+  private static SwerveModule[] mModules;
+
+
   public Drive() {
-      kFrontLeftPID.enableContinuousInput(-90, 90);
-      kFrontLeftPID.setTolerance(kRotationDeadband);
-      kBackLeftPID.enableContinuousInput(-90, 90);
-      kBackLeftPID.setTolerance(kRotationDeadband);
-      kFrontRightPID.enableContinuousInput(-90, 90);
-      kFrontRightPID.setTolerance(kRotationDeadband);
-      kBackRightPID.enableContinuousInput(-90, 90);
-      kBackRightPID.setTolerance(kRotationDeadband);
-      SmartDashboard.putNumber("p", 0.7);
-      SmartDashboard.putNumber("i", 0.015);
-      SmartDashboard.putNumber("d", 0);
-  }
+    mModules[0] = new SwerveModule(Constants.kFrontRightModuleConstants);
+    mModules[1] = new SwerveModule(Constants.kFrontLefttModuleConstants);
+    mModules[2] = new SwerveModule(Constants.kBackRightModuleConstants);
+    mModules[3] = new SwerveModule(Constants.kBackLefttModuleConstants);
 
+    SmartDashboard.putNumber("kp", 0.7);
+    SmartDashboard.putNumber("ki", 0.015);
+    SmartDashboard.putNumber("kd", 0);
+  }
+  
   public void updatePID() {
-    double p = SmartDashboard.getNumber("p", 0);
-    double i = SmartDashboard.getNumber("i", 0);
-    double d = SmartDashboard.getNumber("d", 0);
-    kFrontLeftPID.setPID(p, i, d);
-    kBackLeftPID.setPID(p, i, d);
-    kFrontRightPID.setPID(p, i, d);
-    kBackRightPID.setPID(p, i, d);
+    double kp = SmartDashboard.getNumber("kp", 0);
+    double ki = SmartDashboard.getNumber("ki", 0);
+    double kd = SmartDashboard.getNumber("kd", 0);
+    mModules[0].setPID(kp, ki, kd);
+    mModules[1].setPID(kp, ki, kd);
+    mModules[2].setPID(kp, ki, kd);
+    mModules[3].setPID(kp, ki, kd);
   }
-
+  
   public synchronized void setRobotCentricSwerveDrive(double throttle, double strafe, double rotation) {
     double angle = Math.toDegrees(Math.atan2(strafe, throttle));
     angle = (angle >= 0) ? angle : angle + 360;
@@ -94,95 +52,16 @@ public class Drive extends Subsystem {
       angle = 0;
     }
     updatePID();
-    // // If not moving have wheels rotate to make harder to push
-    // if (speed == 0 && angle == 0) {
-    //   angle = 0.25/2;
-    //   setModule(kMotorFrontLeftDrive, kMotorFrontLeftRotation, kEncoderFrontLeftRotation, RotationEncoderOffset.kEncoderFrontLeftOffset, angle, 0, kFrontLeftPID);
-    //   angle = 0.25/2 + 0.75;
-    //   setModule(kMotorBackLeftDrive, kMotorBackLeftRotation, kEncoderBackLeftRotation, RotationEncoderOffset.kEncoderBackLeftOffset, angle, 0, kBackLeftPID);
-    //   angle = 0.25/2 + 0.25;
-    //   setModule(kMotorFrontRightDrive, kMotorFrontRightRotation, kEncoderFrontRightRotation, RotationEncoderOffset.kEncoderFrontRightOffset, angle, 0, kFrontRightPID);
-    //   angle = 0.25/2 + 0.50;
-    //   setModule(kMotorBackRightDrive, kMotorBackRightRotation, kEncoderBackRightRotation, RotationEncoderOffset.kEncoderBackRightOffset, angle, 0, kBackRightPID);
-    // }
-    // // Rotation
-    // else if (Math.abs(rotation) > kControllerDeadband) {
-    //   angle = 0.25/2;
-    //   setModule(kMotorFrontLeftDrive, kMotorFrontLeftRotation, kEncoderFrontLeftRotation, RotationEncoderOffset.kEncoderFrontLeftOffset, angle, -rotation, kFrontLeftPID);
-    //   angle = 0.25/2 + 0.75;
-    //   setModule(kMotorBackLeftDrive, kMotorBackLeftRotation, kEncoderBackLeftRotation, RotationEncoderOffset.kEncoderBackLeftOffset, angle, rotation, kBackLeftPID);
-    //   angle = 0.25/2 + 0.25;
-    //   setModule(kMotorFrontRightDrive, kMotorFrontRightRotation, kEncoderFrontRightRotation, RotationEncoderOffset.kEncoderFrontRightOffset, angle, -rotation, kFrontRightPID);
-    //   angle = 0.25/2 + 0.50;
-    //   setModule(kMotorBackRightDrive, kMotorBackRightRotation, kEncoderBackRightRotation, RotationEncoderOffset.kEncoderBackRightOffset, angle, -rotation, kBackRightPID);
-    // }
-    // // Throttle/Strafe
-    // else {
-      setModule(kMotorFrontLeftDrive, kMotorFrontLeftRotation, kEncoderFrontLeftRotation, RotationEncoderOffset.kEncoderFrontLeftOffset, angle, -speed, kFrontLeftPID);
-      setModule(kMotorBackLeftDrive, kMotorBackLeftRotation, kEncoderBackLeftRotation, RotationEncoderOffset.kEncoderBackLeftOffset, angle, speed, kBackLeftPID);
-      setModule(kMotorFrontRightDrive, kMotorFrontRightRotation, kEncoderFrontRightRotation, RotationEncoderOffset.kEncoderFrontRightOffset, angle, -speed, kFrontRightPID);
-      setModule(kMotorBackRightDrive, kMotorBackRightRotation, kEncoderBackRightRotation, RotationEncoderOffset.kEncoderBackRightOffset, angle, -speed, kBackRightPID);
-    // }
+    mModules[0].set(angle, speed, rotation);
+    mModules[1].set(angle, speed, rotation);
+    mModules[2].set(angle, speed, rotation);
+    mModules[3].set(angle, speed, rotation);
   }
-
+  
   public synchronized void setFieldCentricSwerveDrive(double throttle, double strafe, double rotation) {
   } 
   
-  private void setModule(MotorController driveController, MotorController rotationController, AnalogEncoder rotationEncoder,
-  double rotationOffset, double rotation, double speed, PIDController pidController)
-  {
-    // Postion
-    double currentPosition = (rotationEncoder.getAbsolutePosition() - rotationOffset) * 360;
-    if (currentPosition < 0) currentPosition += 360;
-    double wantedPosition = rotation;
 
-    // Distance
-    double distance = getDistance(currentPosition, wantedPosition);
-
-    // 90 flip
-    if (Math.abs(distance) > 90 && Math.abs(distance) < 270) { // Maybe make a smaller range
-      wantedPosition -= 180;
-      if (wantedPosition < 0) wantedPosition += 360;
-      distance = getDistance(currentPosition, wantedPosition);
-      speed *= -1;
-    }
-
-    // Drive
-    // driveController.set(speed * kDriveSlowDown);
-
-    // Rotation
-    double rotationSpeed = pidController.calculate(0, -distance)/kMaxPIDValue * kTurnSlowDown;
-    if (pidController.atSetpoint()) {
-      rotationController.set(0);
-    }
-    else {
-      rotationController.set(rotationSpeed);
-    }
-
-    if (rotationOffset == 0.590) {
-      SmartDashboard.putNumber("Full Speed", rotationSpeed * kMaxPIDValue);
-      SmartDashboard.putNumber("Motor Speed", rotationSpeed);
-      SmartDashboard.putNumber("Wanted Pos", wantedPosition);
-      SmartDashboard.putNumber("Distance", distance);
-      SmartDashboard.putBoolean("Is at Pos", pidController.atSetpoint());
-      SmartDashboard.putNumber("Current Pos", currentPosition);
-      SmartDashboard.putNumber("Encoder Pos", rotationEncoder.getAbsolutePosition());
-    }
-  }
-
-  private Vector2d addMovementComponents(double forwardMagnitude, double rotation1, double rotationalMagnitude, double rotation2){
-      Vector2d forwardVector = new Vector2d(forwardMagnitude * Math.cos(rotation2 * 3.14 / 180), forwardMagnitude * Math.cos(rotation2 * 3.14 / 180));
-      Vector2d rotationVector = new Vector2d(rotationalMagnitude * Math.cos(rotation2 * 3.14 / 180), rotationalMagnitude * Math.cos(rotation2 * 3.14 / 180));
-      return new Vector2d(forwardVector.x + rotationVector.x, forwardVector.y + rotationVector.y);
-  }
-  
-  private double getDistance(double encoder, double controller) {
-    double result = encoder - controller;
-    if (Math.abs(result) > 180) {
-        result += 360 * -Math.signum(result);
-    }
-    return result;
-  }
   
   @Override
   public void onEnabledLoopStart(double timestamp) {
@@ -213,10 +92,10 @@ public class Drive extends Subsystem {
   
   @Override
   public void outputTelemetry() {
-    SmartDashboard.putNumber("Front Left", kEncoderFrontLeftRotation.getAbsolutePosition());
-    SmartDashboard.putNumber("Back Left", kEncoderBackLeftRotation.getAbsolutePosition());
-    SmartDashboard.putNumber("Front Right", kEncoderFrontRightRotation.getAbsolutePosition());
-    SmartDashboard.putNumber("Back Right", kEncoderBackRightRotation.getAbsolutePosition());
+    SmartDashboard.putNumber("Front Right", mModules[0].getRotation());
+    SmartDashboard.putNumber("Front Left", mModules[1].getRotation());
+    SmartDashboard.putNumber("Back Right", mModules[2].getRotation());
+    SmartDashboard.putNumber("Back Left", mModules[3].getRotation());
   }
   
   @Override

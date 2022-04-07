@@ -1,0 +1,170 @@
+Date : 2022-04-07 10:39:07
+Directory : c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main
+Total : 119 files,  6007 codes, 1812 comments, 1557 blanks, all 9376 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| Java     |        119 |      6,007 |      1,812 |      1,557 |      9,376 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++--------------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                                                       | files      | code       | comment    | blank      | total      |
++--------------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                                          |        119 |      6,007 |      1,812 |      1,557 |      9,376 |
+| java                                                                                                                                       |        119 |      6,007 |      1,812 |      1,557 |      9,376 |
+| java\com                                                                                                                                   |        119 |      6,007 |      1,812 |      1,557 |      9,376 |
+| java\com\pwnagerobotics                                                                                                                    |         41 |      1,947 |        649 |        575 |      3,171 |
+| java\com\pwnagerobotics\lib                                                                                                                |         31 |      1,501 |        549 |        453 |      2,503 |
+| java\com\pwnagerobotics\lib\drivers                                                                                                        |          2 |        290 |          3 |         57 |        350 |
+| java\com\pwnagerobotics\lib\led                                                                                                            |         23 |        693 |        419 |        241 |      1,353 |
+| java\com\pwnagerobotics\lib\led\jobs                                                                                                       |         19 |        535 |        280 |        182 |        997 |
+| java\com\pwnagerobotics\lib\subsystems                                                                                                     |          3 |        408 |        105 |        128 |        641 |
+| java\com\pwnagerobotics\lib\util                                                                                                           |          2 |         68 |         19 |         20 |        107 |
+| java\com\pwnagerobotics\pwnage2022                                                                                                         |         10 |        446 |        100 |        122 |        668 |
+| java\com\pwnagerobotics\pwnage2022\humans                                                                                                  |          1 |         34 |          0 |         10 |         44 |
+| java\com\pwnagerobotics\pwnage2022\humans\driver                                                                                           |          1 |         34 |          0 |         10 |         44 |
+| java\com\pwnagerobotics\pwnage2022\lib                                                                                                     |          2 |         85 |         14 |         20 |        119 |
+| java\com\pwnagerobotics\pwnage2022\subsystems                                                                                              |          2 |        193 |         12 |         48 |        253 |
+| java\com\team254                                                                                                                           |         78 |      4,060 |      1,163 |        982 |      6,205 |
+| java\com\team254\lib                                                                                                                       |         78 |      4,060 |      1,163 |        982 |      6,205 |
+| java\com\team254\lib\auto                                                                                                                  |         11 |        304 |         49 |         94 |        447 |
+| java\com\team254\lib\auto\actions                                                                                                          |          7 |        151 |         37 |         50 |        238 |
+| java\com\team254\lib\auto\modes                                                                                                            |          2 |         82 |          6 |         25 |        113 |
+| java\com\team254\lib\drivers                                                                                                               |          5 |        254 |         22 |         77 |        353 |
+| java\com\team254\lib\geometry                                                                                                              |         11 |        638 |         90 |        165 |        893 |
+| java\com\team254\lib\loops                                                                                                                 |          3 |         81 |          9 |         23 |        113 |
+| java\com\team254\lib\motion                                                                                                                |          9 |        692 |        371 |        139 |      1,202 |
+| java\com\team254\lib\paths                                                                                                                 |          7 |        733 |        227 |        132 |      1,092 |
+| java\com\team254\lib\subsystems                                                                                                            |          2 |         70 |         51 |         38 |        159 |
+| java\com\team254\lib\util                                                                                                                  |         26 |      1,019 |        287 |        261 |      1,567 |
+| java\com\team254\lib\vision                                                                                                                |          4 |        269 |         57 |         53 |        379 |
++--------------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++--------------------------------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                                                                                   | language | code       | comment    | blank      | total      |
++--------------------------------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\RobotType.java                                  | Java     |         42 |          3 |          7 |         52 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\drivers\PicoColorSensor.java                    | Java     |        245 |          2 |         42 |        289 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\drivers\XboxController.java                     | Java     |         45 |          1 |         15 |         61 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\led\AllianceColorUpdater.java                   | Java     |         57 |         21 |         17 |         95 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\led\ColorFactory.java                           | Java     |         28 |          6 |          8 |         42 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\led\LEDStrip.java                               | Java     |         73 |          4 |         19 |         96 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\led\TeamLEDStates.java                          | Java     |          0 |        108 |         15 |        123 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\led\jobs\BinaryJob.java                         | Java     |         22 |         17 |         10 |         49 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\led\jobs\BreatheJob.java                        | Java     |         31 |         14 |         11 |         56 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\led\jobs\ChaseJob.java                          | Java     |         21 |         14 |          8 |         43 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\led\jobs\FadeJob.java                           | Java     |         31 |         17 |         12 |         60 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\led\jobs\FireJob.java                           | Java     |         50 |         20 |         13 |         83 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\led\jobs\FlashJob.java                          | Java     |         21 |         14 |          8 |         43 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\led\jobs\FlashJobWrapper.java                   | Java     |         27 |          0 |          8 |         35 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\led\jobs\IterativeJobWrapper.java               | Java     |         17 |         11 |          7 |         35 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\led\jobs\Job.java                               | Java     |         10 |         20 |          7 |         37 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\led\jobs\JobBasic.java                          | Java     |         24 |         19 |         10 |         53 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\led\jobs\JobWrapper.java                        | Java     |         14 |         21 |         10 |         45 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\led\jobs\LoadingBarJob.java                     | Java     |         27 |         17 |          8 |         52 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\led\jobs\ProgressBarJob.java                    | Java     |         29 |         16 |         11 |         56 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\led\jobs\PwnageJob.java                         | Java     |         64 |          3 |         11 |         78 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\led\jobs\RainbowJob.java                        | Java     |         17 |         10 |          7 |         34 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\led\jobs\ReverseJobWrapper.java                 | Java     |         14 |          9 |          7 |         30 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\led\jobs\SolidJob.java                          | Java     |         18 |         15 |          7 |         40 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\led\jobs\SplitJobContainer.java                 | Java     |         68 |         26 |         18 |        112 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\led\jobs\TimedJobWrapper.java                   | Java     |         30 |         17 |          9 |         56 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\subsystems\SparkRpmSubsystem.java               | Java     |        187 |         19 |         59 |        265 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\subsystems\SparkServoSubsystem.java             | Java     |        216 |         85 |         67 |        368 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\subsystems\SparkSubsystemFollowerConstants.java | Java     |          5 |          1 |          2 |          8 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\util\Range.java                                 | Java     |         45 |         19 |         10 |         74 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\lib\util\WriteableArrayList.java                    | Java     |         23 |          0 |         10 |         33 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\pwnage2022\Constants.java                           | Java     |         44 |          6 |          7 |         57 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\pwnage2022\Kinematics.java                          | Java     |          7 |         41 |          7 |         55 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\pwnage2022\Main.java                                | Java     |          8 |         13 |          5 |         26 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\pwnage2022\Robot.java                               | Java     |         65 |         14 |         23 |        102 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\pwnage2022\RobotState.java                          | Java     |         10 |          0 |          2 |         12 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\pwnage2022\humans\driver\XboxDriver.java            | Java     |         34 |          0 |         10 |         44 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\pwnage2022\lib\SwerveModule.java                    | Java     |         71 |         14 |         17 |        102 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\pwnage2022\lib\SwerveModuleConstants.java           | Java     |         14 |          0 |          3 |         17 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\pwnage2022\subsystems\Drive.java                    | Java     |         82 |          3 |         22 |        107 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\pwnagerobotics\pwnage2022\subsystems\SwerveVisuial.java            | Java     |        111 |          9 |         26 |        146 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\auto\AutoModeEndedException.java                       | Java     |          4 |          3 |          1 |          8 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\auto\AutoModeExecutor.java                             | Java     |         67 |          3 |         18 |         88 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\auto\actions\Action.java                               | Java     |          7 |         22 |          4 |         33 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\auto\actions\LambdaAction.java                         | Java     |         22 |          0 |          8 |         30 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\auto\actions\NoopAction.java                           | Java     |         13 |          0 |          5 |         18 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\auto\actions\ParallelAction.java                       | Java     |         34 |          4 |          8 |         46 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\auto\actions\RunOnceAction.java                        | Java     |         16 |          5 |          5 |         26 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\auto\actions\SeriesAction.java                         | Java     |         38 |          3 |         12 |         53 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\auto\actions\WaitAction.java                           | Java     |         21 |          3 |          8 |         32 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\auto\modes\AutoModeBase.java                           | Java     |         74 |          6 |         22 |        102 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\auto\modes\DoNothingMode.java                          | Java     |          8 |          0 |          3 |         11 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\drivers\LazySparkMax.java                              | Java     |         43 |          8 |          9 |         60 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\drivers\MotorChecker.java                              | Java     |         91 |          4 |         32 |        127 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\drivers\SparkMaxChecker.java                           | Java     |         43 |          1 |         13 |         57 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\drivers\SparkMaxFactory.java                           | Java     |         67 |          8 |         20 |         95 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\drivers\SparkMaxUtil.java                              | Java     |         10 |          1 |          3 |         14 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\geometry\Displacement1d.java                           | Java     |         40 |          0 |         14 |         54 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\geometry\ICurvature.java                               | Java     |          5 |          0 |          3 |          8 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\geometry\IPose2d.java                                  | Java     |          6 |          0 |          4 |         10 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\geometry\IRotation2d.java                              | Java     |          4 |          0 |          2 |          6 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\geometry\ITranslation2d.java                           | Java     |          4 |          0 |          2 |          6 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\geometry\Pose2d.java                                   | Java     |        152 |         35 |         32 |        219 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\geometry\Pose2dWithCurvature.java                      | Java     |         93 |          0 |         24 |        117 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\geometry\Rotation2d.java                               | Java     |        183 |         23 |         37 |        243 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\geometry\State.java                                    | Java     |          9 |          0 |          6 |         15 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\geometry\Translation2d.java                            | Java     |        107 |         25 |         31 |        163 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\geometry\Twist2d.java                                  | Java     |         35 |          7 |         10 |         52 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\loops\ILooper.java                                     | Java     |          4 |          0 |          2 |          6 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\loops\Loop.java                                        | Java     |          6 |          4 |          4 |         14 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\loops\Looper.java                                      | Java     |         71 |          5 |         17 |         93 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\motion\MotionProfile.java                              | Java     |        171 |        117 |         28 |        316 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\motion\MotionProfileConstraints.java                   | Java     |         23 |          9 |          6 |         38 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\motion\MotionProfileGenerator.java                     | Java     |         82 |         40 |          8 |        130 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\motion\MotionProfileGoal.java                          | Java     |         88 |         33 |         21 |        142 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\motion\MotionSegment.java                              | Java     |         53 |         16 |         12 |         81 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\motion\MotionState.java                                | Java     |         88 |         53 |         21 |        162 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\motion\MotionUtil.java                                 | Java     |          4 |          3 |          2 |          9 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\motion\ProfileFollower.java                            | Java     |        122 |         64 |         28 |        214 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\motion\SetpointGenerator.java                          | Java     |         61 |         36 |         13 |        110 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\paths\AdaptivePurePursuitController.java               | Java     |        118 |         50 |         21 |        189 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\paths\Lookahead.java                                   | Java     |         21 |          3 |          5 |         29 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\paths\Path.java                                        | Java     |        134 |         57 |         22 |        213 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\paths\PathBuilder.java                                 | Java     |        118 |         23 |         23 |        164 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\paths\PathContainer.java                               | Java     |          5 |          4 |          3 |         12 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\paths\PathFollower.java                                | Java     |        165 |         30 |         24 |        219 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\paths\PathSegment.java                                 | Java     |        172 |         60 |         34 |        266 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\subsystems\Subsystem.java                              | Java     |         14 |         13 |         10 |         37 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\subsystems\SubsystemManager.java                       | Java     |         56 |         38 |         28 |        122 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\util\CSVWritable.java                                  | Java     |          4 |          0 |          2 |          6 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\util\CheesyDriveHelper.java                            | Java     |        111 |         16 |         22 |        149 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\util\CircularBuffer.java                               | Java     |         43 |          4 |         10 |         57 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\util\CircularBufferGeneric.java                        | Java     |         31 |         12 |         11 |         54 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\util\CrashTracker.java                                 | Java     |         52 |          3 |         16 |         71 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\util\CrashTrackingRunnable.java                        | Java     |         13 |          3 |          4 |         20 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\util\Deadband.java                                     | Java     |         21 |          0 |          5 |         26 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\util\DelayedBoolean.java                               | Java     |         23 |          4 |          8 |         35 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\util\DriveSignal.java                                  | Java     |         32 |          3 |          9 |         44 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\util\Interpolable.java                                 | Java     |          4 |         16 |          1 |         21 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\util\InterpolatingDouble.java                          | Java     |         36 |          5 |          6 |         47 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\util\InterpolatingLong.java                            | Java     |         36 |          5 |          5 |         46 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\util\InterpolatingTreeMap.java                         | Java     |         46 |         22 |         12 |         80 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\util\InverseInterpolable.java                          | Java     |          4 |         17 |          2 |         23 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\util\LatchedBoolean.java                               | Java     |         12 |          5 |          2 |         19 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\util\Logger.java                                       | Java     |         51 |          3 |         13 |         67 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\util\MinTimeBoolean.java                               | Java     |         21 |          4 |          5 |         30 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\util\MovingAverage.java                                | Java     |         31 |          3 |         12 |         46 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\util\MovingAverageTwist2d.java                         | Java     |         35 |          3 |         12 |         50 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\util\MultiTrigger.java                                 | Java     |         29 |          3 |          8 |         40 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\util\ReflectingCSVWriter.java                          | Java     |         65 |          7 |          9 |         81 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\util\StatFinder.java                                   | Java     |         61 |         10 |         20 |         91 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\util\SynchronousPIDF.java                              | Java     |        158 |        122 |         36 |        316 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\util\TimeDelayedBoolean.java                           | Java     |         14 |          5 |          5 |         24 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\util\Units.java                                        | Java     |         28 |          0 |         10 |         38 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\util\Util.java                                         | Java     |         58 |         12 |         16 |         86 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\vision\AimingParameters.java                           | Java     |         45 |          0 |         10 |         55 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\vision\GoalTrack.java                                  | Java     |        101 |         26 |         17 |        144 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\vision\GoalTracker.java                                | Java     |         97 |         28 |         19 |        144 |
+| c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main\java\com\team254\lib\vision\TargetInfo.java                                 | Java     |         26 |          3 |          7 |         36 |
+| Total                                                                                                                                      |          |      6,007 |      1,812 |      1,557 |      9,376 |
++--------------------------------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
