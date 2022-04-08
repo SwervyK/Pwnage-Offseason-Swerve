@@ -21,7 +21,7 @@ public class Drive extends Subsystem {
     return mInstance;
   }
 
-  // Zeros
+  // The encoder values when the motors are straight forwards
   public static class RotationEncoderOffset {
     public static final double kEncoderFrontLeftOffset = 0.601;
     public static final double kEncoderBackLeftOffset = 0.185;
@@ -104,10 +104,6 @@ public class Drive extends Subsystem {
   public synchronized void setFieldCentricSwerveDrive(double throttle, double strafe, double rotation) {
   } 
 
-  private Vector2d addVector2d(Vector2d v1, Vector2d v2){
-    return new Vector2d(v1.x + v2.x, v1.y + v2.y);
-  }
-
   private Vector2d scaleVector2d(Vector2d v, double scalar){
     return new Vector2d(v.x * scalar, v.y * scalar);
   }
@@ -117,17 +113,29 @@ public class Drive extends Subsystem {
     if(v.x < 0){
       angle += 180;
     }else if(v.y < 0){
-      angle = 180 - angle;
+      angle = 270 - angle;
     }
     return angle;
   }
   
-  public void setVectorBasedSwerveDrive(double forwardSpeed, double rotationSpeed, double robotAngle){
+  public void setVectorRobotCentricSwerveDrive(double forwardSpeed, double rotationSpeed, double robotAngle){
     Vector2d FRVector, FLVector, BRVector, BLVector;
     FRVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 135);
     FLVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 225);
     BRVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 45);
     BLVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 315);
+    double maxMagnitude = Math.max(Math.max(Math.max(
+      FRVector.magnitude(), 
+      FLVector.magnitude()), 
+      BLVector.magnitude()),
+      BRVector.magnitude());
+    if(maxMagnitude > 1){
+      //Normalize vectors, preserving proportions while reducing all below 1
+      scaleVector2d(FRVector, 1. / maxMagnitude);
+      scaleVector2d(FLVector, 1. / maxMagnitude);
+      scaleVector2d(BRVector, 1. / maxMagnitude);
+      scaleVector2d(BLVector, 1. / maxMagnitude);
+    }
     setModule(kMotorFrontLeftDrive, kMotorFrontLeftRotation,
         kEncoderFrontLeftRotation, RotationEncoderOffset.kEncoderFrontLeftOffset,
         getVectorAngle(FLVector), FLVector.magnitude(), kFrontLeftPID);
@@ -182,8 +190,16 @@ public class Drive extends Subsystem {
     // }
   }
 
+  /**
+   * Takes in two magnitudes and two angles, and combines them into a single vector
+   * @param forwardMagnitude The speed at which the wheel should translate across the floor
+   * @param rotation1 The angle, relative to the bot, to which the wheel should move.
+   * @param rotationalMagnitude The speed at which the wheel rotates the robot
+   * @param rotation2 The optimal angle for that wheel to face during rotation
+   * @return
+   */
   private Vector2d addMovementComponents(double forwardMagnitude, double rotation1, double rotationalMagnitude, double rotation2){
-      Vector2d forwardVector = new Vector2d(forwardMagnitude * Math.cos(rotation2 * 3.14 / 180), forwardMagnitude * Math.cos(rotation2 * 3.14 / 180));
+      Vector2d forwardVector = new Vector2d(forwardMagnitude * Math.cos(rotation1 * 3.14 / 180), forwardMagnitude * Math.cos(rotation1 * 3.14 / 180));
       Vector2d rotationVector = new Vector2d(rotationalMagnitude * Math.cos(rotation2 * 3.14 / 180), rotationalMagnitude * Math.cos(rotation2 * 3.14 / 180));
       return new Vector2d(forwardVector.x + rotationVector.x, forwardVector.y + rotationVector.y);
   }
