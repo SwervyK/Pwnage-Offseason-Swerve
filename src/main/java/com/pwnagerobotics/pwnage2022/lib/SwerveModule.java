@@ -36,6 +36,10 @@ public class SwerveModule {
         setModule(rotation, throttle);
     }
 
+    public void set(double angle, double throttle) {
+      setModule(angle, throttle);
+    }
+
     public void setModule(double rotation, double speed)
     {
       // Postion
