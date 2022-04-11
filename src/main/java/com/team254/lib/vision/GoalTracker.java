@@ -1,7 +1,7 @@
 package com.team254.lib.vision;
 
-import com.pwnagerobotics.pwnage2022.Constants;
 import com.team254.lib.geometry.Pose2d;
+import com.team254.lib.vision.GoalTrack.GoalTrackConstants;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -55,21 +55,23 @@ public class GoalTracker {
         // tracking
         double mSwitchingWeight;
         int mLastTrackId;
+        GoalTrackConstants mConstants;
 
         public TrackReportComparator(double stability_weight, double age_weight, double switching_weight,
-                                     int last_track_id, double current_timestamp) {
+                                     int last_track_id, double current_timestamp, GoalTrackConstants constants) {
             this.mStabilityWeight = stability_weight;
             this.mAgeWeight = age_weight;
             this.mSwitchingWeight = switching_weight;
             this.mLastTrackId = last_track_id;
             this.mCurrentTimestamp = current_timestamp;
+            mConstants = constants;
         }
 
         double score(TrackReport report) {
             double stability_score = mStabilityWeight * report.stability;
             double age_score = mAgeWeight
-                    * Math.max(0, (Constants.kMaxGoalTrackAge - (mCurrentTimestamp - report.latest_timestamp))
-                    / Constants.kMaxGoalTrackAge);
+                    * Math.max(0, (mConstants.kMaxGoalTrackAge - (mCurrentTimestamp - report.latest_timestamp))
+                    / mConstants.kMaxGoalTrackAge);
             double switching_score = (report.id == mLastTrackId ? mSwitchingWeight : 0);
             return stability_score + age_score + switching_score;
         }
@@ -90,8 +92,11 @@ public class GoalTracker {
 
     List<GoalTrack> mCurrentTracks = new ArrayList<>();
     int mNextId = 0;
+    GoalTrackConstants mConstants;
 
-    public GoalTracker() {}
+    public GoalTracker(GoalTrackConstants constants) {
+        mConstants = constants;
+    }
 
     public synchronized void reset() {
         mCurrentTracks.clear();
@@ -113,7 +118,7 @@ public class GoalTracker {
             if (!hasUpdatedTrack) {
                 // Add a new track.
                 // System.out.println("Created new track");
-                mCurrentTracks.add(GoalTrack.makeNewTrack(timestamp, target, mNextId));
+                mCurrentTracks.add(GoalTrack.makeNewTrack(timestamp, target, mNextId, mConstants));
                 ++mNextId;
             }
         }

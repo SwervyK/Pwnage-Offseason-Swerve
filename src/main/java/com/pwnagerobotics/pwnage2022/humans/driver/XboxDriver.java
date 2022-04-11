@@ -10,19 +10,19 @@ public class XboxDriver {
     private final XboxController mController = new XboxController(0);
     
     public double getPositionX() {
-        return handleDeadband(mController.getJoystick(Side.LEFT, Axis.X));
+        return mController.getJoystick(Side.LEFT, Axis.X);
     }
 
     public double getPositionY() {
-        return handleDeadband(mController.getJoystick(Side.LEFT, Axis.Y));
+        return mController.getJoystick(Side.LEFT, Axis.Y);
     }
     
     public double getRotationX() {
-        return handleDeadband(mController.getJoystick(Side.RIGHT, Axis.X));
+        return mController.getJoystick(Side.RIGHT, Axis.X);
     }
 
     public double getRotationY() {
-        return handleDeadband(mController.getJoystick(Side.RIGHT, Axis.Y));
+        return mController.getJoystick(Side.RIGHT, Axis.Y);
     }
 
     public int getDPad() {

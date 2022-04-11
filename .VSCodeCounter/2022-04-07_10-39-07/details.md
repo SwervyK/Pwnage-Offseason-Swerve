@@ -1,0 +1,134 @@
+# Details
+
+Date : 2022-04-07 10:39:07
+
+Directory c:\Users\aidan\OneDrive\Documents\Pwnage\PwnageSwerve\src\main
+
+Total : 119 files,  6007 codes, 1812 comments, 1557 blanks, all 9376 lines
+
+[summary](results.md) / details / [diff summary](diff.md) / [diff details](diff-details.md)
+
+## Files
+| filename | language | code | comment | blank | total |
+| :--- | :--- | ---: | ---: | ---: | ---: |
+| [src/main/java/com/pwnagerobotics/lib/RobotType.java](/src/main/java/com/pwnagerobotics/lib/RobotType.java) | Java | 42 | 3 | 7 | 52 |
+| [src/main/java/com/pwnagerobotics/lib/drivers/PicoColorSensor.java](/src/main/java/com/pwnagerobotics/lib/drivers/PicoColorSensor.java) | Java | 245 | 2 | 42 | 289 |
+| [src/main/java/com/pwnagerobotics/lib/drivers/XboxController.java](/src/main/java/com/pwnagerobotics/lib/drivers/XboxController.java) | Java | 45 | 1 | 15 | 61 |
+| [src/main/java/com/pwnagerobotics/lib/led/AllianceColorUpdater.java](/src/main/java/com/pwnagerobotics/lib/led/AllianceColorUpdater.java) | Java | 57 | 21 | 17 | 95 |
+| [src/main/java/com/pwnagerobotics/lib/led/ColorFactory.java](/src/main/java/com/pwnagerobotics/lib/led/ColorFactory.java) | Java | 28 | 6 | 8 | 42 |
+| [src/main/java/com/pwnagerobotics/lib/led/LEDStrip.java](/src/main/java/com/pwnagerobotics/lib/led/LEDStrip.java) | Java | 73 | 4 | 19 | 96 |
+| [src/main/java/com/pwnagerobotics/lib/led/TeamLEDStates.java](/src/main/java/com/pwnagerobotics/lib/led/TeamLEDStates.java) | Java | 0 | 108 | 15 | 123 |
+| [src/main/java/com/pwnagerobotics/lib/led/jobs/BinaryJob.java](/src/main/java/com/pwnagerobotics/lib/led/jobs/BinaryJob.java) | Java | 22 | 17 | 10 | 49 |
+| [src/main/java/com/pwnagerobotics/lib/led/jobs/BreatheJob.java](/src/main/java/com/pwnagerobotics/lib/led/jobs/BreatheJob.java) | Java | 31 | 14 | 11 | 56 |
+| [src/main/java/com/pwnagerobotics/lib/led/jobs/ChaseJob.java](/src/main/java/com/pwnagerobotics/lib/led/jobs/ChaseJob.java) | Java | 21 | 14 | 8 | 43 |
+| [src/main/java/com/pwnagerobotics/lib/led/jobs/FadeJob.java](/src/main/java/com/pwnagerobotics/lib/led/jobs/FadeJob.java) | Java | 31 | 17 | 12 | 60 |
+| [src/main/java/com/pwnagerobotics/lib/led/jobs/FireJob.java](/src/main/java/com/pwnagerobotics/lib/led/jobs/FireJob.java) | Java | 50 | 20 | 13 | 83 |
+| [src/main/java/com/pwnagerobotics/lib/led/jobs/FlashJob.java](/src/main/java/com/pwnagerobotics/lib/led/jobs/FlashJob.java) | Java | 21 | 14 | 8 | 43 |
+| [src/main/java/com/pwnagerobotics/lib/led/jobs/FlashJobWrapper.java](/src/main/java/com/pwnagerobotics/lib/led/jobs/FlashJobWrapper.java) | Java | 27 | 0 | 8 | 35 |
+| [src/main/java/com/pwnagerobotics/lib/led/jobs/IterativeJobWrapper.java](/src/main/java/com/pwnagerobotics/lib/led/jobs/IterativeJobWrapper.java) | Java | 17 | 11 | 7 | 35 |
+| [src/main/java/com/pwnagerobotics/lib/led/jobs/Job.java](/src/main/java/com/pwnagerobotics/lib/led/jobs/Job.java) | Java | 10 | 20 | 7 | 37 |
+| [src/main/java/com/pwnagerobotics/lib/led/jobs/JobBasic.java](/src/main/java/com/pwnagerobotics/lib/led/jobs/JobBasic.java) | Java | 24 | 19 | 10 | 53 |
+| [src/main/java/com/pwnagerobotics/lib/led/jobs/JobWrapper.java](/src/main/java/com/pwnagerobotics/lib/led/jobs/JobWrapper.java) | Java | 14 | 21 | 10 | 45 |
+| [src/main/java/com/pwnagerobotics/lib/led/jobs/LoadingBarJob.java](/src/main/java/com/pwnagerobotics/lib/led/jobs/LoadingBarJob.java) | Java | 27 | 17 | 8 | 52 |
+| [src/main/java/com/pwnagerobotics/lib/led/jobs/ProgressBarJob.java](/src/main/java/com/pwnagerobotics/lib/led/jobs/ProgressBarJob.java) | Java | 29 | 16 | 11 | 56 |
+| [src/main/java/com/pwnagerobotics/lib/led/jobs/PwnageJob.java](/src/main/java/com/pwnagerobotics/lib/led/jobs/PwnageJob.java) | Java | 64 | 3 | 11 | 78 |
+| [src/main/java/com/pwnagerobotics/lib/led/jobs/RainbowJob.java](/src/main/java/com/pwnagerobotics/lib/led/jobs/RainbowJob.java) | Java | 17 | 10 | 7 | 34 |
+| [src/main/java/com/pwnagerobotics/lib/led/jobs/ReverseJobWrapper.java](/src/main/java/com/pwnagerobotics/lib/led/jobs/ReverseJobWrapper.java) | Java | 14 | 9 | 7 | 30 |
+| [src/main/java/com/pwnagerobotics/lib/led/jobs/SolidJob.java](/src/main/java/com/pwnagerobotics/lib/led/jobs/SolidJob.java) | Java | 18 | 15 | 7 | 40 |
+| [src/main/java/com/pwnagerobotics/lib/led/jobs/SplitJobContainer.java](/src/main/java/com/pwnagerobotics/lib/led/jobs/SplitJobContainer.java) | Java | 68 | 26 | 18 | 112 |
+| [src/main/java/com/pwnagerobotics/lib/led/jobs/TimedJobWrapper.java](/src/main/java/com/pwnagerobotics/lib/led/jobs/TimedJobWrapper.java) | Java | 30 | 17 | 9 | 56 |
+| [src/main/java/com/pwnagerobotics/lib/subsystems/SparkRpmSubsystem.java](/src/main/java/com/pwnagerobotics/lib/subsystems/SparkRpmSubsystem.java) | Java | 187 | 19 | 59 | 265 |
+| [src/main/java/com/pwnagerobotics/lib/subsystems/SparkServoSubsystem.java](/src/main/java/com/pwnagerobotics/lib/subsystems/SparkServoSubsystem.java) | Java | 216 | 85 | 67 | 368 |
+| [src/main/java/com/pwnagerobotics/lib/subsystems/SparkSubsystemFollowerConstants.java](/src/main/java/com/pwnagerobotics/lib/subsystems/SparkSubsystemFollowerConstants.java) | Java | 5 | 1 | 2 | 8 |
+| [src/main/java/com/pwnagerobotics/lib/util/Range.java](/src/main/java/com/pwnagerobotics/lib/util/Range.java) | Java | 45 | 19 | 10 | 74 |
+| [src/main/java/com/pwnagerobotics/lib/util/WriteableArrayList.java](/src/main/java/com/pwnagerobotics/lib/util/WriteableArrayList.java) | Java | 23 | 0 | 10 | 33 |
+| [src/main/java/com/pwnagerobotics/pwnage2022/Constants.java](/src/main/java/com/pwnagerobotics/pwnage2022/Constants.java) | Java | 44 | 6 | 7 | 57 |
+| [src/main/java/com/pwnagerobotics/pwnage2022/Kinematics.java](/src/main/java/com/pwnagerobotics/pwnage2022/Kinematics.java) | Java | 7 | 41 | 7 | 55 |
+| [src/main/java/com/pwnagerobotics/pwnage2022/Main.java](/src/main/java/com/pwnagerobotics/pwnage2022/Main.java) | Java | 8 | 13 | 5 | 26 |
+| [src/main/java/com/pwnagerobotics/pwnage2022/Robot.java](/src/main/java/com/pwnagerobotics/pwnage2022/Robot.java) | Java | 65 | 14 | 23 | 102 |
+| [src/main/java/com/pwnagerobotics/pwnage2022/RobotState.java](/src/main/java/com/pwnagerobotics/pwnage2022/RobotState.java) | Java | 10 | 0 | 2 | 12 |
+| [src/main/java/com/pwnagerobotics/pwnage2022/humans/driver/XboxDriver.java](/src/main/java/com/pwnagerobotics/pwnage2022/humans/driver/XboxDriver.java) | Java | 34 | 0 | 10 | 44 |
+| [src/main/java/com/pwnagerobotics/pwnage2022/lib/SwerveModule.java](/src/main/java/com/pwnagerobotics/pwnage2022/lib/SwerveModule.java) | Java | 71 | 14 | 17 | 102 |
+| [src/main/java/com/pwnagerobotics/pwnage2022/lib/SwerveModuleConstants.java](/src/main/java/com/pwnagerobotics/pwnage2022/lib/SwerveModuleConstants.java) | Java | 14 | 0 | 3 | 17 |
+| [src/main/java/com/pwnagerobotics/pwnage2022/subsystems/Drive.java](/src/main/java/com/pwnagerobotics/pwnage2022/subsystems/Drive.java) | Java | 82 | 3 | 22 | 107 |
+| [src/main/java/com/pwnagerobotics/pwnage2022/subsystems/SwerveVisuial.java](/src/main/java/com/pwnagerobotics/pwnage2022/subsystems/SwerveVisuial.java) | Java | 111 | 9 | 26 | 146 |
+| [src/main/java/com/team254/lib/auto/AutoModeEndedException.java](/src/main/java/com/team254/lib/auto/AutoModeEndedException.java) | Java | 4 | 3 | 1 | 8 |
+| [src/main/java/com/team254/lib/auto/AutoModeExecutor.java](/src/main/java/com/team254/lib/auto/AutoModeExecutor.java) | Java | 67 | 3 | 18 | 88 |
+| [src/main/java/com/team254/lib/auto/actions/Action.java](/src/main/java/com/team254/lib/auto/actions/Action.java) | Java | 7 | 22 | 4 | 33 |
+| [src/main/java/com/team254/lib/auto/actions/LambdaAction.java](/src/main/java/com/team254/lib/auto/actions/LambdaAction.java) | Java | 22 | 0 | 8 | 30 |
+| [src/main/java/com/team254/lib/auto/actions/NoopAction.java](/src/main/java/com/team254/lib/auto/actions/NoopAction.java) | Java | 13 | 0 | 5 | 18 |
+| [src/main/java/com/team254/lib/auto/actions/ParallelAction.java](/src/main/java/com/team254/lib/auto/actions/ParallelAction.java) | Java | 34 | 4 | 8 | 46 |
+| [src/main/java/com/team254/lib/auto/actions/RunOnceAction.java](/src/main/java/com/team254/lib/auto/actions/RunOnceAction.java) | Java | 16 | 5 | 5 | 26 |
+| [src/main/java/com/team254/lib/auto/actions/SeriesAction.java](/src/main/java/com/team254/lib/auto/actions/SeriesAction.java) | Java | 38 | 3 | 12 | 53 |
+| [src/main/java/com/team254/lib/auto/actions/WaitAction.java](/src/main/java/com/team254/lib/auto/actions/WaitAction.java) | Java | 21 | 3 | 8 | 32 |
+| [src/main/java/com/team254/lib/auto/modes/AutoModeBase.java](/src/main/java/com/team254/lib/auto/modes/AutoModeBase.java) | Java | 74 | 6 | 22 | 102 |
+| [src/main/java/com/team254/lib/auto/modes/DoNothingMode.java](/src/main/java/com/team254/lib/auto/modes/DoNothingMode.java) | Java | 8 | 0 | 3 | 11 |
+| [src/main/java/com/team254/lib/drivers/LazySparkMax.java](/src/main/java/com/team254/lib/drivers/LazySparkMax.java) | Java | 43 | 8 | 9 | 60 |
+| [src/main/java/com/team254/lib/drivers/MotorChecker.java](/src/main/java/com/team254/lib/drivers/MotorChecker.java) | Java | 91 | 4 | 32 | 127 |
+| [src/main/java/com/team254/lib/drivers/SparkMaxChecker.java](/src/main/java/com/team254/lib/drivers/SparkMaxChecker.java) | Java | 43 | 1 | 13 | 57 |
+| [src/main/java/com/team254/lib/drivers/SparkMaxFactory.java](/src/main/java/com/team254/lib/drivers/SparkMaxFactory.java) | Java | 67 | 8 | 20 | 95 |
+| [src/main/java/com/team254/lib/drivers/SparkMaxUtil.java](/src/main/java/com/team254/lib/drivers/SparkMaxUtil.java) | Java | 10 | 1 | 3 | 14 |
+| [src/main/java/com/team254/lib/geometry/Displacement1d.java](/src/main/java/com/team254/lib/geometry/Displacement1d.java) | Java | 40 | 0 | 14 | 54 |
+| [src/main/java/com/team254/lib/geometry/ICurvature.java](/src/main/java/com/team254/lib/geometry/ICurvature.java) | Java | 5 | 0 | 3 | 8 |
+| [src/main/java/com/team254/lib/geometry/IPose2d.java](/src/main/java/com/team254/lib/geometry/IPose2d.java) | Java | 6 | 0 | 4 | 10 |
+| [src/main/java/com/team254/lib/geometry/IRotation2d.java](/src/main/java/com/team254/lib/geometry/IRotation2d.java) | Java | 4 | 0 | 2 | 6 |
+| [src/main/java/com/team254/lib/geometry/ITranslation2d.java](/src/main/java/com/team254/lib/geometry/ITranslation2d.java) | Java | 4 | 0 | 2 | 6 |
+| [src/main/java/com/team254/lib/geometry/Pose2d.java](/src/main/java/com/team254/lib/geometry/Pose2d.java) | Java | 152 | 35 | 32 | 219 |
+| [src/main/java/com/team254/lib/geometry/Pose2dWithCurvature.java](/src/main/java/com/team254/lib/geometry/Pose2dWithCurvature.java) | Java | 93 | 0 | 24 | 117 |
+| [src/main/java/com/team254/lib/geometry/Rotation2d.java](/src/main/java/com/team254/lib/geometry/Rotation2d.java) | Java | 183 | 23 | 37 | 243 |
+| [src/main/java/com/team254/lib/geometry/State.java](/src/main/java/com/team254/lib/geometry/State.java) | Java | 9 | 0 | 6 | 15 |
+| [src/main/java/com/team254/lib/geometry/Translation2d.java](/src/main/java/com/team254/lib/geometry/Translation2d.java) | Java | 107 | 25 | 31 | 163 |
+| [src/main/java/com/team254/lib/geometry/Twist2d.java](/src/main/java/com/team254/lib/geometry/Twist2d.java) | Java | 35 | 7 | 10 | 52 |
+| [src/main/java/com/team254/lib/loops/ILooper.java](/src/main/java/com/team254/lib/loops/ILooper.java) | Java | 4 | 0 | 2 | 6 |
+| [src/main/java/com/team254/lib/loops/Loop.java](/src/main/java/com/team254/lib/loops/Loop.java) | Java | 6 | 4 | 4 | 14 |
+| [src/main/java/com/team254/lib/loops/Looper.java](/src/main/java/com/team254/lib/loops/Looper.java) | Java | 71 | 5 | 17 | 93 |
+| [src/main/java/com/team254/lib/motion/MotionProfile.java](/src/main/java/com/team254/lib/motion/MotionProfile.java) | Java | 171 | 117 | 28 | 316 |
+| [src/main/java/com/team254/lib/motion/MotionProfileConstraints.java](/src/main/java/com/team254/lib/motion/MotionProfileConstraints.java) | Java | 23 | 9 | 6 | 38 |
+| [src/main/java/com/team254/lib/motion/MotionProfileGenerator.java](/src/main/java/com/team254/lib/motion/MotionProfileGenerator.java) | Java | 82 | 40 | 8 | 130 |
+| [src/main/java/com/team254/lib/motion/MotionProfileGoal.java](/src/main/java/com/team254/lib/motion/MotionProfileGoal.java) | Java | 88 | 33 | 21 | 142 |
+| [src/main/java/com/team254/lib/motion/MotionSegment.java](/src/main/java/com/team254/lib/motion/MotionSegment.java) | Java | 53 | 16 | 12 | 81 |
+| [src/main/java/com/team254/lib/motion/MotionState.java](/src/main/java/com/team254/lib/motion/MotionState.java) | Java | 88 | 53 | 21 | 162 |
+| [src/main/java/com/team254/lib/motion/MotionUtil.java](/src/main/java/com/team254/lib/motion/MotionUtil.java) | Java | 4 | 3 | 2 | 9 |
+| [src/main/java/com/team254/lib/motion/ProfileFollower.java](/src/main/java/com/team254/lib/motion/ProfileFollower.java) | Java | 122 | 64 | 28 | 214 |
+| [src/main/java/com/team254/lib/motion/SetpointGenerator.java](/src/main/java/com/team254/lib/motion/SetpointGenerator.java) | Java | 61 | 36 | 13 | 110 |
+| [src/main/java/com/team254/lib/paths/AdaptivePurePursuitController.java](/src/main/java/com/team254/lib/paths/AdaptivePurePursuitController.java) | Java | 118 | 50 | 21 | 189 |
+| [src/main/java/com/team254/lib/paths/Lookahead.java](/src/main/java/com/team254/lib/paths/Lookahead.java) | Java | 21 | 3 | 5 | 29 |
+| [src/main/java/com/team254/lib/paths/Path.java](/src/main/java/com/team254/lib/paths/Path.java) | Java | 134 | 57 | 22 | 213 |
+| [src/main/java/com/team254/lib/paths/PathBuilder.java](/src/main/java/com/team254/lib/paths/PathBuilder.java) | Java | 118 | 23 | 23 | 164 |
+| [src/main/java/com/team254/lib/paths/PathContainer.java](/src/main/java/com/team254/lib/paths/PathContainer.java) | Java | 5 | 4 | 3 | 12 |
+| [src/main/java/com/team254/lib/paths/PathFollower.java](/src/main/java/com/team254/lib/paths/PathFollower.java) | Java | 165 | 30 | 24 | 219 |
+| [src/main/java/com/team254/lib/paths/PathSegment.java](/src/main/java/com/team254/lib/paths/PathSegment.java) | Java | 172 | 60 | 34 | 266 |
+| [src/main/java/com/team254/lib/subsystems/Subsystem.java](/src/main/java/com/team254/lib/subsystems/Subsystem.java) | Java | 14 | 13 | 10 | 37 |
+| [src/main/java/com/team254/lib/subsystems/SubsystemManager.java](/src/main/java/com/team254/lib/subsystems/SubsystemManager.java) | Java | 56 | 38 | 28 | 122 |
+| [src/main/java/com/team254/lib/util/CSVWritable.java](/src/main/java/com/team254/lib/util/CSVWritable.java) | Java | 4 | 0 | 2 | 6 |
+| [src/main/java/com/team254/lib/util/CheesyDriveHelper.java](/src/main/java/com/team254/lib/util/CheesyDriveHelper.java) | Java | 111 | 16 | 22 | 149 |
+| [src/main/java/com/team254/lib/util/CircularBuffer.java](/src/main/java/com/team254/lib/util/CircularBuffer.java) | Java | 43 | 4 | 10 | 57 |
+| [src/main/java/com/team254/lib/util/CircularBufferGeneric.java](/src/main/java/com/team254/lib/util/CircularBufferGeneric.java) | Java | 31 | 12 | 11 | 54 |
+| [src/main/java/com/team254/lib/util/CrashTracker.java](/src/main/java/com/team254/lib/util/CrashTracker.java) | Java | 52 | 3 | 16 | 71 |
+| [src/main/java/com/team254/lib/util/CrashTrackingRunnable.java](/src/main/java/com/team254/lib/util/CrashTrackingRunnable.java) | Java | 13 | 3 | 4 | 20 |
+| [src/main/java/com/team254/lib/util/Deadband.java](/src/main/java/com/team254/lib/util/Deadband.java) | Java | 21 | 0 | 5 | 26 |
+| [src/main/java/com/team254/lib/util/DelayedBoolean.java](/src/main/java/com/team254/lib/util/DelayedBoolean.java) | Java | 23 | 4 | 8 | 35 |
+| [src/main/java/com/team254/lib/util/DriveSignal.java](/src/main/java/com/team254/lib/util/DriveSignal.java) | Java | 32 | 3 | 9 | 44 |
+| [src/main/java/com/team254/lib/util/Interpolable.java](/src/main/java/com/team254/lib/util/Interpolable.java) | Java | 4 | 16 | 1 | 21 |
+| [src/main/java/com/team254/lib/util/InterpolatingDouble.java](/src/main/java/com/team254/lib/util/InterpolatingDouble.java) | Java | 36 | 5 | 6 | 47 |
+| [src/main/java/com/team254/lib/util/InterpolatingLong.java](/src/main/java/com/team254/lib/util/InterpolatingLong.java) | Java | 36 | 5 | 5 | 46 |
+| [src/main/java/com/team254/lib/util/InterpolatingTreeMap.java](/src/main/java/com/team254/lib/util/InterpolatingTreeMap.java) | Java | 46 | 22 | 12 | 80 |
+| [src/main/java/com/team254/lib/util/InverseInterpolable.java](/src/main/java/com/team254/lib/util/InverseInterpolable.java) | Java | 4 | 17 | 2 | 23 |
+| [src/main/java/com/team254/lib/util/LatchedBoolean.java](/src/main/java/com/team254/lib/util/LatchedBoolean.java) | Java | 12 | 5 | 2 | 19 |
+| [src/main/java/com/team254/lib/util/Logger.java](/src/main/java/com/team254/lib/util/Logger.java) | Java | 51 | 3 | 13 | 67 |
+| [src/main/java/com/team254/lib/util/MinTimeBoolean.java](/src/main/java/com/team254/lib/util/MinTimeBoolean.java) | Java | 21 | 4 | 5 | 30 |
+| [src/main/java/com/team254/lib/util/MovingAverage.java](/src/main/java/com/team254/lib/util/MovingAverage.java) | Java | 31 | 3 | 12 | 46 |
+| [src/main/java/com/team254/lib/util/MovingAverageTwist2d.java](/src/main/java/com/team254/lib/util/MovingAverageTwist2d.java) | Java | 35 | 3 | 12 | 50 |
+| [src/main/java/com/team254/lib/util/MultiTrigger.java](/src/main/java/com/team254/lib/util/MultiTrigger.java) | Java | 29 | 3 | 8 | 40 |
+| [src/main/java/com/team254/lib/util/ReflectingCSVWriter.java](/src/main/java/com/team254/lib/util/ReflectingCSVWriter.java) | Java | 65 | 7 | 9 | 81 |
+| [src/main/java/com/team254/lib/util/StatFinder.java](/src/main/java/com/team254/lib/util/StatFinder.java) | Java | 61 | 10 | 20 | 91 |
+| [src/main/java/com/team254/lib/util/SynchronousPIDF.java](/src/main/java/com/team254/lib/util/SynchronousPIDF.java) | Java | 158 | 122 | 36 | 316 |
+| [src/main/java/com/team254/lib/util/TimeDelayedBoolean.java](/src/main/java/com/team254/lib/util/TimeDelayedBoolean.java) | Java | 14 | 5 | 5 | 24 |
+| [src/main/java/com/team254/lib/util/Units.java](/src/main/java/com/team254/lib/util/Units.java) | Java | 28 | 0 | 10 | 38 |
+| [src/main/java/com/team254/lib/util/Util.java](/src/main/java/com/team254/lib/util/Util.java) | Java | 58 | 12 | 16 | 86 |
+| [src/main/java/com/team254/lib/vision/AimingParameters.java](/src/main/java/com/team254/lib/vision/AimingParameters.java) | Java | 45 | 0 | 10 | 55 |
+| [src/main/java/com/team254/lib/vision/GoalTrack.java](/src/main/java/com/team254/lib/vision/GoalTrack.java) | Java | 101 | 26 | 17 | 144 |
+| [src/main/java/com/team254/lib/vision/GoalTracker.java](/src/main/java/com/team254/lib/vision/GoalTracker.java) | Java | 97 | 28 | 19 | 144 |
+| [src/main/java/com/team254/lib/vision/TargetInfo.java](/src/main/java/com/team254/lib/vision/TargetInfo.java) | Java | 26 | 3 | 7 | 36 |
+
+[summary](results.md) / details / [diff summary](diff.md) / [diff details](diff-details.md)
