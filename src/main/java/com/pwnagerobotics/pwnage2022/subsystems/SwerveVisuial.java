@@ -13,11 +13,13 @@ import java.awt.Color;
 import java.awt.BasicStroke;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.drive.Vector2d;
 
 public class SwerveVisuial {
     
     private static JFrame frame = new JFrame();
     private static JSlider slider = new JSlider(0, 360);
+    private static JSlider rotationSlider = new JSlider(-10, 10);
     private static JLabel text = new JLabel();
     public static void main(String[] args) {
         SwerveVisuial s = new SwerveVisuial();
@@ -27,8 +29,11 @@ public class SwerveVisuial {
     private void createAndShowGUI() {
         slider.setPaintTicks(false);
         slider.setValue(0);
+        rotationSlider.setPaintTicks(false);
+        rotationSlider.setValue(0);
         Box bottom = Box.createVerticalBox();
         bottom.add(slider);
+        bottom.add(rotationSlider);
         bottom.add(text);
         frame.setLayout(new BorderLayout());
         frame.add(bottom, BorderLayout.SOUTH);
@@ -42,11 +47,8 @@ public class SwerveVisuial {
         
         private static double rotationEncoder = 0.0;
         private static double wantedPosition = 0.0;
-        private static double offset = 0.0;
-        private static double maxValue = 0.0;
-        private static int speed = 1;
-        private static PIDController pidController = new PIDController(0.9, 0.15, 0);
-
+        private static PIDController pidController = new PIDController(0.9, 0.015, 0);
+        
         public Drive() {
             super.repaint();
             super.setVisible(true);
@@ -95,42 +97,81 @@ public class SwerveVisuial {
             double endY3 = startY3 + Math.sin(Math.toRadians(angle3)) * length3;
             g2.setColor(Color.BLUE);
             g2.drawLine(startX3, startY3, (int)endX3, (int)endY3);
-
-            setModule();
+            
+            setVectorSwerveDrive(0.7, rotationSlider.getValue()/10.0, slider.getValue());
             repaint();
         }
         
-        private void setModule()
+        private void setModule(double rotation)
         {
             // Postion
-            double rotationPosition = slider.getValue();
-            double encoderPosition = rotationEncoder - offset;
+            double controllerPosition = slider.getValue();
+            double encoderPosition = rotationEncoder;
             if (encoderPosition < 0) encoderPosition += 360;
-            wantedPosition = slider.getValue();
-            if (wantedPosition > 360) wantedPosition -= 360;
+            // wantedPosition = slider.getValue();
+            // if (wantedPosition > 360) wantedPosition -= 360;
             
+            // // Distance
+            // double distance = getDistance(encoderPosition, wantedPosition);
+            // if (Math.abs(distance) > 90 && Math.abs(distance) < 270) {
+            //     wantedPosition -= 180;
+            //     if (wantedPosition < 0) wantedPosition += 360;
+            //     distance = getDistance(encoderPosition, wantedPosition);
+            // }
+
+            /////////////////////////////////////////////////////////////////////////////////////
+
+            wantedPosition = rotation;
             // Distance
-            double distance = getDistance(encoderPosition, wantedPosition);
+            double distance = getDistance(encoderPosition, rotation);
             if (Math.abs(distance) > 90 && Math.abs(distance) < 270) {
-                wantedPosition -= 180;
-                if (wantedPosition < 0) wantedPosition += 360;
-                distance = getDistance(encoderPosition, wantedPosition);
-                speed *= -1;
+                rotation -= 180;
+                if (rotation < 0) rotation += 360;
+                distance = getDistance(encoderPosition, rotation);
             }
-            
+
             double motorValue = 0;
             // PID
             motorValue = pidController.calculate(0, -distance);
             motorValue /= 64;
             if (pidController.atSetpoint()) motorValue = 0;
+            
+            ///////////////////////////////////////////////////////////////////////////////////
 
-            // if (motorValue > maxValue) maxValue = motorValue;
-            // System.out.println(maxValue);
             // Testing
-            text.setText("Controller: " + (int)rotationPosition +" | Encoder: " + (int)rotationEncoder + " | Wanted: " + (int)wantedPosition + " | Motor: " + (int)(motorValue*100.0)/100.0 + " | Distance: " + (int)distance);
+            text.setText("Controller: " + (int)controllerPosition +" | Encoder: " + (int)rotationEncoder + " | Wanted: " + (int)wantedPosition + " | Distance: " + (int)distance + " | Rotation: " + (int)rotation);
             if (Math.abs(motorValue) != 0) rotationEncoder += motorValue/10.0;
             if (rotationEncoder > 360) rotationEncoder -= 360;
             if (rotationEncoder < 0) rotationEncoder += 360;
+        }
+        
+        public void setVectorSwerveDrive(double forwardSpeed, double rotationSpeed, double robotAngle){
+            Vector2d vector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 135);
+            double maxMagnitude = Math.max(1.0, vector.magnitude());
+            if(maxMagnitude > 1){
+                //Normalize vectors, preserving proportions while reducing all below 1
+                scaleVector2d(vector, 1. / maxMagnitude);
+            }
+            setModule(getVectorAngle(vector));
+        }
+        
+        private Vector2d scaleVector2d(Vector2d v, double scalar){
+            return new Vector2d(v.x * scalar, v.y * scalar);
+        }
+        
+        private double getVectorAngle(Vector2d v){
+            // double angle = Math.toDegrees(Math.atan2(v.x, v.y));
+            // angle = (angle >= 0) ? angle : angle + 360;
+            double angle = Math.atan(v.y / v.x) * 180 / 3.14;
+            if (v.x < 0) angle += 180;
+            else if (v.y < 0) angle += 360;
+            return angle;
+        }
+        
+        private Vector2d addMovementComponents(double forwardMagnitude, double rotation1, double rotationalMagnitude, double rotation2){
+            Vector2d forwardVector = new Vector2d(forwardMagnitude * Math.cos(rotation1 * 3.14 / 180), forwardMagnitude * Math.sin(rotation1 * 3.14 / 180));
+            Vector2d rotationVector = new Vector2d(rotationalMagnitude * Math.cos(rotation2 * 3.14 / 180), rotationalMagnitude * Math.sin(rotation2 * 3.14 / 180));
+            return new Vector2d(forwardVector.x + rotationVector.x, forwardVector.y + rotationVector.y);
         }
         
         private double getDistance(double encoder, double controller) {
