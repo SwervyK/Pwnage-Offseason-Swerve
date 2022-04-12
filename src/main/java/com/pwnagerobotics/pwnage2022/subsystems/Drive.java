@@ -87,18 +87,17 @@ public class Drive extends Subsystem {
     FLVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 225);
     BRVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 45);
     BLVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 315);
-    double maxMagnitude = Math.max(Math.max(Math.max(Math.max(
+    double maxMagnitude = Math.max(Math.max(Math.max(
     FRVector.magnitude(), 
     FLVector.magnitude()), 
     BLVector.magnitude()),
-    BRVector.magnitude()),
-    1.0);
+    BRVector.magnitude());
     if(maxMagnitude > 1){
       //Normalize vectors, preserving proportions while reducing all below 1
-      scaleVector2d(FRVector, 1. / maxMagnitude);
-      scaleVector2d(FLVector, 1. / maxMagnitude);
-      scaleVector2d(BRVector, 1. / maxMagnitude);
-      scaleVector2d(BLVector, 1. / maxMagnitude);
+      scaleVector2d(FRVector, 1.0 / maxMagnitude);
+      scaleVector2d(FLVector, 1.0 / maxMagnitude);
+      scaleVector2d(BRVector, 1.0 / maxMagnitude);
+      scaleVector2d(BLVector, 1.0 / maxMagnitude);
     }
     mModules[0].setModule(getVectorAngle(FRVector), FRVector.magnitude());
     mModules[1].setModule(getVectorAngle(FLVector), FLVector.magnitude());
@@ -111,9 +110,10 @@ public class Drive extends Subsystem {
   }
   
   private double getVectorAngle(Vector2d v){
-    double angle = Math.atan(v.y / v.x) * 180 / 3.14;
-    if(v.x < 0) angle += 180;
-    else if(v.y < 0) angle += 360;
+    double angle = Math.toDegrees(Math.atan(v.y / v.x));
+    if (v.x == 0) angle = 0;
+    if (v.x < 0) angle += 180;
+    else if (v.y < 0) angle += 360;
     return angle;
   }
   
@@ -126,10 +126,10 @@ public class Drive extends Subsystem {
   * @return
   */
   private Vector2d addMovementComponents(double forwardMagnitude, double rotation1, double rotationalMagnitude, double rotation2){
-    Vector2d forwardVector = new Vector2d(forwardMagnitude * Math.cos(rotation1 * 3.14 / 180), forwardMagnitude * Math.sin(rotation1 * 3.14 / 180));
-    Vector2d rotationVector = new Vector2d(rotationalMagnitude * Math.cos(rotation2 * 3.14 / 180), rotationalMagnitude * Math.sin(rotation2 * 3.14 / 180));
+    Vector2d forwardVector = new Vector2d(forwardMagnitude * Math.cos(Math.toRadians(rotation1)), forwardMagnitude * Math.sin(Math.toRadians(rotation1)));
+    Vector2d rotationVector = new Vector2d(rotationalMagnitude * Math.cos(Math.toRadians(rotation2)), rotationalMagnitude * Math.sin(Math.toRadians(rotation2)));
     return new Vector2d(forwardVector.x + rotationVector.x, forwardVector.y + rotationVector.y);
-  }
+}
 
   private double getGyroAngle() {
     return 0.0; // (mNavX.getAngleAdjustment() < 0) ? mNavX.getAngleAdjustment() + 360 : mNavX.getAngleAdjustment();
@@ -171,6 +171,7 @@ public class Drive extends Subsystem {
     SmartDashboard.putNumber("Front Left", mModules[1].getRotation());
     SmartDashboard.putNumber("Back Right", mModules[2].getRotation());
     SmartDashboard.putNumber("Back Left", mModules[3].getRotation());
+    // SmartDashboard.putNumber("Gyro Agnle", mNavX.getYaw());
   }
   
   @Override

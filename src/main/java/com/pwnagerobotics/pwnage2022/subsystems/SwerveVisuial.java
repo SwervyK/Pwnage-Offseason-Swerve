@@ -88,7 +88,7 @@ public class SwerveVisuial {
             
             // Want
             double angle3 = wantedPosition - 90.0;
-            
+
             int startX3 = getWidth()/2;
             int startY3 = getHeight()/2;
             int length3 = 100;
@@ -98,7 +98,7 @@ public class SwerveVisuial {
             g2.setColor(Color.BLUE);
             g2.drawLine(startX3, startY3, (int)endX3, (int)endY3);
             
-            setVectorSwerveDrive(0.7, rotationSlider.getValue()/10.0, slider.getValue());
+            setVectorSwerveDrive(0.5, rotationSlider.getValue()/10.0, slider.getValue());
             repaint();
         }
         
@@ -145,9 +145,9 @@ public class SwerveVisuial {
             if (rotationEncoder < 0) rotationEncoder += 360;
         }
         
-        public void setVectorSwerveDrive(double forwardSpeed, double rotationSpeed, double robotAngle){
-            Vector2d vector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 135);
-            double maxMagnitude = Math.max(1.0, vector.magnitude());
+        public void setVectorSwerveDrive(double forwardSpeed, double rotationSpeed, double robotAngle) {
+            Vector2d vector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 45);
+            double maxMagnitude = vector.magnitude();
             if(maxMagnitude > 1){
                 //Normalize vectors, preserving proportions while reducing all below 1
                 scaleVector2d(vector, 1. / maxMagnitude);
@@ -159,18 +159,17 @@ public class SwerveVisuial {
             return new Vector2d(v.x * scalar, v.y * scalar);
         }
         
-        private double getVectorAngle(Vector2d v){
-            // double angle = Math.toDegrees(Math.atan2(v.x, v.y));
-            // angle = (angle >= 0) ? angle : angle + 360;
-            double angle = Math.atan(v.y / v.x) * 180 / 3.14;
+        private double getVectorAngle(Vector2d v) {
+            double angle = Math.toDegrees(Math.atan(v.y / v.x));
+            if (v.x == 0) angle = 0;
             if (v.x < 0) angle += 180;
             else if (v.y < 0) angle += 360;
             return angle;
         }
         
         private Vector2d addMovementComponents(double forwardMagnitude, double rotation1, double rotationalMagnitude, double rotation2){
-            Vector2d forwardVector = new Vector2d(forwardMagnitude * Math.cos(rotation1 * 3.14 / 180), forwardMagnitude * Math.sin(rotation1 * 3.14 / 180));
-            Vector2d rotationVector = new Vector2d(rotationalMagnitude * Math.cos(rotation2 * 3.14 / 180), rotationalMagnitude * Math.sin(rotation2 * 3.14 / 180));
+            Vector2d forwardVector = new Vector2d(forwardMagnitude * Math.cos(Math.toRadians(rotation1)), forwardMagnitude * Math.sin(Math.toRadians(rotation1)));
+            Vector2d rotationVector = new Vector2d(rotationalMagnitude * Math.cos(Math.toRadians(rotation2)), rotationalMagnitude * Math.sin(Math.toRadians(rotation2)));
             return new Vector2d(forwardVector.x + rotationVector.x, forwardVector.y + rotationVector.y);
         }
         
