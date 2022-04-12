@@ -7,6 +7,7 @@ package com.pwnagerobotics.pwnage2022;
 import com.pwnagerobotics.pwnage2022.humans.driver.XboxDriver;
 import com.pwnagerobotics.pwnage2022.subsystems.Drive;
 import com.pwnagerobotics.pwnage2022.subsystems.Drive.DriveMode;
+import com.pwnagerobotics.pwnage2022.subsystems.Drive.RotationMode;
 import com.team254.lib.subsystems.SubsystemManager;
 
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -86,10 +87,12 @@ public class Robot extends TimedRobot {
     double rotationY = mDriver.getRotationY();
     double throttle = mDriver.getPositionY();
     double strafe = mDriver.getPositionX();
-    boolean wantFieldCentric = mDriver.wantFieldCentric();
+    boolean wantFieldCentricDrive = mDriver.wantFieldCentricDrive();
+    boolean wantFieldCentricRotation = mDriver.wantFieldCentricRotation();
     boolean wantZero = mDriver.getDPad() == 0;
     boolean zeroSensors = mDriver.getDPad() == 180;
-    mDrive.setDriveMode(wantFieldCentric ? DriveMode.FEILD : DriveMode.ROBOT);
+    mDrive.setDriveMode(wantFieldCentricDrive ? DriveMode.FEILD : DriveMode.ROBOT);
+    mDrive.setRotationMode(wantFieldCentricRotation ? RotationMode.FEILD : RotationMode.ROBOT);
     mDrive.setSwerveDrive(throttle * Constants.kDriveSlowDown, strafe * Constants.kDriveSlowDown, rotationX * Constants.kRotationSlowDown, rotationY);
 
     if (wantZero) {

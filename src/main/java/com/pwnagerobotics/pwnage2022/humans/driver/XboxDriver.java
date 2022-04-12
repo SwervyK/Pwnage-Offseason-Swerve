@@ -25,8 +25,12 @@ public class XboxDriver {
         return mController.getJoystick(Side.RIGHT, Axis.Y);
     }
 
-    public boolean wantFieldCentric() {
+    public boolean wantFieldCentricDrive() {
         return mController.getTrigger(Side.LEFT);
+    }
+
+    public boolean wantFieldCentricRotation() {
+        return mController.getTrigger(Side.RIGHT);
     }
 
     public int getDPad() {
