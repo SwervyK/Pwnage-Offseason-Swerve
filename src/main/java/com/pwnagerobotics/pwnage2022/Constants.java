@@ -10,9 +10,13 @@ public class Constants {
 
     // Drive
     public static final double kRotationDeadband = 2;
-    public static final double kMaxPIDValue = 64;
     public static final double kDriveSlowDown = 0.4;
+    public static final double kRotationSlowDown = 0.4;
     public static final double kTurnSlowDown = 0.4;
+    public static final double kFieldCentricRotationError = 5;
+    public static final double kRotationkP = 0.7;
+    public static final double kRotationkI = 0.015;
+    public static final double kRotationkD = 0.0;
 
     public static final double kGyroOffset = 0.0;
 

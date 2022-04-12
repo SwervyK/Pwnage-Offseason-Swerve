@@ -16,6 +16,8 @@ public class SwerveModule {
   private PIDController mPID;
   private double mRotationOffset;
   
+  private static final double kPIDInputRange = 90;
+  
   public SwerveModule(SwerveModuleConstants constants) {
     mConstants = constants;
     mDriveController = new PWMMotorController(mConstants.kName + " Drive",  mConstants.kDriveId) { };
@@ -24,7 +26,7 @@ public class SwerveModule {
     mRotationOffset = mConstants.kRotationOffset;
     // mRotationEncoder.setPositionOffset(mRotationOffset);
     mPID = new PIDController(mConstants.kp, mConstants.ki, mConstants.kd);
-    mPID.enableContinuousInput(-90, 90);
+    mPID.enableContinuousInput(-kPIDInputRange, kPIDInputRange);
     mPID.setTolerance(mConstants.kRotationError);
   }
   
@@ -47,10 +49,10 @@ public class SwerveModule {
     }
     
     // Drive
-    mDriveController.set(throttle * Constants.kDriveSlowDown);
+    mDriveController.set(throttle);
     
     // Rotation
-    double rotationSpeed = mPID.calculate(0, -distance)/Constants.kMaxPIDValue * Constants.kTurnSlowDown;
+    double rotationSpeed = mPID.calculate(0, -distance) / (mConstants.kp * kPIDInputRange) * Constants.kTurnSlowDown;
     if (mPID.atSetpoint()) {
       mRotationController.set(0);
     }
@@ -59,34 +61,34 @@ public class SwerveModule {
     }
     
     // if (rotationOffset == 0.590) {
-      //   SmartDashboard.putNumber("Full Speed", rotationSpeed * kMaxPIDValue);
-      //   SmartDashboard.putNumber("Motor Speed", rotationSpeed);
-      //   SmartDashboard.putNumber("Wanted Pos", wantedPosition);
-      //   SmartDashboard.putNumber("Distance", distance);
-      //   SmartDashboard.putBoolean("Is at Pos", pidController.atSetpoint());
-      //   SmartDashboard.putNumber("Current Pos", currentPosition);
-      //   SmartDashboard.putNumber("Encoder Pos", rotationEncoder.getAbsolutePosition());
-      // }
-    }
-    
-    private double getDistance(double encoder, double controller) {
-      double result = encoder - controller;
-      if (Math.abs(result) > 180) {
-        result += 360 * -Math.signum(result);
-      }
-      return result;
-    }
-    
-    public void setPID(double kp, double ki, double kd) {
-      mPID.setPID(kp, ki, kd);
-    }
-    
-    public double getRotation() {
-      return mRotationEncoder.getAbsolutePosition() * 360;
-    }
-    
-    public void zeroEncoders() {
-      mRotationEncoder.reset();
-    }
+    //   SmartDashboard.putNumber("Full Speed", rotationSpeed * kMaxPIDValue);
+    //   SmartDashboard.putNumber("Motor Speed", rotationSpeed);
+    //   SmartDashboard.putNumber("Wanted Pos", wantedPosition);
+    //   SmartDashboard.putNumber("Distance", distance);
+    //   SmartDashboard.putBoolean("Is at Pos", pidController.atSetpoint());
+    //   SmartDashboard.putNumber("Current Pos", currentPosition);
+    //   SmartDashboard.putNumber("Encoder Pos", rotationEncoder.getAbsolutePosition());
+    // }
   }
+  
+  public static double getDistance(double encoder, double controller) {
+    double result = encoder - controller;
+    if (Math.abs(result) > 180) {
+      result += 360 * -Math.signum(result);
+    }
+    return result;
+  }
+  
+  public void setPID(double kp, double ki, double kd) {
+    mPID.setPID(kp, ki, kd);
+  }
+  
+  public double getRotation() {
+    return mRotationEncoder.getAbsolutePosition() * 360;
+  }
+  
+  public void zeroEncoders() {
+    mRotationEncoder.reset();
+  }
+}
   

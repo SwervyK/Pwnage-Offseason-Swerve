@@ -82,17 +82,18 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     var timestamp = Timer.getFPGATimestamp();
 
-    double rotation = mDriver.getRotationX();
+    double rotationX = mDriver.getRotationX();
+    double rotationY = mDriver.getRotationY();
     double throttle = mDriver.getPositionY();
     double strafe = mDriver.getPositionX();
     boolean wantFieldCentric = mDriver.wantFieldCentric();
     boolean wantZero = mDriver.getDPad() == 0;
     boolean zeroSensors = mDriver.getDPad() == 180;
     mDrive.setDriveMode(wantFieldCentric ? DriveMode.FEILD : DriveMode.ROBOT);
-    mDrive.setSwerveDrive(throttle, strafe, rotation);
+    mDrive.setSwerveDrive(throttle * Constants.kDriveSlowDown, strafe * Constants.kDriveSlowDown, rotationX * Constants.kRotationSlowDown, rotationY);
 
     if (wantZero) {
-      mDrive.setSwerveDrive(0, 0, 0);
+      mDrive.setSwerveDrive(0, 0, 0, 0);
     }
 
     if (zeroSensors) {

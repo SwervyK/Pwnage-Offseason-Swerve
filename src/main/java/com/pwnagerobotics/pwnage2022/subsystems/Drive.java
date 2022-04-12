@@ -5,6 +5,7 @@ import com.pwnagerobotics.pwnage2022.Constants;
 import com.pwnagerobotics.pwnage2022.lib.SwerveModule;
 import com.pwnagerobotics.pwnage2022.subsystems.Drive;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.drive.Vector2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -29,8 +30,9 @@ public class Drive extends Subsystem {
     FEILD
   }
   private RotationMode mCurrentRotationMode = RotationMode.ROBOT;
-  private static final double kControllerDeadband = 0.05;
+  private PIDController mFieldCentricRotationPID = new PIDController(Constants.kRotationkP, Constants.kRotationkI, Constants.kRotationkD);
   private static SwerveModule[] mModules;
+  private static final double kControllerDeadband = 0.05;
   // private static AHRS mNavX = new AHRS();
   
   
@@ -39,6 +41,8 @@ public class Drive extends Subsystem {
     mModules[1] = new SwerveModule(Constants.kFrontLefttModuleConstants);
     mModules[2] = new SwerveModule(Constants.kBackRightModuleConstants);
     mModules[3] = new SwerveModule(Constants.kBackLefttModuleConstants);
+    mFieldCentricRotationPID.enableContinuousInput(-180, 180);
+    mFieldCentricRotationPID.setTolerance(Constants.kFieldCentricRotationError);
     // Rotation2d mGyroOffset = Rotation2d.identity().rotateBy(Rotation2d.fromDegrees(mNavX.getYaw()).inverse());
     // mNavX.setAngleAdjustment(mGyroOffset.getDegrees());
     // mNavX.setAngleAdjustment(-Constants.kGyroOffset);
@@ -57,7 +61,7 @@ public class Drive extends Subsystem {
     mModules[3].setPID(kp, ki, kd);
   }
   
-  public synchronized void setSwerveDrive(double throttle, double strafe, double rotation) {
+  public synchronized void setSwerveDrive(double throttle, double strafe, double rotationX, double rotationY) {
     double angle = Math.toDegrees(Math.atan2(strafe, throttle));
     angle = (angle >= 0) ? angle : angle + 360;
     double speed = Math.sqrt(Math.pow(Math.abs(strafe), 2) + Math.pow(Math.abs(throttle), 2));
@@ -69,11 +73,20 @@ public class Drive extends Subsystem {
     }
 
     if (mCurrentDriveMode == DriveMode.FEILD) {
-      rotation -= getGyroAngle();
-      if (rotation < 0) rotation += 360;
+      rotationX -= getGyroAngle();
+      if (rotationX < 0) rotationX += 360;
+    }
+
+    if (mCurrentRotationMode == RotationMode.FEILD) {
+      rotationX *= Constants.kRotationSlowDown;
+      double wantedAngle = Math.toDegrees(Math.atan2(rotationX, rotationY));
+      wantedAngle = (wantedAngle >= 0) ? wantedAngle : wantedAngle + 360;
+      double distance = SwerveModule.getDistance(getGyroAngle(), wantedAngle);
+      rotationX = mFieldCentricRotationPID.calculate(0, distance) / (Constants.kRotationkP * 180);
     }
 
     updatePID();
+    setVectorSwerveDrive(speed, rotationX, angle);
     mModules[0].setModule(angle, speed);
     mModules[1].setModule(angle, speed);
     mModules[2].setModule(angle, speed);
