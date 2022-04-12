@@ -6,6 +6,7 @@ package com.pwnagerobotics.pwnage2022;
 
 import com.pwnagerobotics.pwnage2022.humans.driver.XboxDriver;
 import com.pwnagerobotics.pwnage2022.subsystems.Drive;
+import com.pwnagerobotics.pwnage2022.subsystems.Drive.DriveMode;
 import com.team254.lib.subsystems.SubsystemManager;
 
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -39,6 +40,8 @@ public class Robot extends TimedRobot {
     mSubsystemManager.setSubsystems(
       mDrive
     );
+
+    mDrive.zeroSensors();
   }
 
   @Override
@@ -82,12 +85,18 @@ public class Robot extends TimedRobot {
     double rotation = mDriver.getRotationX();
     double throttle = mDriver.getPositionY();
     double strafe = mDriver.getPositionX();
+    boolean wantFieldCentric = mDriver.wantFieldCentric();
     boolean wantZero = mDriver.getDPad() == 0;
-
-    mDrive.setRobotCentricSwerveDrive(throttle, strafe, rotation);
+    boolean zeroSensors = mDriver.getDPad() == 180;
+    mDrive.setDriveMode(wantFieldCentric ? DriveMode.FEILD : DriveMode.ROBOT);
+    mDrive.setSwerveDrive(throttle, strafe, rotation);
 
     if (wantZero) {
-      mDrive.setRobotCentricSwerveDrive(0, 0, 0);
+      mDrive.setSwerveDrive(0, 0, 0);
+    }
+
+    if (zeroSensors) {
+      mDrive.zeroSensors();
     }
 
     mSubsystemManager.executeEnabledLoops(timestamp);

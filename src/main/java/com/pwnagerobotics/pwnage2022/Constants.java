@@ -14,6 +14,8 @@ public class Constants {
     public static final double kDriveSlowDown = 0.4;
     public static final double kTurnSlowDown = 0.4;
 
+    public static final double kGyroOffset = 0.0;
+
     // Modules
     public static final SwerveModuleConstants kFrontRightModuleConstants = new SwerveModuleConstants();
     static {
