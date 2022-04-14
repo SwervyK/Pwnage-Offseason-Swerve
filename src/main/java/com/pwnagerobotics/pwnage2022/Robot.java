@@ -90,7 +90,7 @@ public class Robot extends TimedRobot {
     boolean wantFieldCentricDrive = mDriver.wantFieldCentricDrive();
     boolean wantFieldCentricRotation = mDriver.wantFieldCentricRotation();
     boolean wantZero = mDriver.getDPad() == 0;
-    boolean zeroSensors = mDriver.getDPad() == 180;
+    boolean wantGyroReset = mDriver.getDPad() == 180;
     mDrive.setDriveMode(wantFieldCentricDrive ? DriveMode.FEILD : DriveMode.ROBOT);
     mDrive.setRotationMode(wantFieldCentricRotation ? RotationMode.FEILD : RotationMode.ROBOT);
     mDrive.setSwerveDrive(throttle * Constants.kDriveSlowDown, strafe * Constants.kDriveSlowDown, rotationX * Constants.kRotationSlowDown, rotationY);
@@ -99,9 +99,9 @@ public class Robot extends TimedRobot {
       mDrive.setSwerveDrive(0, 0, 0, 0);
     }
 
-    if (zeroSensors) {
-      mDrive.zeroSensors();
-    }
+    // if (wantGyroReset) {
+    //   mDrive.zeroSensors();
+    // }
 
     mSubsystemManager.executeEnabledLoops(timestamp);
   }

@@ -13,5 +13,4 @@ public class SwerveModuleConstants {
     public double kRotationOffset = 0.0;
     public double kRotationError = 5; // Degrees
     public double kWheelDiameter = 0.0;
-    public double kTurnDegree = 0.0; // TODO base this off center of rotation
 }

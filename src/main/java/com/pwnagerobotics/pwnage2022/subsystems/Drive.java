@@ -9,7 +9,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.drive.Vector2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.subsystems.Subsystem;
 
 public class Drive extends Subsystem {
@@ -31,9 +30,10 @@ public class Drive extends Subsystem {
   }
   private RotationMode mCurrentRotationMode = RotationMode.ROBOT;
   private PIDController mFieldCentricRotationPID = new PIDController(Constants.kRotationkP, Constants.kRotationkI, Constants.kRotationkD);
-  private static SwerveModule[] mModules;
+  private static SwerveModule[] mModules = new SwerveModule[4];
   private static final double kControllerDeadband = 0.05;
-  // private static AHRS mNavX = new AHRS();
+  private static final double kRotationDeadband = 0.1;
+  private static AHRS mNavX = new AHRS();
   
   
   public Drive() {
@@ -41,14 +41,15 @@ public class Drive extends Subsystem {
     mModules[1] = new SwerveModule(Constants.kFrontLefttModuleConstants);
     mModules[2] = new SwerveModule(Constants.kBackRightModuleConstants);
     mModules[3] = new SwerveModule(Constants.kBackLefttModuleConstants);
+
     mFieldCentricRotationPID.enableContinuousInput(-180, 180);
     mFieldCentricRotationPID.setTolerance(Constants.kFieldCentricRotationError);
-    // Rotation2d mGyroOffset = Rotation2d.identity().rotateBy(Rotation2d.fromDegrees(mNavX.getYaw()).inverse());
-    // mNavX.setAngleAdjustment(mGyroOffset.getDegrees());
-    // mNavX.setAngleAdjustment(-Constants.kGyroOffset);
+
     SmartDashboard.putNumber("kp", 0.7);
     SmartDashboard.putNumber("ki", 0.015);
     SmartDashboard.putNumber("kd", 0);
+
+    mNavX.setAngleAdjustment(-Constants.kGyroOffset);
   }
   
   public void updatePID() {
@@ -62,44 +63,54 @@ public class Drive extends Subsystem {
   }
   
   public synchronized void setSwerveDrive(double throttle, double strafe, double rotationX, double rotationY) {
+    if (mCurrentDriveMode == DriveMode.FEILD) {
+      // angle -= getGyroAngle();
+      // if (angle < 0) angle += 360;
+      throttle = throttle * Math.cos(getGyroAngle()) + strafe * Math.sin(getGyroAngle());
+      strafe = -throttle * Math.sin(getGyroAngle()) + strafe * Math.cos(getGyroAngle());
+      // vxMetersPerSecond * robotAngle.getCos() + vyMetersPerSecond * robotAngle.getSin()
+      // -vxMetersPerSecond * robotAngle.getSin() + vyMetersPerSecond * robotAngle.getCos()
+    }
+
     double angle = Math.toDegrees(Math.atan2(strafe, throttle));
     angle = (angle >= 0) ? angle : angle + 360;
     double speed = Math.sqrt(Math.pow(Math.abs(strafe), 2) + Math.pow(Math.abs(throttle), 2));
     speed = (speed >= 1) ? 1 : speed;
     SmartDashboard.putNumber("Controller angle", angle);
+    if (Math.abs(rotationX) < kRotationDeadband) rotationX = 0;
+    if (Math.abs(rotationY) < kRotationDeadband) rotationY = 0;
     if (Math.abs(speed) < kControllerDeadband) {
       speed = 0;
       angle = 0;
     }
 
-    if (mCurrentDriveMode == DriveMode.FEILD) {
-      rotationX -= getGyroAngle();
-      if (rotationX < 0) rotationX += 360;
-    }
-
     if (mCurrentRotationMode == RotationMode.FEILD) {
-      rotationX *= Constants.kRotationSlowDown;
+      rotationX /= Constants.kRotationSlowDown;
       double wantedAngle = Math.toDegrees(Math.atan2(rotationX, rotationY));
       wantedAngle = (wantedAngle >= 0) ? wantedAngle : wantedAngle + 360;
       double distance = SwerveModule.getDistance(getGyroAngle(), wantedAngle);
-      rotationX = mFieldCentricRotationPID.calculate(0, distance) / (Constants.kRotationkP * 180);
+      rotationX = mFieldCentricRotationPID.calculate(0, -distance) / 180;
+      SmartDashboard.putNumber("Rotation X * 360", rotationX * 360);
+      SmartDashboard.putNumber("Rotation X", rotationX);
+      SmartDashboard.putNumber("Distance", distance);
+      if (mFieldCentricRotationPID.atSetpoint()) rotationX = 0;
     }
 
-    updatePID();
-    setVectorSwerveDrive(speed, rotationX, angle);
-    mModules[0].setModule(angle, speed);
-    mModules[1].setModule(angle, speed);
-    mModules[2].setModule(angle, speed);
-    mModules[3].setModule(angle, speed);
+    // updatePID();
+    setVectorSwerveDrive(speed, -rotationX, angle);
+    // mModules[0].setModule(angle, speed);
+    // mModules[1].setModule(angle, speed);
+    // mModules[2].setModule(angle, speed);
+    // mModules[3].setModule(angle, speed);
   }
   
   
   public void setVectorSwerveDrive(double forwardSpeed, double rotationSpeed, double robotAngle){
     Vector2d FRVector, FLVector, BRVector, BLVector;
-    FRVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 135);
-    FLVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 225);
-    BRVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 45);
-    BLVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 315);
+    FRVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 315);
+    FLVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 225); //
+    BRVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 45); //
+    BLVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 135); 
     double maxMagnitude = Math.max(Math.max(Math.max(
     FRVector.magnitude(), 
     FLVector.magnitude()), 
@@ -145,7 +156,15 @@ public class Drive extends Subsystem {
 }
 
   private double getGyroAngle() {
-    return 0.0; // (mNavX.getAngleAdjustment() < 0) ? mNavX.getAngleAdjustment() + 360 : mNavX.getAngleAdjustment();
+    double currentAngle = mNavX.getAngle();
+    if (currentAngle > 360) {
+      currentAngle -= Math.round(currentAngle/360)*360;
+    }
+    else if (currentAngle < 0) {
+      currentAngle += -Math.round(currentAngle/360) * 360 + 360;
+      if (currentAngle > 360) currentAngle -= Math.round(currentAngle/360) * 360;
+    }
+    return currentAngle;
   }
   
   @Override
@@ -169,7 +188,6 @@ public class Drive extends Subsystem {
     }
   }
   
-  
   @Override
   public void stop() {
     mModules[0].setModule(0, 0);
@@ -184,21 +202,18 @@ public class Drive extends Subsystem {
     SmartDashboard.putNumber("Front Left", mModules[1].getRotation());
     SmartDashboard.putNumber("Back Right", mModules[2].getRotation());
     SmartDashboard.putNumber("Back Left", mModules[3].getRotation());
-    // SmartDashboard.putNumber("Gyro Agnle", mNavX.getYaw());
+    SmartDashboard.putNumber("Gyro Agnle", getGyroAngle());
+  }
+
+  @Override
+  public void zeroSensors() {
+    // mNavX.zeroYaw();
   }
   
   @Override
   public boolean checkSystem() {
     // TODO Auto-generated method stub
     return false;
-  }
-
-  public void zeroSensors() {
-    mModules[0].zeroEncoders();
-    mModules[1].zeroEncoders();
-    mModules[2].zeroEncoders();
-    mModules[3].zeroEncoders();
-    // mNavX.zeroYaw();
   }
 
   public void setDriveMode(DriveMode mode) {

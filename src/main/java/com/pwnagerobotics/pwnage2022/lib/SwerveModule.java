@@ -6,6 +6,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.AnalogEncoder;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.motorcontrol.PWMMotorController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveModule {
   
@@ -24,12 +25,11 @@ public class SwerveModule {
     mRotationController = new PWMMotorController(mConstants.kName + " Rotation", mConstants.kRotationId) { };
     mRotationEncoder = new AnalogEncoder(mConstants.kRotationEncoderId);
     mRotationOffset = mConstants.kRotationOffset;
-    // mRotationEncoder.setPositionOffset(mRotationOffset);
     mPID = new PIDController(mConstants.kp, mConstants.ki, mConstants.kd);
     mPID.enableContinuousInput(-kPIDInputRange, kPIDInputRange);
     mPID.setTolerance(mConstants.kRotationError);
   }
-  
+
   public void setModule(double rotation, double throttle)
   {
     // Postion
@@ -52,22 +52,21 @@ public class SwerveModule {
     mDriveController.set(throttle);
     
     // Rotation
-    double rotationSpeed = mPID.calculate(0, -distance) / (mConstants.kp * kPIDInputRange) * Constants.kTurnSlowDown;
+    double rotationSpeed = mPID.calculate(0, distance) / kPIDInputRange * 2 * Constants.kRotationSlowDown;
     if (mPID.atSetpoint()) {
       mRotationController.set(0);
     }
     else {
       mRotationController.set(rotationSpeed);
     }
-    
-    // if (rotationOffset == 0.590) {
-    //   SmartDashboard.putNumber("Full Speed", rotationSpeed * kMaxPIDValue);
-    //   SmartDashboard.putNumber("Motor Speed", rotationSpeed);
-    //   SmartDashboard.putNumber("Wanted Pos", wantedPosition);
-    //   SmartDashboard.putNumber("Distance", distance);
-    //   SmartDashboard.putBoolean("Is at Pos", pidController.atSetpoint());
-    //   SmartDashboard.putNumber("Current Pos", currentPosition);
-    //   SmartDashboard.putNumber("Encoder Pos", rotationEncoder.getAbsolutePosition());
+    // double rotationSpeed = mPID.calculate(0, distance); // Constants.kRotationSlowDown;
+    // if (rotationSpeed > 1) rotationSpeed = 1;
+    // if (rotationSpeed < -1) rotationSpeed = -1;
+    // if (mPID.atSetpoint()) {
+    //   mRotationController.set(0);
+    // }
+    // else {
+    //   //mRotationController.set(rotationSpeed);
     // }
   }
   
