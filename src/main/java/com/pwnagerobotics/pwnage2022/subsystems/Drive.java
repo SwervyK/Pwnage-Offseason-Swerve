@@ -31,9 +31,10 @@ public class Drive extends Subsystem {
   private RotationMode mCurrentRotationMode = RotationMode.ROBOT;
   private PIDController mFieldCentricRotationPID = new PIDController(Constants.kRotationkP, Constants.kRotationkI, Constants.kRotationkD);
   private static SwerveModule[] mModules = new SwerveModule[4];
+  private static AHRS mNavX = new AHRS();
+
   private static final double kControllerDeadband = 0.05;
   private static final double kRotationDeadband = 0.1;
-  private static AHRS mNavX = new AHRS();
   
   
   public Drive() {
@@ -63,15 +64,6 @@ public class Drive extends Subsystem {
   }
   
   public synchronized void setSwerveDrive(double throttle, double strafe, double rotationX, double rotationY) {
-    if (mCurrentDriveMode == DriveMode.FEILD) {
-      // angle -= getGyroAngle();
-      // if (angle < 0) angle += 360;
-      throttle = throttle * Math.cos(getGyroAngle()) + strafe * Math.sin(getGyroAngle());
-      strafe = -throttle * Math.sin(getGyroAngle()) + strafe * Math.cos(getGyroAngle());
-      // vxMetersPerSecond * robotAngle.getCos() + vyMetersPerSecond * robotAngle.getSin()
-      // -vxMetersPerSecond * robotAngle.getSin() + vyMetersPerSecond * robotAngle.getCos()
-    }
-
     double angle = Math.toDegrees(Math.atan2(strafe, throttle));
     angle = (angle >= 0) ? angle : angle + 360;
     double speed = Math.sqrt(Math.pow(Math.abs(strafe), 2) + Math.pow(Math.abs(throttle), 2));
@@ -83,25 +75,25 @@ public class Drive extends Subsystem {
       speed = 0;
       angle = 0;
     }
+    
+    if (mCurrentDriveMode == DriveMode.FEILD) {
+      angle -= getGyroAngle();
+      if (angle < 0) angle += 360;
+    }
 
     if (mCurrentRotationMode == RotationMode.FEILD) {
       rotationX /= Constants.kRotationSlowDown;
       double wantedAngle = Math.toDegrees(Math.atan2(rotationX, rotationY));
       wantedAngle = (wantedAngle >= 0) ? wantedAngle : wantedAngle + 360;
       double distance = SwerveModule.getDistance(getGyroAngle(), wantedAngle);
-      rotationX = mFieldCentricRotationPID.calculate(0, -distance) / 180;
-      SmartDashboard.putNumber("Rotation X * 360", rotationX * 360);
-      SmartDashboard.putNumber("Rotation X", rotationX);
-      SmartDashboard.putNumber("Distance", distance);
+      rotationX = mFieldCentricRotationPID.calculate(0, -distance)/90;
+      if (rotationX > 1) rotationX = 1;
+      if (rotationX < -1) rotationX = -1;
       if (mFieldCentricRotationPID.atSetpoint()) rotationX = 0;
     }
 
     // updatePID();
     setVectorSwerveDrive(speed, -rotationX, angle);
-    // mModules[0].setModule(angle, speed);
-    // mModules[1].setModule(angle, speed);
-    // mModules[2].setModule(angle, speed);
-    // mModules[3].setModule(angle, speed);
   }
   
   
@@ -202,12 +194,13 @@ public class Drive extends Subsystem {
     SmartDashboard.putNumber("Front Left", mModules[1].getRotation());
     SmartDashboard.putNumber("Back Right", mModules[2].getRotation());
     SmartDashboard.putNumber("Back Left", mModules[3].getRotation());
-    SmartDashboard.putNumber("Gyro Agnle", getGyroAngle());
+    SmartDashboard.putNumber("Gyro Angle", getGyroAngle());
+    SmartDashboard.putNumber("Raw Gyro Angle", mNavX.getYaw());
   }
 
   @Override
   public void zeroSensors() {
-    // mNavX.zeroYaw();
+    mNavX.setAngleAdjustment(mNavX.getYaw());
   }
   
   @Override

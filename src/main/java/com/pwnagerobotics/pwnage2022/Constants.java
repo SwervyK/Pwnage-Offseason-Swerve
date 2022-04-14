@@ -11,13 +11,17 @@ public class Constants {
     // Drive
     public static final double kDriveSlowDown = 0.7;
     public static final double kTurnSlowDown = 0.7;
-    public static final double kRotationSlowDown = 0.7;
+    public static final double kRotationSlowDown = 0.8;
+
     public static final double kFieldCentricRotationError = 10;
+
     public static final double kRotationkP = 0.7;
-    public static final double kRotationkI = 0.0015;
+    public static final double kRotationkI = 0.015;
     public static final double kRotationkD = 0.0;
 
     public static final double kGyroOffset = 284.0;
+
+    public static final double kDriveAccelerationLimit = 0.5;
 
     // Modules
     public static final SwerveModuleConstants kFrontRightModuleConstants = new SwerveModuleConstants();

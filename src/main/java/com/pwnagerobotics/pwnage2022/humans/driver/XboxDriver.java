@@ -13,6 +13,28 @@ public class XboxDriver {
         return mController.getJoystick(Side.LEFT, Axis.X);
     }
 
+    // private static double deadband(double value, double deadband) {
+    //     if (Math.abs(value) > deadband) {
+    //       if (value > 0.0) {
+    //         return (value - deadband) / (1.0 - deadband);
+    //       } else {
+    //         return (value + deadband) / (1.0 - deadband);
+    //       }
+    //     } else {
+    //       return 0.0;
+    //     }
+    //   }
+    
+    //   private static double modifyAxis(double value) {
+    //     // Deadband
+    //     value = deadband(value, 0.08);
+    
+    //     // Square the axis
+    //     value = Math.copySign(value * value, value);
+    
+    //     return value;
+    //   }
+
     public double getPositionY() {
         return mController.getJoystick(Side.LEFT, Axis.Y);
     }

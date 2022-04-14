@@ -99,9 +99,9 @@ public class Robot extends TimedRobot {
       mDrive.setSwerveDrive(0, 0, 0, 0);
     }
 
-    // if (wantGyroReset) {
-    //   mDrive.zeroSensors();
-    // }
+    if (wantGyroReset) {
+      mDrive.zeroSensors();
+    }
 
     mSubsystemManager.executeEnabledLoops(timestamp);
   }

@@ -3,10 +3,10 @@ package com.pwnagerobotics.pwnage2022.lib;
 import com.pwnagerobotics.pwnage2022.Constants;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.AnalogEncoder;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.motorcontrol.PWMMotorController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveModule {
   
@@ -17,6 +17,7 @@ public class SwerveModule {
   private PIDController mPID;
   private double mRotationOffset;
   
+  private SlewRateLimiter mDriveRateLimiter = new SlewRateLimiter(Constants.kDriveAccelerationLimit);
   private static final double kPIDInputRange = 90;
   
   public SwerveModule(SwerveModuleConstants constants) {
@@ -25,6 +26,10 @@ public class SwerveModule {
     mRotationController = new PWMMotorController(mConstants.kName + " Rotation", mConstants.kRotationId) { };
     mRotationEncoder = new AnalogEncoder(mConstants.kRotationEncoderId);
     mRotationOffset = mConstants.kRotationOffset;
+    // driveEncoder.setPositionConversionFactor(ModuleConstants.kDriveEncoderRot2Meter);
+    // driveEncoder.setVelocityConversionFactor(ModuleConstants.kDriveEncoderRPM2MeterPerSec);
+    // turningEncoder.setPositionConversionFactor(ModuleConstants.kTurningEncoderRot2Rad);
+    // turningEncoder.setVelocityConversionFactor(ModuleConstants.kTurningEncoderRPM2RadPerSec);
     mPID = new PIDController(mConstants.kp, mConstants.ki, mConstants.kd);
     mPID.enableContinuousInput(-kPIDInputRange, kPIDInputRange);
     mPID.setTolerance(mConstants.kRotationError);
@@ -49,6 +54,7 @@ public class SwerveModule {
     }
     
     // Drive
+    // mDriveController.set(mDriveLimiter.calculate(throttle));
     mDriveController.set(throttle);
     
     // Rotation
