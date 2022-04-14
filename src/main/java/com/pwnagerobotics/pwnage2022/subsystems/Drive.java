@@ -29,6 +29,7 @@ public class Drive extends Subsystem {
     FEILD
   }
   private RotationMode mCurrentRotationMode = RotationMode.ROBOT;
+  
   private PIDController mFieldCentricRotationPID = new PIDController(Constants.kRotationkP, Constants.kRotationkI, Constants.kRotationkD);
   private static SwerveModule[] mModules = new SwerveModule[4];
   private static AHRS mNavX = new AHRS();
@@ -92,7 +93,7 @@ public class Drive extends Subsystem {
       if (mFieldCentricRotationPID.atSetpoint()) rotationX = 0;
     }
 
-    // updatePID();
+    updatePID();
     setVectorSwerveDrive(speed, -rotationX, angle);
   }
   
@@ -200,12 +201,11 @@ public class Drive extends Subsystem {
 
   @Override
   public void zeroSensors() {
-    mNavX.setAngleAdjustment(mNavX.getYaw());
+    mNavX.setAngleAdjustment(-mNavX.getYaw());
   }
   
   @Override
   public boolean checkSystem() {
-    // TODO Auto-generated method stub
     return false;
   }
 
