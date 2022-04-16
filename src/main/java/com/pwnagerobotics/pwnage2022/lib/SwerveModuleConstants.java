@@ -6,11 +6,11 @@ public class SwerveModuleConstants {
     public int kRotationId = 0;
     public int kRotationEncoderId = 0;
 
-    public double kp = 0.7;
-    public double ki = 0.015;
+    public double kp = 0.01;
+    public double ki = 0.001;
     public double kd = 0.0;
     
     public double kRotationOffset = 0.0;
-    public double kRotationError = 5; // Degrees
+    public double kRotationError = 3; // Degrees
     public double kWheelDiameter = 0.0;
 }

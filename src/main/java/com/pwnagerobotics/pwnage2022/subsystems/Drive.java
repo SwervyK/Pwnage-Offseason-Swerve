@@ -31,37 +31,21 @@ public class Drive extends Subsystem {
   private RotationMode mCurrentRotationMode = RotationMode.ROBOT;
   
   private PIDController mFieldCentricRotationPID = new PIDController(Constants.kRotationkP, Constants.kRotationkI, Constants.kRotationkD);
-  private static SwerveModule[] mModules = new SwerveModule[4];
-  private static AHRS mNavX = new AHRS();
-
-  private static final double kControllerDeadband = 0.05;
-  private static final double kRotationDeadband = 0.1;
-  
+  private SwerveModule[] mModules = new SwerveModule[4];
+  private AHRS mNavX = new AHRS();
+  private double mCurrentGyroValue = 0.0;
+  private double mOldGyroValue = 0.0;
   
   public Drive() {
     mModules[0] = new SwerveModule(Constants.kFrontRightModuleConstants);
     mModules[1] = new SwerveModule(Constants.kFrontLefttModuleConstants);
     mModules[2] = new SwerveModule(Constants.kBackRightModuleConstants);
     mModules[3] = new SwerveModule(Constants.kBackLefttModuleConstants);
-
+    
     mFieldCentricRotationPID.enableContinuousInput(-180, 180);
     mFieldCentricRotationPID.setTolerance(Constants.kFieldCentricRotationError);
-
-    SmartDashboard.putNumber("kp", 0.7);
-    SmartDashboard.putNumber("ki", 0.015);
-    SmartDashboard.putNumber("kd", 0);
-
+    
     mNavX.setAngleAdjustment(-Constants.kGyroOffset);
-  }
-  
-  public void updatePID() {
-    double kp = SmartDashboard.getNumber("kp", 0);
-    double ki = SmartDashboard.getNumber("ki", 0);
-    double kd = SmartDashboard.getNumber("kd", 0);
-    mModules[0].setPID(kp, ki, kd);
-    mModules[1].setPID(kp, ki, kd);
-    mModules[2].setPID(kp, ki, kd);
-    mModules[3].setPID(kp, ki, kd);
   }
   
   public synchronized void setSwerveDrive(double throttle, double strafe, double rotationX, double rotationY) {
@@ -69,40 +53,46 @@ public class Drive extends Subsystem {
     angle = (angle >= 0) ? angle : angle + 360;
     double speed = Math.sqrt(Math.pow(Math.abs(strafe), 2) + Math.pow(Math.abs(throttle), 2));
     speed = (speed >= 1) ? 1 : speed;
-    SmartDashboard.putNumber("Controller angle", angle);
-    if (Math.abs(rotationX) < kRotationDeadband) rotationX = 0;
-    if (Math.abs(rotationY) < kRotationDeadband) rotationY = 0;
-    if (Math.abs(speed) < kControllerDeadband) {
-      speed = 0;
-      angle = 0;
+    rotationX *= Constants.kSpinSlowDown;
+    mCurrentGyroValue = mNavX.getAngle();
+    
+    if (mCurrentRotationMode == RotationMode.FEILD) {
+      double wantedAngle = Math.toDegrees(Math.atan2(rotationX, rotationY));
+      wantedAngle = (wantedAngle >= 0) ? wantedAngle : wantedAngle + 360;
+      double distance = SwerveModule.getDistance(getGyroAngle(), wantedAngle);
+      rotationX = mFieldCentricRotationPID.calculate(0, -distance);
+      if (rotationX > 1) rotationX = 1;
+      if (rotationX < -1) rotationX = -1;
+      if (mFieldCentricRotationPID.atSetpoint()) rotationX = 0;
     }
     
     if (mCurrentDriveMode == DriveMode.FEILD) {
       angle -= getGyroAngle();
       if (angle < 0) angle += 360;
+      if (rotationX != 0) {
+        angle -= Constants.kGyroErrorOffset*rotationX;
+      }
     }
-
-    if (mCurrentRotationMode == RotationMode.FEILD) {
-      rotationX /= Constants.kRotationSlowDown;
-      double wantedAngle = Math.toDegrees(Math.atan2(rotationX, rotationY));
-      wantedAngle = (wantedAngle >= 0) ? wantedAngle : wantedAngle + 360;
-      double distance = SwerveModule.getDistance(getGyroAngle(), wantedAngle);
-      rotationX = mFieldCentricRotationPID.calculate(0, -distance)/90;
-      if (rotationX > 1) rotationX = 1;
-      if (rotationX < -1) rotationX = -1;
-      if (mFieldCentricRotationPID.atSetpoint()) rotationX = 0;
-    }
-
-    updatePID();
+    
+    // Compensates too much
+    // if (rotationX == 0) { // Gyro Drift/Lag Compensation
+    //   double distance = mCurrentGyroValue - mOldGyroValue;
+    //   rotationX = mFieldCentricRotationPID.calculate(0, distance);
+    //   if (rotationX > 1) rotationX = 1;
+    //   if (rotationX < -1) rotationX = -1;
+    //   if (mFieldCentricRotationPID.atSetpoint()) rotationX = 0;
+    // }
+    
     setVectorSwerveDrive(speed, -rotationX, angle);
+    mOldGyroValue = mCurrentGyroValue;
   }
   
   
   public void setVectorSwerveDrive(double forwardSpeed, double rotationSpeed, double robotAngle){
     Vector2d FRVector, FLVector, BRVector, BLVector;
     FRVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 315);
-    FLVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 225); //
-    BRVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 45); //
+    FLVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 225);
+    BRVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 45);
     BLVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 135); 
     double maxMagnitude = Math.max(Math.max(Math.max(
     FRVector.magnitude(), 
@@ -146,8 +136,8 @@ public class Drive extends Subsystem {
     Vector2d forwardVector = new Vector2d(forwardMagnitude * Math.cos(Math.toRadians(rotation1)), forwardMagnitude * Math.sin(Math.toRadians(rotation1)));
     Vector2d rotationVector = new Vector2d(rotationalMagnitude * Math.cos(Math.toRadians(rotation2)), rotationalMagnitude * Math.sin(Math.toRadians(rotation2)));
     return new Vector2d(forwardVector.x + rotationVector.x, forwardVector.y + rotationVector.y);
-}
-
+  }
+  
   private double getGyroAngle() {
     double currentAngle = mNavX.getAngle();
     if (currentAngle > 360) {
@@ -198,7 +188,7 @@ public class Drive extends Subsystem {
     SmartDashboard.putNumber("Gyro Angle", getGyroAngle());
     SmartDashboard.putNumber("Raw Gyro Angle", mNavX.getYaw());
   }
-
+  
   @Override
   public void zeroSensors() {
     mNavX.setAngleAdjustment(-mNavX.getYaw());
@@ -208,11 +198,11 @@ public class Drive extends Subsystem {
   public boolean checkSystem() {
     return false;
   }
-
+  
   public void setDriveMode(DriveMode mode) {
     mCurrentDriveMode = mode;
   }
-
+  
   public void setRotationMode(RotationMode mode) {
     mCurrentRotationMode = mode;
   }

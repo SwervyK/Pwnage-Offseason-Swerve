@@ -3,7 +3,6 @@ package com.pwnagerobotics.pwnage2022.lib;
 import com.pwnagerobotics.pwnage2022.Constants;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.AnalogEncoder;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.motorcontrol.PWMMotorController;
@@ -17,7 +16,6 @@ public class SwerveModule {
   private PIDController mPID;
   private double mRotationOffset;
   
-  private SlewRateLimiter mDriveRateLimiter = new SlewRateLimiter(Constants.kDriveAccelerationLimit);
   private static final double kPIDInputRange = 90;
   
   public SwerveModule(SwerveModuleConstants constants) {
@@ -26,7 +24,7 @@ public class SwerveModule {
     mRotationController = new PWMMotorController(mConstants.kName + " Rotation", mConstants.kRotationId) { };
     mRotationEncoder = new AnalogEncoder(mConstants.kRotationEncoderId);
     mRotationOffset = mConstants.kRotationOffset;
-    // driveEncoder.setPositionConversionFactor(ModuleConstants.kDriveEncoderRot2Meter);
+    // driveEncoder.setPositionConversionFactor(ModuleConstants.kDriveEncoderRot2Meter); TODO
     // driveEncoder.setVelocityConversionFactor(ModuleConstants.kDriveEncoderRPM2MeterPerSec);
     // turningEncoder.setPositionConversionFactor(ModuleConstants.kTurningEncoderRot2Rad);
     // turningEncoder.setVelocityConversionFactor(ModuleConstants.kTurningEncoderRPM2RadPerSec);
@@ -54,26 +52,18 @@ public class SwerveModule {
     }
     
     // Drive
-    // mDriveController.set(mDriveLimiter.calculate(throttle));
-    mDriveController.set(throttle);
+    mDriveController.set(throttle * Constants.kDriveSlowDown);
     
     // Rotation
-    double rotationSpeed = mPID.calculate(0, distance) / kPIDInputRange * 2 * Constants.kRotationSlowDown;
+    double rotationSpeed = mPID.calculate(0, distance);
+    if (rotationSpeed > 1) rotationSpeed = 1;
+    if (rotationSpeed < -1) rotationSpeed = -1;
     if (mPID.atSetpoint()) {
       mRotationController.set(0);
     }
     else {
-      mRotationController.set(rotationSpeed);
+      mRotationController.set(rotationSpeed * Constants.kRotationSlowDown);
     }
-    // double rotationSpeed = mPID.calculate(0, distance); // Constants.kRotationSlowDown;
-    // if (rotationSpeed > 1) rotationSpeed = 1;
-    // if (rotationSpeed < -1) rotationSpeed = -1;
-    // if (mPID.atSetpoint()) {
-    //   mRotationController.set(0);
-    // }
-    // else {
-    //   //mRotationController.set(rotationSpeed);
-    // }
   }
   
   public static double getDistance(double encoder, double controller) {

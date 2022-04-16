@@ -87,13 +87,13 @@ public class Robot extends TimedRobot {
     double rotationY = mDriver.getRotationY();
     double throttle = mDriver.getPositionY();
     double strafe = mDriver.getPositionX();
-    boolean wantFieldCentricDrive = mDriver.wantFieldCentricDrive();
+    boolean wantFieldCentricDrive = !mDriver.wantFieldCentricDrive();
     boolean wantFieldCentricRotation = mDriver.wantFieldCentricRotation();
     boolean wantZero = mDriver.getDPad() == 0;
     boolean wantGyroReset = mDriver.getDPad() == 180;
     mDrive.setDriveMode(wantFieldCentricDrive ? DriveMode.FEILD : DriveMode.ROBOT);
     mDrive.setRotationMode(wantFieldCentricRotation ? RotationMode.FEILD : RotationMode.ROBOT);
-    mDrive.setSwerveDrive(throttle * Constants.kDriveSlowDown, strafe * Constants.kDriveSlowDown, rotationX * Constants.kRotationSlowDown, rotationY);
+    mDrive.setSwerveDrive(throttle, strafe, rotationX, rotationY);
 
     if (wantZero) {
       mDrive.setSwerveDrive(0, 0, 0, 0);
