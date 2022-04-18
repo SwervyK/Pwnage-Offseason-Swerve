@@ -6,8 +6,10 @@ package com.pwnagerobotics.pwnage2022;
 
 import com.pwnagerobotics.pwnage2022.humans.driver.XboxDriver;
 import com.pwnagerobotics.pwnage2022.subsystems.Drive;
+import com.pwnagerobotics.pwnage2022.subsystems.Recorder;
 import com.pwnagerobotics.pwnage2022.subsystems.Drive.DriveMode;
 import com.pwnagerobotics.pwnage2022.subsystems.Drive.RotationMode;
+import com.pwnagerobotics.pwnage2022.subsystems.Recorder.SwerveState;
 import com.team254.lib.subsystems.SubsystemManager;
 
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -28,6 +30,7 @@ public class Robot extends TimedRobot {
   // Subsystemss
   private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
   private final Drive mDrive = Drive.getInstance();
+  private final Recorder mRecorder = new Recorder("test1");
 
   public Robot(){
     super(0.04);
@@ -70,6 +73,10 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousPeriodic() {
+    var timestamp = Timer.getFPGATimestamp();
+    SwerveState state = mRecorder.getSwerveStateAtTimestamp(timestamp);
+    mDrive.setSwerveDrive(state.kThrottle, state.kStrafe, state.kRotationX, state.kRotationY);
+
     mSubsystemManager.executeEnabledLoops(Timer.getFPGATimestamp());
   }
 
@@ -95,7 +102,10 @@ public class Robot extends TimedRobot {
     mDrive.setRotationMode(wantFieldCentricRotation ? RotationMode.FEILD : RotationMode.ROBOT);
     mDrive.setSwerveDrive(throttle, strafe, rotationX, rotationY);
 
+    // mRecorder.recordInputs(throttle, strafe, rotationX, rotationY, timestamp);
+
     if (wantZero) {
+      //  mRecorder.stopRecording();
       mDrive.setSwerveDrive(0, 0, 0, 0);
     }
 
