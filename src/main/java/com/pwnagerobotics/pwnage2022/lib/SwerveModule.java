@@ -65,6 +65,15 @@ public class SwerveModule {
       mRotationController.set(rotationSpeed * Constants.kRotationSlowDown);
     }
   }
+
+  public static double clamp(double value, double max, boolean wrapAround) {
+    if (value > max)
+      return (wrapAround) ? value - max : max;
+    else if (value < 0)
+      return (wrapAround) ? value + max : 0;
+    else
+      return value;
+  }
   
   public static double getDistance(double encoder, double controller) {
     double result = encoder - controller;
