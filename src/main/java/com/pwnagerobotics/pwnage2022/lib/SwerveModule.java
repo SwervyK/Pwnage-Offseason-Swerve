@@ -3,7 +3,9 @@ package com.pwnagerobotics.pwnage2022.lib;
 import com.pwnagerobotics.pwnage2022.Constants;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.AnalogEncoder;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.motorcontrol.PWMMotorController;
 
@@ -15,6 +17,8 @@ public class SwerveModule {
   private AnalogEncoder mRotationEncoder;
   private PIDController mPID;
   private double mRotationOffset;
+  private PowerDistribution PDP = new PowerDistribution();
+  private SlewRateLimiter mDriveRateLimiter = new SlewRateLimiter(0.5);
   
   private static final double kPIDInputRange = 90;
   
@@ -24,21 +28,16 @@ public class SwerveModule {
     mRotationController = new PWMMotorController(mConstants.kName + " Rotation", mConstants.kRotationId) { };
     mRotationEncoder = new AnalogEncoder(mConstants.kRotationEncoderId);
     mRotationOffset = mConstants.kRotationOffset;
-    // driveEncoder.setPositionConversionFactor(ModuleConstants.kDriveEncoderRot2Meter); TODO
-    // driveEncoder.setVelocityConversionFactor(ModuleConstants.kDriveEncoderRPM2MeterPerSec);
-    // turningEncoder.setPositionConversionFactor(ModuleConstants.kTurningEncoderRot2Rad);
-    // turningEncoder.setVelocityConversionFactor(ModuleConstants.kTurningEncoderRPM2RadPerSec);
     mPID = new PIDController(mConstants.kp, mConstants.ki, mConstants.kd);
     mPID.enableContinuousInput(-kPIDInputRange, kPIDInputRange);
     mPID.setTolerance(mConstants.kRotationError);
   }
 
-  public void setModule(double rotation, double throttle)
+  public void setModule(double wantedPosition, double throttle)
   {
     // Postion
     double currentPosition = (mRotationEncoder.getAbsolutePosition() - mRotationOffset) * 360;
-    if (currentPosition < 0) currentPosition += 360;
-    double wantedPosition = rotation;
+    currentPosition = clamp(currentPosition, 360, 0, true); //if (currentPosition < 0) currentPosition += 360;
     
     // Distance
     double distance = getDistance(currentPosition, wantedPosition);
@@ -46,18 +45,19 @@ public class SwerveModule {
     // 90 flip
     if (Math.abs(distance) > 90 && Math.abs(distance) < 270) { // Maybe make a smaller range
       wantedPosition -= 180;
-      if (wantedPosition < 0) wantedPosition += 360;
+      wantedPosition = clamp(wantedPosition, 360, 0, true); //if (wantedPosition < 0) wantedPosition += 360;
       distance = getDistance(currentPosition, wantedPosition);
       throttle *= -1;
     }
     
     // Drive
-    mDriveController.set(throttle * Constants.kDriveSlowDown);
+    if (PDP.getCurrent(mConstants.kPDPId) > Constants.kDriveCurrentLimit) throttle = 0;
+    mDriveController.set(mDriveRateLimiter.calculate(throttle) * Constants.kDriveSlowDown);
     
     // Rotation
-    double rotationSpeed = mPID.calculate(0, distance);
-    if (rotationSpeed > 1) rotationSpeed = 1;
-    if (rotationSpeed < -1) rotationSpeed = -1;
+    double rotationSpeed = clamp(mPID.calculate(0, distance), 1, -1, false);
+    // if (rotationSpeed > 1) rotationSpeed = 1;
+    // if (rotationSpeed < -1) rotationSpeed = -1;
     if (mPID.atSetpoint()) {
       mRotationController.set(0);
     }
@@ -66,14 +66,18 @@ public class SwerveModule {
     }
   }
 
-  public static double clamp(double value, double max, boolean wrapAround) {
-    if (value > max)
-      return (wrapAround) ? value - max : max;
-    else if (value < 0)
-      return (wrapAround) ? value + max : 0;
-    else
-      return value;
-  }
+  public static double clamp(double value, double max, double min, boolean wrapAround) {
+    // if (value > max)
+    //     return min + ((value-min)%(max-min+1));
+    // else if (value < min)
+    //     return max + ((value-max)%(max-min+1));
+    // else
+    //     return value;
+    if (wrapAround)
+      return ((value>max)?min:max)+((value-((value>max)?min:max))%(max-min+1));
+    else 
+      return (value>=max)?max:(value<=min)?min:value;
+}
   
   public static double getDistance(double encoder, double controller) {
     double result = encoder - controller;

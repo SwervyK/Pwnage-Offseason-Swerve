@@ -34,16 +34,17 @@ public class Drive extends Subsystem {
   private PIDController mCompensationPID = new PIDController(Constants.kRotationkP, Constants.kRotationkI, Constants.kRotationkD);
   private SwerveModule[] mModules = new SwerveModule[4];
   private AHRS mNavX = new AHRS();
-  private double mCurrentRobotAngle = 0.0;
-  private double mCurrentGyroValue = 0.0;
-  private double mOldGyroValue = 0.0;
+  private double mCurrentRobotAngle = 0.0; // Calculating gyro angle using difference between last and current gyro value
+  private double mWantedAngle = 0.0; // Direction the robot should be pointing
+  private double mCurrentGyroValue = 0.0; // Current gyro value
+  private double mOldGyroValue = 0.0; // Last gyro value
   
   public Drive() {
     mModules[0] = new SwerveModule(Constants.kFrontRightModuleConstants);
     mModules[1] = new SwerveModule(Constants.kFrontLefttModuleConstants);
     mModules[2] = new SwerveModule(Constants.kBackRightModuleConstants);
     mModules[3] = new SwerveModule(Constants.kBackLefttModuleConstants);
-    
+
     mFieldCentricRotationPID.enableContinuousInput(-180, 180);
     mFieldCentricRotationPID.setTolerance(Constants.kFieldCentricRotationError);
     mCompensationPID.enableContinuousInput(-180, 180);
@@ -53,30 +54,35 @@ public class Drive extends Subsystem {
   }
   
   public synchronized void setSwerveDrive(double throttle, double strafe, double rotationX, double rotationY) {
-    double angle = Math.toDegrees(Math.atan2(strafe, throttle));
-    angle = (angle >= 0) ? angle : angle + 360;
-    double speed = Math.sqrt(Math.pow(Math.abs(strafe), 2) + Math.pow(Math.abs(throttle), 2));
-    speed = (speed >= 1) ? 1 : speed;
+    double angle = Math.toDegrees(Math.atan2(strafe, throttle)); // Find what angle we want to drive at
+    angle = (angle >= 0) ? angle : angle + 360; // Angle is a value from -180 to 180
+    double speed = Math.sqrt(Math.pow(Math.abs(strafe), 2) + Math.pow(Math.abs(throttle), 2)); // Get wanted speed of robot
+    speed = SwerveModule.clamp(speed, 1, 0, false);
     mCurrentGyroValue = mNavX.getAngle();
     mCurrentRobotAngle += mCurrentGyroValue - mOldGyroValue;
 
+    // Rotation
     if (mCurrentRotationMode == RotationMode.FEILD) {
-      double wantedAngle = Math.toDegrees(Math.atan2(rotationX, rotationY));
+      double wantedAngle = Math.toDegrees(Math.atan2(rotationX, rotationY)); // Point robot in direction of controller using pid
       wantedAngle = (wantedAngle >= 0) ? wantedAngle : wantedAngle + 360;
       double distance = SwerveModule.getDistance(getGyroAngle(), wantedAngle);
-      rotationX = mFieldCentricRotationPID.calculate(0, -distance);
-      if (rotationX > 1) rotationX = 1;
-      if (rotationX < -1) rotationX = -1;
+      rotationX = SwerveModule.clamp(mFieldCentricRotationPID.calculate(0, -distance), 1, -1, false);
+      // if (rotationX > 1) rotationX = 1;
+      // if (rotationX < -1) rotationX = -1;
       if (mFieldCentricRotationPID.atSetpoint()) rotationX = 0;
     }
     else {
-      rotationX *= Constants.kSpinSlowDown;
+      rotationX *= Constants.kSpinSlowDown; // Regular rotation
     }
     
+    // Drive
     if (mCurrentDriveMode == DriveMode.FEILD) {
-      angle -= getGyroAngle();
-      // angle -= mCurrentRobotAngle; // TODO Test if this is better
-      if (angle < 0) angle += 360;
+      if (Constants.kTrustGyro)
+        angle -= getGyroAngle(); // Field centric
+      else
+        angle -= mCurrentRobotAngle; // TODO Test if this is better
+      angle = SwerveModule.clamp(angle, 360, 0, true);
+      //if (angle < 0) angle += 360;
       if (mCurrentRotationMode != RotationMode.FEILD) {
         angle -= Constants.kGyroLag*rotationX; // TODO * Constants.kSpinSlowDown?
       }
@@ -86,12 +92,21 @@ public class Drive extends Subsystem {
       // angle = Math.toDegrees(Math.atan2(strafe, throttle));
       // angle = (angle >= 0) ? angle : angle + 360;
     }
-    if (rotationX == 0) { // Gyro Drift/Lag Compensation
-      double distance = mCurrentGyroValue - mOldGyroValue;
-      rotationX = mCompensationPID.calculate(0, distance) * (speed * Constants.kDriveSlowDown); // At higher speeds more compensation needed
-      if (rotationX > 1) rotationX = 1;
-      if (rotationX < -1) rotationX = -1;
+
+    // Gyro Drift/Lag Compensation
+    if (rotationX == 0) {
+      double distance = 0;
+      if (Constants.kTrustGyro)
+        distance = mCurrentGyroValue - mOldGyroValue;
+      else
+        distance = mWantedAngle - getGyroAngle();
+      rotationX = SwerveModule.clamp(mCompensationPID.calculate(0, distance) * (speed * Constants.kDriveSlowDown), 1, -1, false); // At higher speeds more compensation needed?
+      // if (rotationX > 1) rotationX = 1;
+      // if (rotationX < -1) rotationX = -1;
       if (mCompensationPID.atSetpoint()) rotationX = 0;
+    }
+    else {
+      mWantedAngle = getGyroAngle();
     }
     
     setVectorSwerveDrive(speed, -rotationX, angle);

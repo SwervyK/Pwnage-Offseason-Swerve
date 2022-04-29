@@ -8,10 +8,28 @@ import com.pwnagerobotics.pwnage2022.lib.SwerveModuleConstants;
  */
 public class Constants {
 
+    public static void main(String[] args) {
+        int min = -3;
+        int max = 6;
+        int value = 8;
+        System.out.println(clamp(value, min, max));
+    }
+
+    public static double clamp(double value, double min, double max) {
+        // if (value > max)
+        //     return min + ((value-min)%(max-min+1));
+        // else if (value < min)
+        //     return max + ((value-max)%(max-min+1));
+        // else
+        //     return value;
+        return ((value > max)?min:max)+((value-((value>max)?min:max))%(max-min+1));
+    }
+
     // Drivetrain
     public static final double kDriveSlowDown = 0.5;
     public static final double kRotationSlowDown = 1;
     public static final double kSpinSlowDown = 0.5;
+    public static final double kDriveCurrentLimit = 50;
 
     // Controller Deadbands
     public static final double kLeftStickDeadband = 0.05;
@@ -26,7 +44,8 @@ public class Constants {
 
     // Gyro
     public static final double kGyroOffset = 284.0;
-    public static final double kGyroErrorOffset = 100.0;
+    public static final double kGyroLag = 100.0; // When moving compensate for gyro lag
+    public static final boolean kTrustGyro = true;
 
     // Modules
     public static final SwerveModuleConstants kFrontRightModuleConstants = new SwerveModuleConstants();

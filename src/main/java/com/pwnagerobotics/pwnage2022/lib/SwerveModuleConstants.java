@@ -5,6 +5,7 @@ public class SwerveModuleConstants {
     public int kDriveId = 0;
     public int kRotationId = 0;
     public int kRotationEncoderId = 0;
+    public int kPDPId = 0;
 
     public double kp = 0.01;
     public double ki = 0.001;
