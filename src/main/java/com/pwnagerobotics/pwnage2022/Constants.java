@@ -7,24 +7,6 @@ import com.pwnagerobotics.pwnage2022.lib.SwerveModuleConstants;
  * constants as well as constants determined through calibration.
  */
 public class Constants {
-
-    public static void main(String[] args) {
-        int min = -3;
-        int max = 6;
-        int value = 8;
-        System.out.println(clamp(value, min, max));
-    }
-
-    public static double clamp(double value, double min, double max) {
-        // if (value > max)
-        //     return min + ((value-min)%(max-min+1));
-        // else if (value < min)
-        //     return max + ((value-max)%(max-min+1));
-        // else
-        //     return value;
-        return ((value > max)?min:max)+((value-((value>max)?min:max))%(max-min+1));
-    }
-
     // Drivetrain
     public static final double kDriveSlowDown = 0.5;
     public static final double kRotationSlowDown = 1;

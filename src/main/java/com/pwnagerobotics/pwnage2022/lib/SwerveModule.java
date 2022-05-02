@@ -32,7 +32,7 @@ public class SwerveModule {
     mPID.enableContinuousInput(-kPIDInputRange, kPIDInputRange);
     mPID.setTolerance(mConstants.kRotationError);
   }
-
+  
   public void setModule(double wantedPosition, double throttle)
   {
     // Postion
@@ -65,19 +65,18 @@ public class SwerveModule {
       mRotationController.set(rotationSpeed * Constants.kRotationSlowDown);
     }
   }
-
+  
   public static double clamp(double value, double max, double min, boolean wrapAround) {
-    // if (value > max)
-    //     return min + ((value-min)%(max-min+1));
-    // else if (value < min)
-    //     return max + ((value-max)%(max-min+1));
-    // else
-    //     return value;
-    if (wrapAround)
-      return ((value>max)?min:max)+((value-((value>max)?min:max))%(max-min+1));
+    if (wrapAround) {
+      if (value > max)
+        return (value - (max-min) * ((int)((value-max-1)/(max - min)))) - max + min;
+      else if (value < min)
+        return value + (max-min) * -((((int)((value-max)/(max - min))))+1) - min + max;
+      return value;
+    }
     else 
       return (value>=max)?max:(value<=min)?min:value;
-}
+  }
   
   public static double getDistance(double encoder, double controller) {
     double result = encoder - controller;
@@ -99,4 +98,3 @@ public class SwerveModule {
     mRotationEncoder.reset();
   }
 }
-  
