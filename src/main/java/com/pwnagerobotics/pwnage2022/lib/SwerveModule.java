@@ -51,8 +51,9 @@ public class SwerveModule {
     }
     
     // Drive
-    if (PDP.getCurrent(mConstants.kPDPId) > Constants.kDriveCurrentLimit) throttle = 0;
-    mDriveController.set(mDriveRateLimiter.calculate(throttle) * Constants.kDriveSlowDown);
+    //if (PDP.getCurrent(mConstants.kPDPId) > Constants.kDriveCurrentLimit) throttle = 0; //TODO Current Limit
+    //throttle = mDriveRateLimiter.calculate(throttle); //TODO Rate Limit
+    mDriveController.set(throttle * Constants.kDriveSlowDown);
     
     // Rotation
     double rotationSpeed = clamp(mPID.calculate(0, distance), 1, -1, false);

@@ -77,7 +77,7 @@ public class Drive extends Subsystem {
     
     // Drive
     if (mCurrentDriveMode == DriveMode.FEILD) {
-      if (Constants.kTrustGyro)
+      if (Constants.kTrustGyro) //TODO Feild Centric
         angle -= getGyroAngle(); // Field centric
       else
         angle -= mCurrentRobotAngle; // TODO Test if this is better
@@ -96,7 +96,7 @@ public class Drive extends Subsystem {
     // Gyro Drift/Lag Compensation
     if (rotationX == 0) {
       double distance = 0;
-      if (Constants.kTrustGyro)
+      if (Constants.kTrustGyro) //TODO Compensation
         distance = mCurrentGyroValue - mOldGyroValue;
       else
         distance = mWantedAngle - getGyroAngle();
