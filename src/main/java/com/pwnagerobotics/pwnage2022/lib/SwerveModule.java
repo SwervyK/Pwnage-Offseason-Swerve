@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.AnalogEncoder;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.motorcontrol.PWMMotorController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveModule {
   
@@ -65,6 +66,26 @@ public class SwerveModule {
     else {
       mRotationController.set(rotationSpeed * Constants.kRotationSlowDown);
     }
+    mDeltaRotationSpeed = mOldRotationSpeed - rotationSpeed;
+    if (mDeltaRotationSpeed > mMaxDeltaRotationSpeed) mMaxDeltaRotationSpeed = mDeltaRotationSpeed;
+    mOldRotationSpeed = rotationSpeed;
+    mDeltaDriveSpeed = mOldDriveSpeed - throttle;
+    if (mDeltaDriveSpeed > mMaxDeltaDriveSpeed) mMaxDeltaDriveSpeed = mDeltaDriveSpeed;
+    mOldDriveSpeed = throttle;
+  }
+
+  private double mOldRotationSpeed = 0;
+  private double mDeltaRotationSpeed = 0;
+  private double mOldDriveSpeed = 0;
+  private double mDeltaDriveSpeed = 0;
+  private double mMaxDeltaDriveSpeed = 0;
+  private double mMaxDeltaRotationSpeed = 0;
+
+  public void outputTelemetry() {
+    SmartDashboard.putNumber("Delta Rotation Speed: " + mConstants.kName, mDeltaRotationSpeed);
+    SmartDashboard.putNumber("Delta Drive Speed: " + mConstants.kName, mDeltaDriveSpeed);
+    SmartDashboard.putNumber("Max Delta Drive Speed: " + mConstants.kName, mMaxDeltaDriveSpeed);
+    SmartDashboard.putNumber("Max Delta Rotation Speed: " + mConstants.kName, mMaxDeltaRotationSpeed);
   }
   
   public static double clamp(double value, double max, double min, boolean wrapAround) {

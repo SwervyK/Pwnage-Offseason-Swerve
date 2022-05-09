@@ -207,12 +207,16 @@ public class Drive extends Subsystem {
   
   @Override
   public void outputTelemetry() {
-    SmartDashboard.putNumber("Front Right", mModules[0].getRotation());
-    SmartDashboard.putNumber("Front Left", mModules[1].getRotation());
-    SmartDashboard.putNumber("Back Right", mModules[2].getRotation());
-    SmartDashboard.putNumber("Back Left", mModules[3].getRotation());
+    SmartDashboard.putNumber("Front Right Angle", mModules[0].getRotation());
+    SmartDashboard.putNumber("Front Left Angle", mModules[1].getRotation());
+    SmartDashboard.putNumber("Back Right Angle", mModules[2].getRotation());
+    SmartDashboard.putNumber("Back Left Angle", mModules[3].getRotation());
     SmartDashboard.putNumber("Gyro Angle", getGyroAngle());
     SmartDashboard.putNumber("Raw Gyro Angle", mNavX.getYaw());
+    mModules[0].outputTelemetry();
+    mModules[1].outputTelemetry();
+    mModules[2].outputTelemetry();
+    mModules[3].outputTelemetry();
   }
   
   @Override
