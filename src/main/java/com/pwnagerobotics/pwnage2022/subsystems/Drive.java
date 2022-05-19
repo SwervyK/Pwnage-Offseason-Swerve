@@ -34,7 +34,6 @@ public class Drive extends Subsystem {
   private PIDController mCompensationPID = new PIDController(Constants.kRotationkP, Constants.kRotationkI, Constants.kRotationkD);
   private SwerveModule[] mModules = new SwerveModule[4];
   private AHRS mNavX = new AHRS();
-  private double mCurrentRobotAngle = 0.0; // Calculating gyro angle using difference between last and current gyro value
   private double mWantedAngle = 0.0; // Direction the robot should be pointing
   private double mCurrentGyroValue = 0.0; // Current gyro value
   private double mOldGyroValue = 0.0; // Last gyro value
@@ -59,7 +58,6 @@ public class Drive extends Subsystem {
     double speed = Math.sqrt(Math.pow(Math.abs(strafe), 2) + Math.pow(Math.abs(throttle), 2)); // Get wanted speed of robot
     speed = SwerveModule.clamp(speed, 1, 0, false);
     mCurrentGyroValue = mNavX.getAngle();
-    mCurrentRobotAngle += mCurrentGyroValue - mOldGyroValue;
 
     // Rotation
     if (mCurrentRotationMode == RotationMode.FEILD) {
@@ -77,10 +75,7 @@ public class Drive extends Subsystem {
     
     // Drive
     if (mCurrentDriveMode == DriveMode.FEILD) {
-      if (Constants.kTrustGyro) //TODO Feild Centric
-        angle -= getGyroAngle(); // Field centric
-      else
-        angle -= mCurrentRobotAngle; // TODO Test if this is better
+       angle -= getGyroAngle(); // Field centric
       angle = SwerveModule.clamp(angle, 360, 0, true);
       //if (angle < 0) angle += 360;
       if (mCurrentRotationMode != RotationMode.FEILD) {
@@ -95,11 +90,7 @@ public class Drive extends Subsystem {
 
     // Gyro Drift/Lag Compensation
     if (rotationX == 0) {
-      double distance = 0;
-      if (Constants.kTrustGyro) //TODO Compensation
-        distance = mCurrentGyroValue - mOldGyroValue;
-      else
-        distance = mWantedAngle - getGyroAngle();
+      double distance = mWantedAngle - getGyroAngle();
       rotationX = SwerveModule.clamp(mCompensationPID.calculate(0, distance) * (speed * Constants.kDriveSlowDown), 1, -1, false); // At higher speeds more compensation needed?
       // if (rotationX > 1) rotationX = 1;
       // if (rotationX < -1) rotationX = -1;

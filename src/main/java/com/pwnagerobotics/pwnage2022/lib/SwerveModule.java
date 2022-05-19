@@ -65,6 +65,7 @@ public class SwerveModule {
     }
     else {
       mRotationController.set(rotationSpeed * Constants.kRotationSlowDown);
+      //mRotationController.set(rotationSpeed*rotationSpeed * Constants.kRotationSlowDown); // Controller Value ^4
     }
     mDeltaRotationSpeed = mOldRotationSpeed - rotationSpeed;
     if (mDeltaRotationSpeed > mMaxDeltaRotationSpeed) mMaxDeltaRotationSpeed = mDeltaRotationSpeed;

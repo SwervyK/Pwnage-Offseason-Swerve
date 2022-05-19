@@ -8,7 +8,7 @@ import com.pwnagerobotics.pwnage2022.lib.SwerveModuleConstants;
  */
 public class Constants {
     // Drivetrain
-    public static final double kDriveSlowDown = 0.5;
+    public static final double kDriveSlowDown = 0.7;
     public static final double kRotationSlowDown = 1;
     public static final double kSpinSlowDown = 0.5;
     public static final double kDriveCurrentLimit = 50;
@@ -27,7 +27,6 @@ public class Constants {
     // Gyro
     public static final double kGyroOffset = 284.0;
     public static final double kGyroLag = 100.0; // When moving compensate for gyro lag
-    public static final boolean kTrustGyro = true;
 
     // Modules
     public static final SwerveModuleConstants kFrontRightModuleConstants = new SwerveModuleConstants();
