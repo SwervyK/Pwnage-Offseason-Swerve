@@ -30,7 +30,7 @@ public class Robot extends TimedRobot {
   // Subsystemss
   private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
   private final Drive mDrive = Drive.getInstance();
-  private final Recorder mRecorder = new Recorder("test2.txt");
+  private final Recorder mRecorder = new Recorder();
 
   public Robot(){
     super(0.04);
@@ -84,6 +84,8 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     mSubsystemManager.executeEnabledLoopStops(Timer.getFPGATimestamp());
     mSubsystemManager.executeEnabledLoopStarts(Timer.getFPGATimestamp());
+
+    mRecorder.newAuto("test2");
   }
 
   @Override

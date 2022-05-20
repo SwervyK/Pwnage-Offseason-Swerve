@@ -79,6 +79,10 @@ public class XboxDriver {
         //   return 0.0;
         // }
       }
+
+      public static double scaleController(double value, double minValue) {
+        return (value * (1-minValue)) + minValue;
+      }
     
       private static double modifyAxis(double value, double opposite, double deadband) {
         // Deadband

@@ -2,6 +2,7 @@ package com.pwnagerobotics.pwnage2022.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.pwnagerobotics.pwnage2022.Constants;
+import com.pwnagerobotics.pwnage2022.humans.driver.XboxDriver;
 import com.pwnagerobotics.pwnage2022.lib.SwerveModule;
 import com.pwnagerobotics.pwnage2022.subsystems.Drive;
 
@@ -61,6 +62,7 @@ public class Drive extends Subsystem {
     angle = (angle >= 0) ? angle : angle + 360; // Convert from -180 to 180 to be between 0 to 360
     double speed = Math.sqrt(Math.pow(Math.abs(strafe), 2) + Math.pow(Math.abs(throttle), 2)); // Get wanted speed of robot
     speed = SwerveModule.clamp(speed, 1, 0, false);
+    speed = XboxDriver.scaleController(speed, Constants.kDriveMinValue);
 
     // Rotation
     if (mCurrentRotationMode == RotationMode.FEILD) {
@@ -73,6 +75,7 @@ public class Drive extends Subsystem {
     else {
       rotationX *= Constants.kSpinSlowDown; // Regular rotation
       rotationX *= rotationX * Math.signum(rotationX);
+      rotationX = XboxDriver.scaleController(rotationX, Constants.kRotationMinValue);
     }
     
     // Drive

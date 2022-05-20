@@ -7,6 +7,10 @@ import com.pwnagerobotics.pwnage2022.lib.SwerveModuleConstants;
  * constants as well as constants determined through calibration.
  */
 public class Constants {
+    // Controller
+    public static final double kRotationMinValue = 0;
+    public static final double kDriveMinValue = 0;
+    
     // Drivetrain
     public static final double kDriveSlowDown = 0.7;
     public static final double kRotationSlowDown = 1.0; // Field Centric Rotation

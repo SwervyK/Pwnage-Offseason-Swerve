@@ -2,38 +2,64 @@ package com.pwnagerobotics.pwnage2022.subsystems;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 public class Recorder {
     
     private File mAutoFile;
+    private File[] mAutoFiles;
+    private File mAutoDir = new File("home/lvuser/autoRecordings");
+    private static SendableChooser<File> mAutoChooser = new SendableChooser<File>();
     private ArrayList<String> mAutoPath = new ArrayList<String>();
     
-    public Recorder(String filename){
+    public Recorder(){
         try {
-            mAutoFile = new File("home/lvuser/" + filename);
-            if (!mAutoFile.exists()) mAutoFile.createNewFile();
+            if (mAutoDir.exists()) mAutoDir.mkdir();
+            String[] fileNames = mAutoDir.list();
+            mAutoFiles = new File[fileNames.length];
+            for (int i = 0; i < fileNames.length; i++) {
+                mAutoFiles[i] = new File(mAutoDir.getPath() + fileNames[i]);
+                mAutoChooser.addOption(fileNames[i], mAutoFiles[i]);
+            }
+            SmartDashboard.putData("Auto Chooser", mAutoChooser);
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Error in creating file");
         }
         
     }
+
+    public void newAuto(String filename) {
+        mAutoFile = new File(mAutoDir.getPath() + filename);
+        try {
+            if (!mAutoFile.exists()) 
+                mAutoFile.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     
+    public void recordInputs(double throttle, double strafe, double rotationX, double rotationY, double timestamp){
+        mAutoPath.add(timestamp+":[rx="+rotationX+"]"+"[ry="+rotationY+"]"+"[t="+throttle+"]"+"[s="+strafe+"] ");
+    }
+    
+    public void stopRecording() {
+        String[] data = new String[mAutoPath.size()];
+        data = mAutoPath.toArray(data);
+        writeData(data, mAutoFile);
+    }
+
     public class SwerveState {
         public double kThrottle = 0, kStrafe = 0, kRotationX = 0, kRotationY = 0, kTimestamp = 0;
     }
     
     private SwerveState[] swerveStates;
-    
-    public void stopRecording() {
-        String[] data = new String[mAutoPath.size()];
-		data = mAutoPath.toArray(data);
-        writeData(data, mAutoFile);
-        System.out.println("Data written: " + data[0]);
-    }
     
     public SwerveState getSwerveStateAtTimestamp(double timestamp){
         if (swerveStates == null) loadFromFile();
@@ -52,7 +78,7 @@ public class Recorder {
     }
     
     private void loadFromFile(){
-        String[] data = readData(mAutoFile);
+        String[] data = readData(mAutoChooser.getSelected());
         swerveStates = new SwerveState[data.length];
         for(int i = 0; i < data.length; i++){
             double t = Double.parseDouble(data[i].substring(data[i].indexOf("t=")+2,data[i].indexOf("][s")));
@@ -69,9 +95,7 @@ public class Recorder {
         }
     }
     
-    public void recordInputs(double throttle, double strafe, double rotationX, double rotationY, double timestamp){
-        mAutoPath.add(timestamp+":[rx="+rotationX+"]"+"[ry="+rotationY+"]"+"[t="+throttle+"]"+"[s="+strafe+"] ");
-    }
+
     
     private String[] readData(File file) {
         String[] result = new String[0];
