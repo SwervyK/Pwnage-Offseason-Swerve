@@ -9,8 +9,8 @@ import com.pwnagerobotics.pwnage2022.lib.SwerveModuleConstants;
 public class Constants {
     // Drivetrain
     public static final double kDriveSlowDown = 0.7;
-    public static final double kRotationSlowDown = 1;
-    public static final double kSpinSlowDown = 0.5;
+    public static final double kRotationSlowDown = 1.0; // Field Centric Rotation
+    public static final double kSpinSlowDown = 1.0; // Robot Centric Rotation
     public static final double kDriveCurrentLimit = 50;
 
     // Controller Deadbands
@@ -26,7 +26,8 @@ public class Constants {
 
     // Gyro
     public static final double kGyroOffset = 284.0;
-    public static final double kGyroLag = 100.0; // When moving compensate for gyro lag
+    public static final double kGyroLag = 50.0; // When moving compensate for gyro lag
+    public static final double kGyroDelay = 1.5; // Seonds
 
     // Modules
     public static final SwerveModuleConstants kFrontRightModuleConstants = new SwerveModuleConstants();
@@ -34,17 +35,19 @@ public class Constants {
         kFrontRightModuleConstants.kName = "Front Right";
         kFrontRightModuleConstants.kDriveId = 1;
         kFrontRightModuleConstants.kRotationId = 0;
-        kFrontRightModuleConstants.kRotationOffset =  0.094;
+        kFrontRightModuleConstants.kRotationOffset =  0.092;
         kFrontRightModuleConstants.kRotationEncoderId = 2;
+        kFrontRightModuleConstants.kPDPId = 3;
     }
 
-    public static final SwerveModuleConstants kFrontLefttModuleConstants = new SwerveModuleConstants();
+    public static final SwerveModuleConstants kFrontLeftModuleConstants = new SwerveModuleConstants();
     static {
-        kFrontLefttModuleConstants.kName = "Front Left";
-        kFrontLefttModuleConstants.kDriveId = 5;
-        kFrontLefttModuleConstants.kRotationId = 4;
-        kFrontLefttModuleConstants.kRotationOffset =  0.126;
-        kFrontLefttModuleConstants.kRotationEncoderId = 0;
+        kFrontLeftModuleConstants.kName = "Front Left";
+        kFrontLeftModuleConstants.kDriveId = 5;
+        kFrontLeftModuleConstants.kRotationId = 4;
+        kFrontLeftModuleConstants.kRotationOffset =  0.126;
+        kFrontLeftModuleConstants.kRotationEncoderId = 0;
+        kFrontLeftModuleConstants.kPDPId = 14;
    }
 
     public static final SwerveModuleConstants kBackRightModuleConstants = new SwerveModuleConstants();
@@ -54,14 +57,16 @@ public class Constants {
         kBackRightModuleConstants.kRotationId = 2;
         kBackRightModuleConstants.kRotationOffset =  0.735;
         kBackRightModuleConstants.kRotationEncoderId = 3;
+        kBackRightModuleConstants.kPDPId = 0;
     }
 
-    public static final SwerveModuleConstants kBackLefttModuleConstants = new SwerveModuleConstants();
+    public static final SwerveModuleConstants kBackLeftModuleConstants = new SwerveModuleConstants();
     static {
-        kBackLefttModuleConstants.kName = "Back Left";
-        kBackLefttModuleConstants.kDriveId = 9;
-        kBackLefttModuleConstants.kRotationId = 6;
-        kBackLefttModuleConstants.kRotationOffset =  0.189;
-        kBackLefttModuleConstants.kRotationEncoderId = 1;
+        kBackLeftModuleConstants.kName = "Back Left";
+        kBackLeftModuleConstants.kDriveId = 9;
+        kBackLeftModuleConstants.kRotationId = 6;
+        kBackLeftModuleConstants.kRotationOffset =  0.189;
+        kBackLeftModuleConstants.kRotationEncoderId = 1;
+        kBackLeftModuleConstants.kPDPId = 15;
     }
 }

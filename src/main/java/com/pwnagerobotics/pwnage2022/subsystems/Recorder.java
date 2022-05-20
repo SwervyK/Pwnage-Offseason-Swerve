@@ -1,55 +1,42 @@
 package com.pwnagerobotics.pwnage2022.subsystems;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Scanner;
 
-import com.team254.lib.util.ReflectingCSVWriter;
-
 public class Recorder {
-
-    private ReflectingCSVWriter<String> CSVWriter;
-    private Scanner scanner;
-
+    
+    private File mAutoFile;
+    private ArrayList<String> mAutoPath = new ArrayList<String>();
+    
     public Recorder(String filename){
         try {
-            CSVWriter = new ReflectingCSVWriter<>(filename, String.class);
-            scanner = new Scanner(filename);
+            if (!mAutoFile.exists()) mAutoFile.createNewFile();
+            mAutoFile = new File("home/lvuser/" + filename);
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Error in creating file");
         }
-
+        
     }
-
+    
     public class SwerveState {
-        public double kThrottle,kStrafe,kRotationX,kRotationY,kTimestamp;
+        public double kThrottle = 0, kStrafe = 0, kRotationX = 0, kRotationY = 0, kTimestamp = 0;
     }
-
+    
     private SwerveState[] swerveStates;
-
-    private void writeToFile(String s){
-        CSVWriter.add(s);
-    }
-
-    private String[] readFromFile(String fileName){
-        try{
-            String[] result = new String[(int)Files.lines(new File(fileName).toPath()).count()];
-            for(int i = 0; i < result.length; i++){
-                result[i] = scanner.nextLine();
-            }
-            return result;
-        } catch (Exception e){
-            return null;
-
-        }
-    }
-
+    
     public void stopRecording() {
-        CSVWriter.flush();
+        String[] data = new String[mAutoPath.size()];
+		data = mAutoPath.toArray(data);
+        writeData(data, mAutoFile);
+        System.out.println("Data written: " + data[0]);
     }
-
+    
     public SwerveState getSwerveStateAtTimestamp(double timestamp){
+        if (swerveStates == null) loadFromFile();
         int closestIndex = 0;
         double difference = 999999999; //INFINITY
         for(int i = 0; i < swerveStates.length; i++){
@@ -63,16 +50,17 @@ public class Recorder {
         }
         return swerveStates[closestIndex];
     }
-
-    public void loadFromFile(String fileName){
-        String[] data = readFromFile(fileName);
+    
+    private void loadFromFile(){
+        String[] data = readData(mAutoFile);
         swerveStates = new SwerveState[data.length];
         for(int i = 0; i < data.length; i++){
-            double t = Double.parseDouble(data[i].substring(data[i].indexOf("t=")+1,data[i].indexOf("][s")));
-            double s = Double.parseDouble(data[i].substring(data[i].indexOf("s=")+1,data[i].indexOf("] ")));
-            double rx = Double.parseDouble(data[i].substring(data[i].indexOf("rx=")+1,data[i].indexOf("][ry")));
-            double ry = Double.parseDouble(data[i].substring(data[i].indexOf("ry=")+1,data[i].indexOf("][t")));
+            double t = Double.parseDouble(data[i].substring(data[i].indexOf("t=")+2,data[i].indexOf("][s")));
+            double s = Double.parseDouble(data[i].substring(data[i].indexOf("s=")+2,data[i].indexOf("] ")));
+            double rx = Double.parseDouble(data[i].substring(data[i].indexOf("rx=")+3,data[i].indexOf("][ry")));
+            double ry = Double.parseDouble(data[i].substring(data[i].indexOf("ry=")+3,data[i].indexOf("][t")));
             double timeStamp = Double.parseDouble(data[i].substring(0, data[i].indexOf(":")));
+            swerveStates[i] = new SwerveState();
             swerveStates[i].kThrottle = t;
             swerveStates[i].kStrafe = s;
             swerveStates[i].kRotationX = rx;
@@ -80,8 +68,45 @@ public class Recorder {
             swerveStates[i].kTimestamp = timeStamp;
         }
     }
-
+    
     public void recordInputs(double throttle, double strafe, double rotationX, double rotationY, double timestamp){
-        writeToFile(timestamp+":[rx="+rotationX+"]"+"[ry="+rotationY+"]"+"[t="+throttle+"]"+"[s="+strafe+"] ");
+        mAutoPath.add(timestamp+":[rx="+rotationX+"]"+"[ry="+rotationY+"]"+"[t="+throttle+"]"+"[s="+strafe+"] ");
+    }
+    
+    private String[] readData(File file) {
+        String[] result = new String[0];
+        try {
+            result = new String[(int)Files.lines(file.toPath()).count()];
+            Scanner scanner = new Scanner(file);
+            int index = 0;
+            while (scanner.hasNextLine()) {
+                result[index] = scanner.nextLine();
+                index++;
+            }
+            scanner.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+    
+    private void writeData(String data, File file) {
+        try  {
+            FileWriter writer = new FileWriter(file);
+            writer.write(data);
+            writer.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private void writeData(String[] dataArr, File file) {
+        String data = "";
+        for (int i = 0; i < dataArr.length; i++) {
+            data += (dataArr[i] + "\n");
+        }
+        writeData(data, file);
     }
 }

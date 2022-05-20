@@ -1,11 +1,11 @@
 package com.pwnagerobotics.pwnage2022.lib;
 
 import com.pwnagerobotics.pwnage2022.Constants;
+import com.pwnagerobotics.pwnage2022.subsystems.Drive;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.AnalogEncoder;
-import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.motorcontrol.PWMMotorController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -18,9 +18,9 @@ public class SwerveModule {
   private AnalogEncoder mRotationEncoder;
   private PIDController mPID;
   private double mRotationOffset;
-  private PowerDistribution PDP = new PowerDistribution();
-  private SlewRateLimiter mDriveRateLimiter = new SlewRateLimiter(0.5);
   
+  private SlewRateLimiter mDriveRateLimiter = new SlewRateLimiter(0.5);
+  private double mLastThrottle = 0;
   private static final double kPIDInputRange = 90;
   
   public SwerveModule(SwerveModuleConstants constants) {
@@ -38,7 +38,7 @@ public class SwerveModule {
   {
     // Postion
     double currentPosition = (mRotationEncoder.getAbsolutePosition() - mRotationOffset) * 360;
-    currentPosition = clamp(currentPosition, 360, 0, true); //if (currentPosition < 0) currentPosition += 360;
+    currentPosition = clamp(currentPosition, 360, 0, true);
     
     // Distance
     double distance = getDistance(currentPosition, wantedPosition);
@@ -46,26 +46,24 @@ public class SwerveModule {
     // 90 flip
     if (Math.abs(distance) > 90 && Math.abs(distance) < 270) { // Maybe make a smaller range
       wantedPosition -= 180;
-      wantedPosition = clamp(wantedPosition, 360, 0, true); //if (wantedPosition < 0) wantedPosition += 360;
+      wantedPosition = clamp(wantedPosition, 360, 0, true);
       distance = getDistance(currentPosition, wantedPosition);
       throttle *= -1;
     }
     
     // Drive
-    //if (PDP.getCurrent(mConstants.kPDPId) > Constants.kDriveCurrentLimit) throttle = 0; //TODO Current Limit
-    //throttle = mDriveRateLimiter.calculate(throttle); //TODO Rate Limit
-    mDriveController.set(throttle * Constants.kDriveSlowDown);
+    if (Drive.getInstance().getCurrent(mConstants.kPDPId) > Constants.kDriveCurrentLimit) throttle = 0;
+    throttle = getAdjustedThrottle(mLastThrottle, throttle);
+    if (throttle == 0) mDriveController.stopMotor();
+    else mDriveController.set(throttle * Constants.kDriveSlowDown);
     
     // Rotation
     double rotationSpeed = clamp(mPID.calculate(0, distance), 1, -1, false);
-    // if (rotationSpeed > 1) rotationSpeed = 1;
-    // if (rotationSpeed < -1) rotationSpeed = -1;
     if (mPID.atSetpoint()) {
       mRotationController.set(0);
     }
     else {
       mRotationController.set(rotationSpeed * Constants.kRotationSlowDown);
-      //mRotationController.set(rotationSpeed*rotationSpeed * Constants.kRotationSlowDown); // Controller Value ^4
     }
     mDeltaRotationSpeed = mOldRotationSpeed - rotationSpeed;
     if (mDeltaRotationSpeed > mMaxDeltaRotationSpeed) mMaxDeltaRotationSpeed = mDeltaRotationSpeed;
@@ -73,6 +71,19 @@ public class SwerveModule {
     mDeltaDriveSpeed = mOldDriveSpeed - throttle;
     if (mDeltaDriveSpeed > mMaxDeltaDriveSpeed) mMaxDeltaDriveSpeed = mDeltaDriveSpeed;
     mOldDriveSpeed = throttle;
+    mLastThrottle = throttle;
+  }
+
+  private double getAdjustedThrottle(double lastThrottle, double throttle) {
+    if (throttle == 0) {
+      mDriveRateLimiter.reset(0);
+      return 0;
+    }
+    if (Math.signum(throttle) != Math.signum(lastThrottle) || Math.abs(throttle) < Math.abs(lastThrottle)) {
+      mDriveRateLimiter.reset(throttle);
+      return throttle;
+    }
+    return mDriveRateLimiter.calculate(throttle);
   }
 
   private double mOldRotationSpeed = 0;

@@ -30,7 +30,7 @@ public class Robot extends TimedRobot {
   // Subsystemss
   private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
   private final Drive mDrive = Drive.getInstance();
-  private final Recorder mRecorder = new Recorder("test1");
+  private final Recorder mRecorder = new Recorder("test2.txt");
 
   public Robot(){
     super(0.04);
@@ -102,10 +102,10 @@ public class Robot extends TimedRobot {
     mDrive.setRotationMode(wantFieldCentricRotation ? RotationMode.FEILD : RotationMode.ROBOT);
     mDrive.setSwerveDrive(throttle, strafe, rotationX, rotationY);
 
-    // mRecorder.recordInputs(throttle, strafe, rotationX, rotationY, timestamp);
+    mRecorder.recordInputs(throttle, strafe, rotationX, rotationY, timestamp);
 
     if (wantZero) {
-      //  mRecorder.stopRecording();
+      mRecorder.stopRecording();
       mDrive.setSwerveDrive(0, 0, 0, 0);
     }
 
