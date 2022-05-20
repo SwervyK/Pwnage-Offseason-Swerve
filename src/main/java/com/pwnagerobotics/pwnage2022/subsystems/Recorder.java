@@ -13,8 +13,8 @@ public class Recorder {
     
     public Recorder(String filename){
         try {
-            if (!mAutoFile.exists()) mAutoFile.createNewFile();
             mAutoFile = new File("home/lvuser/" + filename);
+            if (!mAutoFile.exists()) mAutoFile.createNewFile();
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Error in creating file");
