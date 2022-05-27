@@ -7,6 +7,7 @@ import com.pwnagerobotics.lib.drivers.XboxController.Side;
 import com.pwnagerobotics.pwnage2022.Constants;
 
 public class XboxDriver {
+    
     private final XboxController mController = new XboxController(0);
     
     public double getPositionX() {
@@ -67,9 +68,9 @@ public class XboxDriver {
             }
         }
         else {
-            return value;
+            return (value * (1-deadband)) + deadband;
         }
-        // if (Math.abs(value) > deadband) { Re-Scale so you get a full 0-1
+        // if (Math.abs(value) > deadband) { //Re-Scale so you get a full 0-1
         //   if (value > 0.0) {
         //     return (value - deadband) / (1.0 - deadband);
         //   } else {
@@ -80,8 +81,17 @@ public class XboxDriver {
         // }
       }
 
-      public static double scaleController(double value, double minValue) {
-        return (value * (1-minValue)) + minValue;
+      public static void main(String[] args) {
+          for (int i = 0; i <= 10; i++) {
+              System.out.println(((double)((int)(scaleController(i/10.0, 0.9, 0.7)*100)))/100 + " | " + i/10.0);
+          }
+      }
+
+      public static double scaleController(double value, double max, double min) {
+        return ((max-min)*((Math.abs(value)-0)/(1-0))+min)*Math.signum(value);
+        //xnormalized=(b−a)x−min(x)max(x)−min(x)+a //Min + Max
+        //return (value * (1-min)) + min; //Min only
+        //return (value * max); //Max only
       }
     
       private static double modifyAxis(double value, double opposite, double deadband) {
