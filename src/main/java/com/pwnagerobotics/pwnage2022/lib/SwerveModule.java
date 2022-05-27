@@ -44,7 +44,7 @@ public class SwerveModule {
     double distance = getDistance(currentPosition, wantedPosition);
     
     // 90 flip
-    if (Math.abs(distance) > 90 && Math.abs(distance) < 270) { // Maybe make a smaller range
+    if (Math.abs(distance) > 90) {
       wantedPosition -= 180;
       wantedPosition = clamp(wantedPosition, 360, 0, true);
       distance = getDistance(currentPosition, wantedPosition);
@@ -52,26 +52,26 @@ public class SwerveModule {
     }
     
     // Drive
-    //if (Drive.getInstance().getCurrent(mConstants.kPDPId) > Constants.kDriveCurrentLimit) throttle = 0;
+    if (Drive.getInstance().getCurrent(mConstants.kPDPId) > Constants.kDriveCurrentLimit) throttle = 0;
     //throttle = getAdjustedThrottle(mLastThrottle, throttle);
     if (throttle == 0) mDriveController.stopMotor();
     else mDriveController.set(throttle * Constants.kDriveSlowDown);
     
     // Rotation
     double rotationSpeed = clamp(mPID.calculate(0, distance), 1, -1, false);
-    if (mPID.atSetpoint()) {
+    if (mPID.atSetpoint())
       mRotationController.set(0);
-    }
-    else {
+    else
       mRotationController.set(rotationSpeed * Constants.kRotationSlowDown);
-    }
+    mLastThrottle = throttle;
+
+    // Logging
     mDeltaRotationSpeed = mOldRotationSpeed - rotationSpeed;
     if (mDeltaRotationSpeed > mMaxDeltaRotationSpeed) mMaxDeltaRotationSpeed = mDeltaRotationSpeed;
     mOldRotationSpeed = rotationSpeed;
     mDeltaDriveSpeed = mOldDriveSpeed - throttle;
     if (mDeltaDriveSpeed > mMaxDeltaDriveSpeed) mMaxDeltaDriveSpeed = mDeltaDriveSpeed;
     mOldDriveSpeed = throttle;
-    mLastThrottle = throttle;
   }
 
   private double getAdjustedThrottle(double lastThrottle, double throttle) {

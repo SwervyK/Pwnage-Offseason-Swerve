@@ -85,7 +85,7 @@ public class Robot extends TimedRobot {
     mSubsystemManager.executeEnabledLoopStops(Timer.getFPGATimestamp());
     mSubsystemManager.executeEnabledLoopStarts(Timer.getFPGATimestamp());
 
-    mRecorder.newAuto("spin");
+    //mRecorder.newAuto("spin");
   }
 
   @Override
@@ -100,14 +100,15 @@ public class Robot extends TimedRobot {
     boolean wantFieldCentricRotation = mDriver.wantFieldCentricRotation();
     boolean wantZero = mDriver.getDPad() == 0;
     boolean wantGyroReset = mDriver.getDPad() == 180;
+    
     mDrive.setDriveMode(wantFieldCentricDrive ? DriveMode.FEILD : DriveMode.ROBOT);
     mDrive.setRotationMode(wantFieldCentricRotation ? RotationMode.FEILD : RotationMode.ROBOT);
     mDrive.setSwerveDrive(throttle, strafe, rotationX, rotationY);
 
-    mRecorder.recordInputs(throttle, strafe, rotationX, rotationY, timestamp);
+    //mRecorder.recordInputs(throttle, strafe, rotationX, rotationY, timestamp);
 
     if (wantZero) {
-      mRecorder.stopRecording();
+      //mRecorder.stopRecording();
       mDrive.setSwerveDrive(0, 0, 0, 0);
     }
 
