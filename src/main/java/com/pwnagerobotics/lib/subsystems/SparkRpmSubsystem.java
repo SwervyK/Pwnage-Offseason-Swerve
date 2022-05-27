@@ -70,7 +70,6 @@ public class SparkRpmSubsystem extends Subsystem {
         mMaster.setClosedLoopRampRate(mConstants.kClosedLoopRampRate);
         mMaster.setInverted(mConstants.kMasterInverted);
         mMaster.setIdleMode(IdleMode.kCoast);
-        // TODO current limit
 
         mSensor = mMaster.getEncoder();
         //mSensor.setInverted(mConstants.kSensorInverted);
@@ -167,7 +166,7 @@ public class SparkRpmSubsystem extends Subsystem {
     }
 
     public synchronized void handleMasterReset(boolean reset) {
-    } // TODO important if relative sensor
+    }
 
     @Override
     public void onEnabledLoopStart(double timestamp){

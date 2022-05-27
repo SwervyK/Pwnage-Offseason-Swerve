@@ -2,7 +2,6 @@ package com.pwnagerobotics.pwnage2022.humans.driver;
 
 import com.pwnagerobotics.lib.drivers.XboxController;
 import com.pwnagerobotics.lib.drivers.XboxController.Axis;
-import com.pwnagerobotics.lib.drivers.XboxController.Button;
 import com.pwnagerobotics.lib.drivers.XboxController.Side;
 import com.pwnagerobotics.pwnage2022.Constants;
 
@@ -70,15 +69,6 @@ public class XboxDriver {
         else {
             return (value * (1-deadband)) + deadband;
         }
-        // if (Math.abs(value) > deadband) { //Re-Scale so you get a full 0-1
-        //   if (value > 0.0) {
-        //     return (value - deadband) / (1.0 - deadband);
-        //   } else {
-        //     return (value + deadband) / (1.0 - deadband);
-        //   }
-        // } else {
-        //   return 0.0;
-        // }
       }
 
       public static void main(String[] args) {

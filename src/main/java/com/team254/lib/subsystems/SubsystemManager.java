@@ -2,7 +2,6 @@ package com.team254.lib.subsystems;
 
 import com.team254.lib.loops.ILooper;
 import com.team254.lib.loops.Loop;
-import com.team254.lib.loops.Looper;
 
 import java.util.ArrayList;
 import java.util.Arrays;

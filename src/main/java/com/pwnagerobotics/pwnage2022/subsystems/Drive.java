@@ -97,7 +97,7 @@ public class Drive extends Subsystem {
       mCompensationActive = false;
     }
 
-    if (!mCompensationActive) {
+    if (!mCompensationActive) { // Adds a short delat to when we start using the Gyro to keep robot pointed in one direction
       if (rotationX == 0 && mGyroLagDelay.update(Timer.getFPGATimestamp(), true)) {
         mCompensationActive = true;
         mWantedAngle = getGyroAngle();
@@ -158,10 +158,10 @@ public class Drive extends Subsystem {
     return new Vector2d(forwardVector.x + rotationVector.x, forwardVector.y + rotationVector.y);
   }
   
-  private double getGyroAngle() {
+  private double getGyroAngle() { 
     double currentAngle = mNavX.getAngle();
     if (currentAngle > 360) {
-      currentAngle -= Math.round(currentAngle/360)*360;
+      currentAngle -= Math.round(currentAngle/360)*360; //TODO use clamp?
     }
     else if (currentAngle < 0) {
       currentAngle += -Math.round(currentAngle/360) * 360 + 360;

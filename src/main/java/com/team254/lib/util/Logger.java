@@ -1,7 +1,6 @@
 package com.team254.lib.util;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import com.team254.lib.util.ReflectingCSVWriter;
 import java.io.File;
 
 /* Manage log files */
@@ -14,8 +13,6 @@ public class Logger<T> {
 
     // Assign this to log the IO to CSV
     private ReflectingCSVWriter<T> mCSVWriter = null;
-
-    private DriverStation mDriverStation = null;
 
    public Logger (String fileName, Class<T> typeClass) {
         mFileName = fileName;
@@ -32,9 +29,8 @@ public class Logger<T> {
             mCSVWriter = null;
         }
 
-        mDriverStation = DriverStation.getInstance();
-        if (mDriverStation != null && mDriverStation.isOperatorControl()) {
-            int matchNumber = mDriverStation.getMatchNumber();
+        if (DriverStation.isTeleop()) {
+            int matchNumber = DriverStation.getMatchNumber();
             if (matchNumber != 0) {
                 String oldName = kLogDirectory + mFileName + ".csv";
                 String newName = kLogDirectory + mFileName + "-" + matchNumber + ".csv";

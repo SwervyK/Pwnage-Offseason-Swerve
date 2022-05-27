@@ -1,7 +1,6 @@
 package com.team254.lib.drivers;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.ControlType;
 import com.team254.lib.subsystems.Subsystem;
 
 import java.util.ArrayList;
@@ -45,7 +44,7 @@ public class SparkMaxChecker extends MotorChecker<CANSparkMax> {
 
     @Override
     protected void setMotorOutput(CANSparkMax motor, double output) {
-        motor.getPIDController().setReference(output, ControlType.kDutyCycle);
+        motor.getPIDController().setReference(output, CANSparkMax.ControlType.kDutyCycle);
     }
 
     @Override

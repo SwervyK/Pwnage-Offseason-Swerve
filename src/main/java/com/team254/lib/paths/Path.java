@@ -172,7 +172,6 @@ public class Path {
     /**
      * Ensures that all speeds in the path are attainable and robot can slow down in time
      */
-    // XXX was using global constant instead of argument
     public void verifySpeeds(double maxAcceleration) {
         double maxStartSpeed = 0.0;
         double[] startSpeeds = new double[segments.size() + 1];

@@ -152,7 +152,7 @@ public class PathFollower {
             dtheta = mLastSteeringDelta.dx * curvature * (1.0 + mInertiaGain * abs_velocity_setpoint);
         }
         final double scale = velocity_command / mLastSteeringDelta.dx;
-        final Twist2d rv = new Twist2d(mLastSteeringDelta.dx * scale, 0.0, -dtheta * scale); // XXX negated dtheta 3/3/2020 DRL
+        final Twist2d rv = new Twist2d(mLastSteeringDelta.dx * scale, 0.0, -dtheta * scale);
 
         // Fill out debug.
         mDebugOutput.t = t;

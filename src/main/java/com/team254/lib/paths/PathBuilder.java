@@ -20,7 +20,6 @@ public class PathBuilder {
 
     public static Path buildPathFromWaypoints(List<Waypoint> w) {
 
-        // XXX edited from 254's code to allow PathBuilder to stay (properly) in the libs folder
         if (kMaxAcceleration == 0)
             throw new Error("Attempted use of PathBuilder before max acceleration was set.  Call PathBuilder.setMaxAcceleration() first.");
 

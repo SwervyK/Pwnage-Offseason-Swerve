@@ -52,8 +52,8 @@ public class SwerveModule {
     }
     
     // Drive
-    if (Drive.getInstance().getCurrent(mConstants.kPDPId) > Constants.kDriveCurrentLimit) throttle = 0;
-    //throttle = getAdjustedThrottle(mLastThrottle, throttle);
+    if (Drive.getInstance().getCurrent(mConstants.kPDPId) > Constants.kDriveCurrentLimit) throttle = 0; // Current Limit
+    throttle = getAdjustedThrottle(mLastThrottle, throttle); // Ramp rate
     if (throttle == 0) mDriveController.stopMotor();
     else mDriveController.set(throttle * Constants.kDriveSlowDown);
     

@@ -3,7 +3,6 @@ package com.team254.lib.loops;
 import com.team254.lib.util.CrashTrackingRunnable;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +20,7 @@ public class Looper implements ILooper {
     private final List<Loop> mLoops;
     private final Object mTaskRunningLock = new Object();
     private double mTimestamp = 0;
-    private double mDT = 0;
+    //private double mDT = 0;
 
     private final CrashTrackingRunnable runnable_ = new CrashTrackingRunnable() {
         @Override
@@ -34,7 +33,7 @@ public class Looper implements ILooper {
                         loop.onLoop(now);
                     }
 
-                    mDT = now - mTimestamp;
+                    //mDT = now - mTimestamp;
                     mTimestamp = now;
                 }
             }

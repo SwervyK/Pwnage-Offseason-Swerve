@@ -1,9 +1,6 @@
 package com.team254.lib.drivers;
 
 import com.revrobotics.REVLibError;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxAlternateEncoder;
-import com.revrobotics.SparkMaxAlternateEncoder.Type;
 import com.revrobotics.CANSparkMax;
 
 /**

@@ -1,7 +1,5 @@
 package com.team254.lib.subsystems;
 
-import com.team254.lib.loops.ILooper;
-
 /**
  * The Subsystem abstract class, which serves as a basic framework for all robot subsystems. Each subsystem outputs
  * commands to SmartDashboard, has a stop routine (for after each match), and a routine to zero all sensors, which helps

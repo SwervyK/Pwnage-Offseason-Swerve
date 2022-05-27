@@ -76,7 +76,6 @@ public abstract class SparkServoSubsystem extends Subsystem {
         mMaster.setOpenLoopRampRate(mConstants.kOpenLoopRampRate);
         mMaster.setInverted(mConstants.kMasterInverted);
         mMaster.setIdleMode(IdleMode.kBrake);
-        // TODO current limit
 
         mFollowers = new LazySparkMax[mConstants.kFollowers.length];
         for (int i = 0; i < mFollowers.length; ++i) {
@@ -215,7 +214,7 @@ public abstract class SparkServoSubsystem extends Subsystem {
     }
 
     public synchronized void handleMasterReset(boolean reset) {
-    } // TODO important if relative sensor
+    }
 
     @Override
     public void onEnabledLoopStart(double timestamp) {
