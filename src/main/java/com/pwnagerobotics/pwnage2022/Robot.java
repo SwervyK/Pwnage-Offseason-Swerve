@@ -85,7 +85,7 @@ public class Robot extends TimedRobot {
     mSubsystemManager.executeEnabledLoopStops(Timer.getFPGATimestamp());
     mSubsystemManager.executeEnabledLoopStarts(Timer.getFPGATimestamp());
 
-    mRecorder.newAuto("test2");
+    mRecorder.newAuto("spin");
   }
 
   @Override

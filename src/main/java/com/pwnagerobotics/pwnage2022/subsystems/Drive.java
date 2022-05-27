@@ -52,7 +52,7 @@ public class Drive extends Subsystem {
     mFieldCentricRotationPID.enableContinuousInput(-180, 180);
     mFieldCentricRotationPID.setTolerance(Constants.kFieldCentricRotationError);
     mCompensationPID.enableContinuousInput(-180, 180);
-    mCompensationPID.setTolerance(Constants.kFieldCentricRotationError);
+    mCompensationPID.setTolerance(Constants.kGyroCompensationError);
     
     mNavX.setAngleAdjustment(-Constants.kGyroOffset);
   }
@@ -74,7 +74,7 @@ public class Drive extends Subsystem {
     }
     else {
       rotationX *= Constants.kSpinSlowDown; // Regular rotation
-      rotationX *= rotationX * Math.signum(rotationX);
+      //rotationX *= rotationX * Math.signum(rotationX);
       rotationX = XboxDriver.scaleController(rotationX, Constants.kRotationMinValue);
     }
     
@@ -122,10 +122,10 @@ public class Drive extends Subsystem {
     BRVector.magnitude());
     if(maxMagnitude > 1){
       //Normalize vectors, preserving proportions while reducing all below 1
-      scaleVector2d(FRVector, 1.0 / maxMagnitude);
-      scaleVector2d(FLVector, 1.0 / maxMagnitude);
-      scaleVector2d(BRVector, 1.0 / maxMagnitude);
-      scaleVector2d(BLVector, 1.0 / maxMagnitude);
+      FRVector = scaleVector2d(FRVector, 1.0 / maxMagnitude);
+      FLVector = scaleVector2d(FLVector, 1.0 / maxMagnitude);
+      BRVector = scaleVector2d(BRVector, 1.0 / maxMagnitude);
+      BLVector = scaleVector2d(BLVector, 1.0 / maxMagnitude);
     }
     mModules[0].setModule(getVectorAngle(FRVector), FRVector.magnitude());
     mModules[1].setModule(getVectorAngle(FLVector), FLVector.magnitude());

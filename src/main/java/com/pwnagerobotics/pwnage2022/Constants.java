@@ -9,17 +9,19 @@ import com.pwnagerobotics.pwnage2022.lib.SwerveModuleConstants;
 public class Constants {
     // Controller
     public static final double kRotationMinValue = 0;
-    public static final double kDriveMinValue = 0;
+    public static final double kDriveMinValue = 0.2;
     
     // Drivetrain
+    public static final double kDriveWidth = 21.5; //Width between center of drive modules, inches
+    public static final double kDriveLength = 21.5; //Width between center of drive modules, inches
     public static final double kDriveSlowDown = 0.7;
     public static final double kRotationSlowDown = 1.0; // Field Centric Rotation
     public static final double kSpinSlowDown = 1.0; // Robot Centric Rotation
     public static final double kDriveCurrentLimit = 50;
 
     // Controller Deadbands
-    public static final double kLeftStickDeadband = 0.05;
-    public static final double kRightStickDeadband = 0.08;
+    public static final double kLeftStickDeadband = 0.1;
+    public static final double kRightStickDeadband = 0.1;
 
     
     // Field Centric Rotaion
@@ -31,7 +33,8 @@ public class Constants {
     // Gyro
     public static final double kGyroOffset = 284.0;
     public static final double kGyroLag = 50.0; // When moving compensate for gyro lag
-    public static final double kGyroDelay = 1.5; // Seonds
+    public static final double kGyroDelay = 2; // Seonds
+    public static final double kGyroCompensationError = 1;
 
     // Modules
     public static final SwerveModuleConstants kFrontRightModuleConstants = new SwerveModuleConstants();

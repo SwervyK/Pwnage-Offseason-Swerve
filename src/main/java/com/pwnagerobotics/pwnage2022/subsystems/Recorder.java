@@ -20,12 +20,13 @@ public class Recorder {
     
     public Recorder(){
         try {
-            if (mAutoDir.exists()) mAutoDir.mkdir();
             String[] fileNames = mAutoDir.list();
             mAutoFiles = new File[fileNames.length];
-            for (int i = 0; i < fileNames.length; i++) {
-                mAutoFiles[i] = new File(mAutoDir.getPath() + fileNames[i]);
-                mAutoChooser.addOption(fileNames[i], mAutoFiles[i]);
+            if (fileNames.length > 0) {
+                for (int i = 0; i < fileNames.length; i++) {
+                    mAutoFiles[i] = new File(mAutoDir.getPath() + fileNames[i]);
+                    mAutoChooser.addOption(fileNames[i], mAutoFiles[i]);
+                }
             }
             SmartDashboard.putData("Auto Chooser", mAutoChooser);
         } catch (Exception e) {
@@ -34,15 +35,16 @@ public class Recorder {
         }
         
     }
-
+    
     public void newAuto(String filename) {
         mAutoFile = new File(mAutoDir.getPath() + filename);
         try {
             if (!mAutoFile.exists()) 
-                mAutoFile.createNewFile();
+            mAutoFile.createNewFile();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println("new auto started");
     }
     
     public void recordInputs(double throttle, double strafe, double rotationX, double rotationY, double timestamp){
@@ -54,7 +56,7 @@ public class Recorder {
         data = mAutoPath.toArray(data);
         writeData(data, mAutoFile);
     }
-
+    
     public class SwerveState {
         public double kThrottle = 0, kStrafe = 0, kRotationX = 0, kRotationY = 0, kTimestamp = 0;
     }
@@ -95,7 +97,7 @@ public class Recorder {
         }
     }
     
-
+    
     
     private String[] readData(File file) {
         String[] result = new String[0];
