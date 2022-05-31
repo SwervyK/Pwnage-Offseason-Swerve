@@ -15,6 +15,7 @@ public class SwerveModule {
   private SwerveModuleConstants mConstants;
   private MotorController mDriveController;
   private MotorController mRotationController;
+  private AnalogEncoder mDrivEncoder;
   private AnalogEncoder mRotationEncoder;
   private PIDController mPID;
   private double mRotationOffset;
@@ -27,6 +28,7 @@ public class SwerveModule {
     mConstants = constants;
     mDriveController = new PWMMotorController(mConstants.kName + " Drive",  mConstants.kDriveId) { };
     mRotationController = new PWMMotorController(mConstants.kName + " Rotation", mConstants.kRotationId) { };
+    mDrivEncoder = new AnalogEncoder(mConstants.kDriveEncoderId);
     mRotationEncoder = new AnalogEncoder(mConstants.kRotationEncoderId);
     mRotationOffset = mConstants.kRotationOffset;
     mPID = new PIDController(mConstants.kp, mConstants.ki, mConstants.kd);
@@ -98,6 +100,7 @@ public class SwerveModule {
     SmartDashboard.putNumber("Delta Drive Speed: " + mConstants.kName, mDeltaDriveSpeed);
     SmartDashboard.putNumber("Max Delta Drive Speed: " + mConstants.kName, mMaxDeltaDriveSpeed);
     SmartDashboard.putNumber("Max Delta Rotation Speed: " + mConstants.kName, mMaxDeltaRotationSpeed);
+    mLastDriveValue = mDrivEncoder.getDistance();
   }
   
   public static double clamp(double value, double max, double min, boolean wrapAround) {
@@ -130,5 +133,10 @@ public class SwerveModule {
   
   public void zeroEncoders() {
     mRotationEncoder.reset();
+  }
+
+  private double mLastDriveValue;
+  public double getDeltaDrive() {
+    return mLastDriveValue - mDrivEncoder.getDistance();
   }
 }

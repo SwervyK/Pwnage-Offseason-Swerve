@@ -104,6 +104,18 @@ public class Drive extends Subsystem {
       }
     }
     
+    if (throttle == 0 && strafe == 0 && rotationX == 0 && rotationY == 0) {
+      if (mModules[0].getDeltaDrive() < Constants.kDriveMinSpeed &&
+          mModules[1].getDeltaDrive() < Constants.kDriveMinSpeed &&
+          mModules[2].getDeltaDrive() < Constants.kDriveMinSpeed &&
+          mModules[3].getDeltaDrive() < Constants.kDriveMinSpeed) {
+            mModules[0].setModule(315, 0);
+            mModules[1].setModule(225, 0);
+            mModules[2].setModule(45, 0);
+            mModules[3].setModule(135, 0);
+      }
+      return;
+    }
     setVectorSwerveDrive(speed, -rotationX, wheelAngle);
   }
   

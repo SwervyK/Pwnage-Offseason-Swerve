@@ -4,6 +4,7 @@ public class SwerveModuleConstants {
     public String kName = "Name";
     public int kDriveId = 0;
     public int kRotationId = 0;
+    public int kDriveEncoderId = 0;
     public int kRotationEncoderId = 0;
     public int kPDPId = 0;
 

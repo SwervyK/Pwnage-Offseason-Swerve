@@ -20,6 +20,7 @@ public class Constants {
     public static final double kDriveWidth = 21.5; //Width between center of drive modules, inches
     public static final double kDriveLength = 21.5; //Width between center of drive modules, inches
     public static final double kDriveCurrentLimit = 50;
+    public static final double kDriveMinSpeed = 5; //Last encoder value - current encoder value
 
     // Controller Deadbands
     public static final double kLeftStickDeadband = 0.1;
@@ -44,6 +45,7 @@ public class Constants {
         kFrontRightModuleConstants.kName = "Front Right";
         kFrontRightModuleConstants.kDriveId = 1;
         kFrontRightModuleConstants.kRotationId = 0;
+        kFrontRightModuleConstants.kDriveEncoderId = 0;
         kFrontRightModuleConstants.kRotationOffset =  0.092;
         kFrontRightModuleConstants.kRotationEncoderId = 2;
         kFrontRightModuleConstants.kPDPId = 3;
@@ -54,6 +56,7 @@ public class Constants {
         kFrontLeftModuleConstants.kName = "Front Left";
         kFrontLeftModuleConstants.kDriveId = 5;
         kFrontLeftModuleConstants.kRotationId = 4;
+        kFrontLeftModuleConstants.kDriveEncoderId = 0;
         kFrontLeftModuleConstants.kRotationOffset =  0.126;
         kFrontLeftModuleConstants.kRotationEncoderId = 0;
         kFrontLeftModuleConstants.kPDPId = 14;
@@ -64,6 +67,7 @@ public class Constants {
         kBackRightModuleConstants.kName = "Back Right";
         kBackRightModuleConstants.kDriveId = 3;
         kBackRightModuleConstants.kRotationId = 2;
+        kBackRightModuleConstants.kDriveEncoderId = 0;
         kBackRightModuleConstants.kRotationOffset =  0.735;
         kBackRightModuleConstants.kRotationEncoderId = 3;
         kBackRightModuleConstants.kPDPId = 0;
@@ -74,6 +78,7 @@ public class Constants {
         kBackLeftModuleConstants.kName = "Back Left";
         kBackLeftModuleConstants.kDriveId = 9;
         kBackLeftModuleConstants.kRotationId = 6;
+        kBackLeftModuleConstants.kDriveEncoderId = 0;
         kBackLeftModuleConstants.kRotationOffset =  0.189;
         kBackLeftModuleConstants.kRotationEncoderId = 1;
         kBackLeftModuleConstants.kPDPId = 15;
