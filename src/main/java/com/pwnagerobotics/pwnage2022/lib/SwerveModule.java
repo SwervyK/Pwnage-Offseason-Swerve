@@ -15,7 +15,7 @@ public class SwerveModule {
   private SwerveModuleConstants mConstants;
   private MotorController mDriveController;
   private MotorController mRotationController;
-  private AnalogEncoder mDrivEncoder;
+  // private AnalogEncoder mDrivEncoder;
   private AnalogEncoder mRotationEncoder;
   private PIDController mPID;
   private double mRotationOffset;
@@ -28,7 +28,7 @@ public class SwerveModule {
     mConstants = constants;
     mDriveController = new PWMMotorController(mConstants.kName + " Drive",  mConstants.kDriveId) { };
     mRotationController = new PWMMotorController(mConstants.kName + " Rotation", mConstants.kRotationId) { };
-    mDrivEncoder = new AnalogEncoder(mConstants.kDriveEncoderId);
+    // mDrivEncoder = new AnalogEncoder(mConstants.kDriveEncoderId);
     mRotationEncoder = new AnalogEncoder(mConstants.kRotationEncoderId);
     mRotationOffset = mConstants.kRotationOffset;
     mPID = new PIDController(mConstants.kp, mConstants.ki, mConstants.kd);
@@ -66,7 +66,7 @@ public class SwerveModule {
     else
       mRotationController.set(rotationSpeed * Constants.kRotationSlowDown);
     mLastThrottle = throttle;
-
+    
     // Logging
     mDeltaRotationSpeed = mOldRotationSpeed - rotationSpeed;
     if (mDeltaRotationSpeed > mMaxDeltaRotationSpeed) mMaxDeltaRotationSpeed = mDeltaRotationSpeed;
@@ -81,26 +81,26 @@ public class SwerveModule {
       mDriveRateLimiter.reset(0);
       return 0;
     }
-    if (Math.signum(throttle) != Math.signum(lastThrottle) || Math.abs(throttle) < Math.abs(lastThrottle)) {
+    if (Math.abs(throttle) < Math.abs(lastThrottle)) {
       mDriveRateLimiter.reset(throttle);
       return throttle;
     }
     return mDriveRateLimiter.calculate(throttle);
   }
-
+  
   private double mOldRotationSpeed = 0;
   private double mDeltaRotationSpeed = 0;
   private double mOldDriveSpeed = 0;
   private double mDeltaDriveSpeed = 0;
   private double mMaxDeltaDriveSpeed = 0;
   private double mMaxDeltaRotationSpeed = 0;
-
+  
   public void outputTelemetry() {
     SmartDashboard.putNumber("Delta Rotation Speed: " + mConstants.kName, mDeltaRotationSpeed);
     SmartDashboard.putNumber("Delta Drive Speed: " + mConstants.kName, mDeltaDriveSpeed);
     SmartDashboard.putNumber("Max Delta Drive Speed: " + mConstants.kName, mMaxDeltaDriveSpeed);
     SmartDashboard.putNumber("Max Delta Rotation Speed: " + mConstants.kName, mMaxDeltaRotationSpeed);
-    mLastDriveValue = mDrivEncoder.getDistance();
+    // mLastDriveValue = mDrivEncoder.getDistance();
   }
   
   public static double clamp(double value, double max, double min, boolean wrapAround) {
@@ -134,9 +134,10 @@ public class SwerveModule {
   public void zeroEncoders() {
     mRotationEncoder.reset();
   }
-
-  private double mLastDriveValue;
-  public double getDeltaDrive() {
-    return mLastDriveValue - mDrivEncoder.getDistance();
+  
+  // private double mLastDriveValue;
+  // public double getDeltaDrive() {
+    //   return mLastDriveValue - mDrivEncoder.getDistance();
+    // }
   }
-}
+  

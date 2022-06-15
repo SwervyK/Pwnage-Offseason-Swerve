@@ -71,12 +71,6 @@ public class XboxDriver {
         }
       }
 
-      public static void main(String[] args) {
-          for (int i = 0; i <= 10; i++) {
-              System.out.println(((double)((int)(scaleController(i/10.0, 0.9, 0.7)*100)))/100 + " | " + i/10.0);
-          }
-      }
-
       public static double scaleController(double value, double max, double min) {
         return ((max-min)*((Math.abs(value)-0)/(1-0))+min)*Math.signum(value);
         //xnormalized=(b−a)x−min(x)max(x)−min(x)+a //Min + Max

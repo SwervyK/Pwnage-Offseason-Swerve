@@ -24,7 +24,7 @@ public class Recorder {
             mAutoFiles = new File[fileNames.length];
             if (fileNames.length > 0) {
                 for (int i = 0; i < fileNames.length; i++) {
-                    mAutoFiles[i] = new File(mAutoDir.getPath() + fileNames[i]);
+                    mAutoFiles[i] = new File(mAutoDir.getPath(), fileNames[i]);
                     mAutoChooser.addOption(fileNames[i], mAutoFiles[i]);
                 }
             }
@@ -37,10 +37,10 @@ public class Recorder {
     }
     
     public void newAuto(String filename) {
-        mAutoFile = new File(mAutoDir.getPath() + filename);
+        mAutoFile = new File(mAutoDir.getPath(), filename);
         try {
             if (!mAutoFile.exists()) 
-            mAutoFile.createNewFile();
+                mAutoFile.createNewFile();
         } catch (IOException e) {
             e.printStackTrace();
         }
