@@ -61,9 +61,9 @@ public class SwerveModule {
     // Rotation
     double rotationSpeed = clamp(mPID.calculate(0, distance), 1, -1, false);
     if (mPID.atSetpoint())
-      mRotationController.set(0);
+    mRotationController.set(0);
     else
-      mRotationController.set(rotationSpeed * Constants.kRotationSlowDown);
+    mRotationController.set(rotationSpeed * Constants.kRotationSlowDown);
     mLastThrottle = throttle;
     
     // Logging
@@ -76,7 +76,7 @@ public class SwerveModule {
     mCurrentSpeed = throttle;
     mCurrentAngle = wantedPosition;
   }
-
+  
   private double getAdjustedThrottle(double lastThrottle, double throttle) {
     if (throttle == 0) {
       mDriveRateLimiter.reset(0);
@@ -111,13 +111,13 @@ public class SwerveModule {
   public static double clamp(double value, double max, double min, boolean wrapAround) {
     if (wrapAround) {
       if (value > max)
-        return (value - (max-min) * ((int)((value-max-1)/(max - min)))) - max + min;
+      return (value - (max-min) * ((int)((value-max-1)/(max - min)))) - max + min;
       else if (value < min)
-        return value + (max-min) * -((((int)((value-max)/(max - min))))+1) - min + max;
+      return value + (max-min) * -((((int)((value-max)/(max - min))))+1) - min + max;
       return value;
     }
     else 
-      return (value>=max)?max:(value<=min)?min:value;
+    return (value>=max)?max:(value<=min)?min:value;
   }
   
   public static double getDistance(double encoder, double controller) {
@@ -138,6 +138,13 @@ public class SwerveModule {
   
   public void zeroEncoders() {
     mRotationEncoder.reset();
+  }
+  
+  private void tuneRobotRotationPID() {
+    if (-1 == SmartDashboard.getNumber("kP", -1)) SmartDashboard.putNumber("kP", 0);
+    if (-1 == SmartDashboard.getNumber("kI", -1)) SmartDashboard.putNumber("kI", 0);
+    if (-1 == SmartDashboard.getNumber("kD", -1)) SmartDashboard.putNumber("kD", 0);
+    mPID.setPID(SmartDashboard.getNumber("kP", 0), SmartDashboard.getNumber("kI", 0), SmartDashboard.getNumber("kD", 0));
   }
   
   // private double mLastDriveValue;

@@ -9,26 +9,23 @@ import com.pwnagerobotics.pwnage2022.lib.SwerveModuleConstants;
 public class Constants {
 
     // Controller
-    public static final double kRotationMinValue = 0.1;
-    public static final double kRotationMaxValue = 1.0;
-    public static final double kDriveMinValue = 0.08;
     public static final double kDriveMaxValue = 1.0;
-    public static final double kRotationSlowDown = 1.0; // Field Centric Rotation
-    public static final double kDriveSlowDown = 1.0;
+    public static final double kDriveMinValue = 0.08;
+    public static final double kRotationMaxValue = 1.0;
+    public static final double kRotationMinValue = 0.1;
+    public static final double kLeftStickDeadband = 0.1;
+    public static final double kRightStickDeadband = 0.1;
     
     // Drivetrain
     public static final double kDriveWidth = 21.5; //Width between center of drive modules, inches
     public static final double kDriveLength = 21.5; //Width between center of drive modules, inches
+    public static final double kDriveSlowDown = 1.0; // Module Drive
+    public static final double kRotationSlowDown = 1.0; // Module Rotation
     public static final double kDriveCurrentLimit = 50;
     public static final double kDriveRateLimit = 1;
     public static final double kDriveMinSpeed = 5; //Last encoder value - current encoder value
 
-    // Controller Deadbands
-    public static final double kLeftStickDeadband = 0.1;
-    public static final double kRightStickDeadband = 0.1;
-
-    
-    // Field Centric Rotaion
+    // Robot Rotaion
     public static final double kRotationkP = 0.01;
     public static final double kRotationkI = 0.001;
     public static final double kRotationkD = 0.0;

@@ -121,13 +121,16 @@ public class Drive extends Subsystem {
     setVectorSwerveDrive(speed, -rotationX, wheelAngle);
   }
   
-  
-  public void setVectorSwerveDrive(double forwardSpeed, double rotationSpeed, double robotAngle) {
+  private void setVectorSwerveDrive(double forwardSpeed, double rotationSpeed, double robotAngle) {
     Vector2d FRVector, FLVector, BRVector, BLVector;
     FRVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 315);
     FLVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 225);
     BRVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 45);
     BLVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 135); 
+    // FRVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, getTurnAngle(Constants.kDriveWidth/2, Constants.kDriveLength/2));
+    // FLVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, getTurnAngle(-Constants.kDriveWidth/2, Constants.kDriveLength/2));
+    // BRVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, getTurnAngle(Constants.kDriveWidth/2, -Constants.kDriveLength/2));
+    // BLVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, getTurnAngle(-Constants.kDriveWidth/2, -Constants.kDriveLength/2)); 
     double maxMagnitude = Math.max(Math.max(Math.max(
     FRVector.magnitude(), 
     FLVector.magnitude()), 
@@ -157,6 +160,11 @@ public class Drive extends Subsystem {
     else if (v.y < 0) angle += 360;
     return angle;
   }
+
+  private double getTurnAngle(double xPos, double yPos) {
+    
+    return 0;
+  }
   
   /**
   * Takes in two magnitudes and two angles, and combines them into a single vector
@@ -170,6 +178,13 @@ public class Drive extends Subsystem {
     Vector2d forwardVector = new Vector2d(forwardMagnitude * Math.cos(Math.toRadians(rotation1)), forwardMagnitude * Math.sin(Math.toRadians(rotation1)));
     Vector2d rotationVector = new Vector2d(rotationalMagnitude * Math.cos(Math.toRadians(rotation2)), rotationalMagnitude * Math.sin(Math.toRadians(rotation2)));
     return new Vector2d(forwardVector.x + rotationVector.x, forwardVector.y + rotationVector.y);
+  }
+
+  private void tuneRobotRotationPID() {
+    if (-1 == SmartDashboard.getNumber("kP", -1)) SmartDashboard.putNumber("kP", 0);
+    if (-1 == SmartDashboard.getNumber("kI", -1)) SmartDashboard.putNumber("kI", 0);
+    if (-1 == SmartDashboard.getNumber("kD", -1)) SmartDashboard.putNumber("kD", 0);
+    mFieldCentricRotationPID.setPID(SmartDashboard.getNumber("kP", 0), SmartDashboard.getNumber("kI", 0), SmartDashboard.getNumber("kD", 0));
   }
   
   private double getGyroAngle() { 
@@ -248,12 +263,5 @@ public class Drive extends Subsystem {
   
   public void setRotationMode(RotationMode mode) {
     mCurrentRotationMode = mode;
-  }
-
-  public void tuneRobotRotationPID() {
-    if (-1 == SmartDashboard.getNumber("kP", -1)) SmartDashboard.putNumber("kP", 0);
-    if (-1 == SmartDashboard.getNumber("kI", -1)) SmartDashboard.putNumber("kI", 0);
-    if (-1 == SmartDashboard.getNumber("kD", -1)) SmartDashboard.putNumber("kD", 0);
-    mFieldCentricRotationPID.setPID(SmartDashboard.getNumber("kP", 0), SmartDashboard.getNumber("kI", 0), SmartDashboard.getNumber("kD", 0));
   }
 }
