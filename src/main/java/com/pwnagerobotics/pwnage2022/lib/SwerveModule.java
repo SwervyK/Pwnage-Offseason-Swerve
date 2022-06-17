@@ -1,7 +1,6 @@
 package com.pwnagerobotics.pwnage2022.lib;
 
 import com.pwnagerobotics.pwnage2022.Constants;
-import com.pwnagerobotics.pwnage2022.subsystems.Drive;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -20,7 +19,7 @@ public class SwerveModule {
   private PIDController mPID;
   private double mRotationOffset;
   
-  private SlewRateLimiter mDriveRateLimiter = new SlewRateLimiter(0.5);
+  private SlewRateLimiter mDriveRateLimiter = new SlewRateLimiter(Constants.kDriveRateLimit);
   private double mLastThrottle = 0;
   private static final double kPIDInputRange = 90;
   
@@ -54,7 +53,7 @@ public class SwerveModule {
     }
     
     // Drive
-    if (Drive.getInstance().getCurrent(mConstants.kPDPId) > Constants.kDriveCurrentLimit) throttle = 0; // Current Limit
+    //if (Drive.getInstance().getCurrent(mConstants.kPDPId) > Constants.kDriveCurrentLimit) throttle = 0; // Current Limit
     throttle = getAdjustedThrottle(mLastThrottle, throttle); // Ramp rate
     if (throttle == 0) mDriveController.stopMotor();
     else mDriveController.set(throttle * Constants.kDriveSlowDown);
@@ -83,7 +82,7 @@ public class SwerveModule {
       mDriveRateLimiter.reset(0);
       return 0;
     }
-    if (Math.abs(throttle) < Math.abs(lastThrottle)) {
+    if (Math.abs(throttle) < Math.abs(lastThrottle) || Math.abs(throttle) < 0.2) {
       mDriveRateLimiter.reset(throttle);
       return throttle;
     }
