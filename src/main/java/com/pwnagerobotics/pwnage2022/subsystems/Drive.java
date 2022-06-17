@@ -60,11 +60,11 @@ public class Drive extends Subsystem {
   }
   
   public synchronized void setSwerveDrive(double throttle, double strafe, double rotationX, double rotationY) {
+    //tuneRobotRotationPID();
     double wheelAngle = Math.toDegrees(Math.atan2(strafe, throttle)); // Find what angle we want to drive at
     wheelAngle = (wheelAngle >= 0) ? wheelAngle : wheelAngle + 360; // Convert from (-180 to 180) to (0 to 360) 
     double speed = Math.sqrt(Math.pow(Math.abs(strafe), 2) + Math.pow(Math.abs(throttle), 2)); // Get wanted speed of robot
     speed = XboxDriver.scaleController(SwerveModule.clamp(speed, 1, 0, false), Constants.kDriveMaxValue, Constants.kDriveMinValue);
-
     // Rotation
     if (mCurrentRotationMode == RotationMode.FEILD) {
       double wantedRobotAngle = Math.toDegrees(Math.atan2(rotationX, rotationY)); // Point robot in direction of controller using pid
@@ -74,7 +74,8 @@ public class Drive extends Subsystem {
       if (mFieldCentricRotationPID.atSetpoint()) rotationX = 0;
     }
     else { // Make easier to drive
-      rotationX = XboxDriver.scaleController(rotationX, Constants.kRotationMaxValue, Constants.kRotationMinValue);
+      rotationX = XboxDriver.scaleController(rotationX, Constants.kRotationMaxValue, Constants.kRotationMinValue); // Adjust controller
+      mGyroLagDelay.update(Timer.getFPGATimestamp(), false);
     }
     
     // Drive
@@ -85,12 +86,12 @@ public class Drive extends Subsystem {
         wheelAngle -= Constants.kGyroLag*rotationX; // Compensate for Gyro Lag
       }
     }
-
     // Gyro Drift/Lag Compensation
     if (rotationX == 0 && mCompensationActive) {
       double distance = mWantedAngle - getGyroAngle();
       rotationX = SwerveModule.clamp(mCompensationPID.calculate(0, distance), 1, -1, false);
       if (mCompensationPID.atSetpoint()) rotationX = 0;
+      //mGyroLagDelay.update(Timer.getFPGATimestamp(), false);
       mGyroLagDelay.update(Timer.getFPGATimestamp(), false);
     }
     else {
@@ -99,8 +100,9 @@ public class Drive extends Subsystem {
 
     if (!mCompensationActive) { // Adds a short delat to when we start using the Gyro to keep robot pointed in one direction
       if (rotationX == 0 && mGyroLagDelay.update(Timer.getFPGATimestamp(), true)) {
-        // mCompensationActive = true;
-        // mWantedAngle = getGyroAngle();
+        mCompensationActive = true;
+        mWantedAngle = getGyroAngle();
+        mCompensationPID.reset();
       }
     }
     
@@ -120,7 +122,7 @@ public class Drive extends Subsystem {
   }
   
   
-  public void setVectorSwerveDrive(double forwardSpeed, double rotationSpeed, double robotAngle){
+  public void setVectorSwerveDrive(double forwardSpeed, double rotationSpeed, double robotAngle) {
     Vector2d FRVector, FLVector, BRVector, BLVector;
     FRVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 315);
     FLVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 225);
@@ -246,5 +248,12 @@ public class Drive extends Subsystem {
   
   public void setRotationMode(RotationMode mode) {
     mCurrentRotationMode = mode;
+  }
+
+  public void tuneRobotRotationPID() {
+    if (-1 == SmartDashboard.getNumber("kP", -1)) SmartDashboard.putNumber("kP", 0);
+    if (-1 == SmartDashboard.getNumber("kI", -1)) SmartDashboard.putNumber("kI", 0);
+    if (-1 == SmartDashboard.getNumber("kD", -1)) SmartDashboard.putNumber("kD", 0);
+    mFieldCentricRotationPID.setPID(SmartDashboard.getNumber("kP", 0), SmartDashboard.getNumber("kI", 0), SmartDashboard.getNumber("kD", 0));
   }
 }
