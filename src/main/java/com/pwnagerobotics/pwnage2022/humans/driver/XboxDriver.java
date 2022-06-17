@@ -67,7 +67,7 @@ public class XboxDriver {
             }
         }
         else {
-            return (value * (1-deadband)) + deadband;
+            return ((Math.abs(value) * (1-deadband)) + deadband) * Math.signum(value);
         }
       }
 
@@ -81,7 +81,7 @@ public class XboxDriver {
       private static double modifyAxis(double value, double opposite, double deadband) {
         // Deadband
         value = deadband(value, opposite, deadband);
-    
+
         // Square the axis
         value = Math.copySign(value * value, value);
     
