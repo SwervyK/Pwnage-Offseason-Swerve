@@ -120,8 +120,9 @@ public class SwerveModule {
     return (value>=max)?max:(value<=min)?min:value;
   }
   
-  public static double getDistance(double encoder, double controller) {
-    double result = encoder - controller;
+  // Built in 180 flip
+  public static double getDistance(double current, double wanted) {
+    double result = current - wanted;
     if (Math.abs(result) > 180) {
       result += 360 * -Math.signum(result);
     }

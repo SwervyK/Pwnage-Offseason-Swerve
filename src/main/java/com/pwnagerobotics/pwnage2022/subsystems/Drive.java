@@ -72,10 +72,14 @@ public class Drive extends Subsystem {
       double distance = SwerveModule.getDistance(getGyroAngle(), wantedRobotAngle);
       rotationX = SwerveModule.clamp(mFieldCentricRotationPID.calculate(0, distance), 1, -1, false);
       if (mFieldCentricRotationPID.atSetpoint()) rotationX = 0;
+      SmartDashboard.putNumber("Wanted Robot Angle", wantedRobotAngle);
+      SmartDashboard.putNumber("Distance to Angle", distance);
+      SmartDashboard.putNumber("Turn Speed", rotationX);
     }
     else { // Make easier to drive
       rotationX = XboxDriver.scaleController(rotationX, Constants.kRotationMaxValue, Constants.kRotationMinValue); // Adjust controller
       mGyroLagDelay.update(Timer.getFPGATimestamp(), false);
+      mFieldCentricRotationPID.reset(); //TODO test
     }
     
     // Drive
@@ -102,7 +106,7 @@ public class Drive extends Subsystem {
       if (rotationX == 0 && mGyroLagDelay.update(Timer.getFPGATimestamp(), true)) {
         mCompensationActive = true;
         mWantedAngle = getGyroAngle();
-        mCompensationPID.reset();
+        mCompensationPID.reset(); //TODO test
       }
     }
     
@@ -118,7 +122,7 @@ public class Drive extends Subsystem {
     //   // }
     //   return;
     // }
-    setVectorSwerveDrive(speed, -rotationX, wheelAngle);
+    setVectorSwerveDrive(speed, -rotationX, wheelAngle); //TODO should it be -rotationX
   }
   
   private void setVectorSwerveDrive(double forwardSpeed, double rotationSpeed, double robotAngle) {
