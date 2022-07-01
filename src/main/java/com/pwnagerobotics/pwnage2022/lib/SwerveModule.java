@@ -67,12 +67,6 @@ public class SwerveModule {
     mLastThrottle = throttle;
     
     // Logging
-    mDeltaRotationSpeed = mOldRotationSpeed - rotationSpeed;
-    if (mDeltaRotationSpeed > mMaxDeltaRotationSpeed) mMaxDeltaRotationSpeed = mDeltaRotationSpeed;
-    mOldRotationSpeed = rotationSpeed;
-    mDeltaDriveSpeed = mOldDriveSpeed - throttle;
-    if (mDeltaDriveSpeed > mMaxDeltaDriveSpeed) mMaxDeltaDriveSpeed = mDeltaDriveSpeed;
-    mOldDriveSpeed = throttle;
     mCurrentSpeed = throttle;
     mCurrentAngle = wantedPosition;
   }
@@ -89,20 +83,10 @@ public class SwerveModule {
     return mDriveRateLimiter.calculate(throttle);
   }
   
-  private double mOldRotationSpeed = 0;
-  private double mDeltaRotationSpeed = 0;
-  private double mOldDriveSpeed = 0;
-  private double mDeltaDriveSpeed = 0;
-  private double mMaxDeltaDriveSpeed = 0;
-  private double mMaxDeltaRotationSpeed = 0;
   private double mCurrentSpeed = 0;
   private double mCurrentAngle = 0;
   
   public void outputTelemetry() {
-    SmartDashboard.putNumber("Delta Rotation Speed: " + mConstants.kName, mDeltaRotationSpeed);
-    SmartDashboard.putNumber("Delta Drive Speed: " + mConstants.kName, mDeltaDriveSpeed);
-    SmartDashboard.putNumber("Max Delta Drive Speed: " + mConstants.kName, mMaxDeltaDriveSpeed);
-    SmartDashboard.putNumber("Max Delta Rotation Speed: " + mConstants.kName, mMaxDeltaRotationSpeed);
     SmartDashboard.putNumber("Current Speed: " + mConstants.kName, mCurrentSpeed);
     SmartDashboard.putNumber("Current Angle: " + mConstants.kName, mCurrentAngle);
     // mLastDriveValue = mDrivEncoder.getDistance();

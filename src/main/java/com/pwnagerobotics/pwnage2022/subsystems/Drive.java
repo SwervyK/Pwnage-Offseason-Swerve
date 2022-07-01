@@ -39,7 +39,7 @@ public class Drive extends Subsystem {
   private DelayedBoolean mGyroLagDelay = new DelayedBoolean(Constants.kGyroDelay);
   private boolean mCompensationActive = false;
   private PIDController mFieldCentricRotationPID = new PIDController(Constants.kRotationkP, Constants.kRotationkI, Constants.kRotationkD);
-  private PIDController mCompensationPID = new PIDController(Constants.kRotationkP, Constants.kRotationkI, Constants.kRotationkD);
+  private PIDController mCompensationPID = new PIDController(Constants.kCompensationP, Constants.kCompensationI, Constants.kCompensationD);
   private SwerveModule[] mModules = new SwerveModule[4];
   private AHRS mNavX = new AHRS();
   private PowerDistribution PDP = new PowerDistribution(0, ModuleType.kCTRE);
@@ -54,13 +54,12 @@ public class Drive extends Subsystem {
     mFieldCentricRotationPID.enableContinuousInput(-180, 180);
     mFieldCentricRotationPID.setTolerance(Constants.kFieldCentricRotationError);
     mCompensationPID.enableContinuousInput(-180, 180);
-    mCompensationPID.setTolerance(Constants.kGyroCompensationError);
+    mCompensationPID.setTolerance(Constants.kCompensationError);
     
     mNavX.setAngleAdjustment(-Constants.kGyroOffset);
   }
   
   public synchronized void setSwerveDrive(double throttle, double strafe, double rotationX, double rotationY) {
-    //tuneRobotRotationPID();
     double wheelAngle = Math.toDegrees(Math.atan2(strafe, throttle)); // Find what angle we want to drive at
     wheelAngle = (wheelAngle >= 0) ? wheelAngle : wheelAngle + 360; // Convert from (-180 to 180) to (0 to 360) 
     double speed = Math.sqrt(Math.pow(Math.abs(strafe), 2) + Math.pow(Math.abs(throttle), 2)); // Get wanted speed of robot
@@ -70,15 +69,12 @@ public class Drive extends Subsystem {
       double wantedRobotAngle = Math.toDegrees(Math.atan2(rotationX, rotationY)); // Point robot in direction of controller using pid
       wantedRobotAngle = (wantedRobotAngle >= 0) ? wantedRobotAngle : wantedRobotAngle + 360; // Convert from (-180 to 180) to (0 to 360)
       double distance = SwerveModule.getDistance(getGyroAngle(), wantedRobotAngle);
-      rotationX = SwerveModule.clamp(mFieldCentricRotationPID.calculate(0, distance), 1, -1, false);
+      rotationX = SwerveModule.clamp(mFieldCentricRotationPID.calculate(0, -distance), 1, -1, false);
       if (mFieldCentricRotationPID.atSetpoint()) rotationX = 0;
-      SmartDashboard.putNumber("Wanted Robot Angle", wantedRobotAngle);
-      SmartDashboard.putNumber("Distance to Angle", distance);
-      SmartDashboard.putNumber("Turn Speed", rotationX);
+      rotationX = XboxDriver.scaleController(rotationX, Constants.kRotationMaxValue, Constants.kRotationMinValue);
     }
     else { // Make easier to drive
       rotationX = XboxDriver.scaleController(rotationX, Constants.kRotationMaxValue, Constants.kRotationMinValue); // Adjust controller
-      mGyroLagDelay.update(Timer.getFPGATimestamp(), false);
       mFieldCentricRotationPID.reset(); //TODO test
     }
     
@@ -94,19 +90,23 @@ public class Drive extends Subsystem {
     if (rotationX == 0 && mCompensationActive) {
       double distance = mWantedAngle - getGyroAngle();
       rotationX = SwerveModule.clamp(mCompensationPID.calculate(0, distance), 1, -1, false);
-      if (mCompensationPID.atSetpoint()) rotationX = 0;
-      //mGyroLagDelay.update(Timer.getFPGATimestamp(), false);
+      rotationX = XboxDriver.scaleController(rotationX, Constants.kRotationMaxValue, Constants.kRotationMinValue);
+      if (mCompensationPID.atSetpoint() || Math.abs(distance) > Constants.kStartCompensation) rotationX = 0;
       mGyroLagDelay.update(Timer.getFPGATimestamp(), false);
     }
     else {
       mCompensationActive = false;
     }
 
+    // if (/* Motors move and we dont */) {
+    //   mGyroLagDelay.update(Timer.getFPGATimestamp(), false);
+    // }
+
     if (!mCompensationActive) { // Adds a short delat to when we start using the Gyro to keep robot pointed in one direction
       if (rotationX == 0 && mGyroLagDelay.update(Timer.getFPGATimestamp(), true)) {
         mCompensationActive = true;
         mWantedAngle = getGyroAngle();
-        mCompensationPID.reset(); //TODO test
+        //mCompensationPID.reset(); //TODO test
       }
     }
     
@@ -188,7 +188,7 @@ public class Drive extends Subsystem {
     if (-1 == SmartDashboard.getNumber("kP", -1)) SmartDashboard.putNumber("kP", 0);
     if (-1 == SmartDashboard.getNumber("kI", -1)) SmartDashboard.putNumber("kI", 0);
     if (-1 == SmartDashboard.getNumber("kD", -1)) SmartDashboard.putNumber("kD", 0);
-    mFieldCentricRotationPID.setPID(SmartDashboard.getNumber("kP", 0), SmartDashboard.getNumber("kI", 0), SmartDashboard.getNumber("kD", 0));
+    mCompensationPID.setPID(SmartDashboard.getNumber("kP", 0), SmartDashboard.getNumber("kI", 0), SmartDashboard.getNumber("kD", 0));
   }
   
   private double getGyroAngle() { 

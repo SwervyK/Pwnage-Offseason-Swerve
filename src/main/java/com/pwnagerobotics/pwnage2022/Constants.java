@@ -25,17 +25,23 @@ public class Constants {
     public static final double kDriveRateLimit = 1;
     public static final double kDriveMinSpeed = 5; //Last encoder value - current encoder value
 
-    // Robot Rotaion
-    public static final double kRotationkP = 0.01;
-    public static final double kRotationkI = 0.001;
+    // Field Centric Rotaion
+    public static final double kRotationkP = 0.005;
+    public static final double kRotationkI = 0.0005;
     public static final double kRotationkD = 0.0;
-    public static final double kFieldCentricRotationError = 2;
+    public static final double kFieldCentricRotationError = 2; // 4 degrees
+
+    // Compsentation
+    public static final double kCompensationP = 0.0;
+    public static final double kCompensationI = 0.0;
+    public static final double kCompensationD = 0.0;
+    public static final double kCompensationError = 4; // 8 degrees
+    public static final double kStartCompensation = 6; // 12 degrees
 
     // Gyro
-    public static final double kGyroOffset = 284.0;
+    public static final double kGyroOffset = 346.75;
     public static final double kGyroLag = 50.0; // When moving compensate for gyro lag
     public static final double kGyroDelay = 1; // Seonds after turing to enable compensation 
-    public static final double kGyroCompensationError = 1;
 
     // Modules
     public static final SwerveModuleConstants kFrontRightModuleConstants = new SwerveModuleConstants();
