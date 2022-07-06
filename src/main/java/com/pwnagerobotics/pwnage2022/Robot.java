@@ -5,6 +5,8 @@
 package com.pwnagerobotics.pwnage2022;
 
 import com.pwnagerobotics.pwnage2022.auto.Action;
+import com.pwnagerobotics.pwnage2022.auto.Autos;
+import com.pwnagerobotics.pwnage2022.auto.Playback;
 import com.pwnagerobotics.pwnage2022.auto.Recorder;
 import com.pwnagerobotics.pwnage2022.humans.driver.XboxDriver;
 import com.pwnagerobotics.pwnage2022.subsystems.Drive;
@@ -30,7 +32,16 @@ public class Robot extends TimedRobot {
   // Subsystemss
   private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
   private final Drive mDrive = Drive.getInstance();
+
+  // Auto
   private final Recorder mRecorder = new Recorder();
+  private final Playback mPlayback = new Playback();
+
+  private enum AutoType {
+    RECORDER,
+    PLAYBACK
+  }
+  private AutoType mAutoType = AutoType.RECORDER;
   
   public Robot(){
     super(0.04);
@@ -69,13 +80,23 @@ public class Robot extends TimedRobot {
   public void autonomousInit() { 
     var timestamp = Timer.getFPGATimestamp();
     mSubsystemManager.executeEnabledLoopStarts(timestamp);
+
+    if (mAutoType == AutoType.PLAYBACK) {
+      mPlayback.startAction(Autos.square(), false);
+    }
   }
   
   @Override
   public void autonomousPeriodic() {
     var timestamp = Timer.getFPGATimestamp();
 
-    Action action = mRecorder.getSwerveStateAtTimestamp(timestamp);
+    Action action = new Action(0, 0, 0);
+    if (mAutoType == AutoType.RECORDER) {
+      action = mRecorder.getSwerveStateAtTimestamp(timestamp);
+    }
+    else if (mAutoType == AutoType.PLAYBACK) {
+      action = mPlayback.getCurrentAction();
+    }
 
     mDrive.setRotationMode(action.getFieldCentricRotation() ? RotationMode.FEILD : RotationMode.ROBOT);
     mDrive.setSwerveDrive(action.getDrive()[0], action.getDrive()[1], action.getRotation()[0], action.getRotation()[1]);

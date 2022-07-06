@@ -1,5 +1,7 @@
 package com.pwnagerobotics.pwnage2022.auto;
 
+import edu.wpi.first.wpilibj.Timer;
+
 public class Action {
 
     private double kSpeed;
@@ -7,7 +9,6 @@ public class Action {
     private double kTurnSpeed;
     private boolean kFieldCentricRotation;
     private double kRotationAngle;
-    private double kTimestamp;
 
     public Action(double speed, double robotAngle, double turnSpeed) {
         kSpeed = speed;
@@ -33,10 +34,6 @@ public class Action {
         kFieldCentricRotation = true;
     }
 
-    public void setTimestamp(double timestamp) {
-        kTimestamp = timestamp;
-    }
-
     public double[] getDrive() {
         return new double[] {kSpeed*Math.sin(Math.toRadians(kRobotAngle)), kSpeed*Math.cos(Math.toRadians(kRobotAngle))};
     }
@@ -49,11 +46,34 @@ public class Action {
         }
     }
 
+    public boolean getFieldCentricRotation() {
+        return kFieldCentricRotation;
+    }
+
+    // Recorder
+    private double kTimestamp;
+
+    public void setTimestamp(double timestamp) {
+        kTimestamp = timestamp;
+    }
+
     public double getTimestamp() {
         return kTimestamp;
     }
 
-    public boolean getFieldCentricRotation() {
-        return kFieldCentricRotation;
+    // Playback
+    private double kDurration;
+    private double kStartTime;
+
+    public void startAction() {
+        kStartTime = Timer.getFPGATimestamp();
+    }
+
+    public void setDurration(double durration) {
+        kDurration = durration;
+    }
+
+    public boolean isDone() {
+        return Timer.getFPGATimestamp() - kStartTime > kDurration;
     }
 }
