@@ -10,6 +10,7 @@ import com.pwnagerobotics.pwnage2022.auto.Autos;
 import com.pwnagerobotics.pwnage2022.auto.Playback;
 import com.pwnagerobotics.pwnage2022.auto.Recorder;
 import com.pwnagerobotics.pwnage2022.humans.driver.XboxDriver;
+import com.pwnagerobotics.pwnage2022.lib.SwerveModule;
 import com.pwnagerobotics.pwnage2022.subsystems.Drive;
 import com.pwnagerobotics.pwnage2022.subsystems.Drive.DriveMode;
 import com.pwnagerobotics.pwnage2022.subsystems.Drive.RotationMode;
@@ -145,6 +146,29 @@ public class Robot extends TimedRobot {
   @Override
   public void testInit() { }
   
+  // SwerveModule[] mModules = new SwerveModule[4];
+  // {
+  //   mModules[0] = new SwerveModule(Constants.kFrontRightModuleConstants);
+  //   mModules[1] = new SwerveModule(Constants.kFrontLeftModuleConstants);
+  //   mModules[2] = new SwerveModule(Constants.kBackRightModuleConstants);
+  //   mModules[3] = new SwerveModule(Constants.kBackLeftModuleConstants);
+  // }
   @Override
-  public void testPeriodic() { }
+  public void testPeriodic() {
+    // Robot Rotation PID tuning
+    // double throttle = mDriver.getPositionY();
+    // double strafe = mDriver.getPositionX();
+    // int dPad = mDriver.getDPad();
+
+    // mDrive.setDriveMode(DriveMode.FEILD);
+    // mDrive.setSwerveDrive(throttle, strafe, Math.cos(Math.toRadians(dPad)), Math.sin(Math.toRadians(dPad)));
+
+    // Drive Roation PID tuning
+    // int dPad = mDriver.getDPad();
+    // mModules[0].setModule(dPad, 0);
+    // mModules[1].setModule(dPad, 0);
+    // mModules[2].setModule(dPad, 0);
+    // mModules[3].setModule(dPad, 0);
+
+   }
 }
