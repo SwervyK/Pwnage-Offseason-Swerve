@@ -5,6 +5,7 @@
 package com.pwnagerobotics.pwnage2022;
 
 import com.pwnagerobotics.pwnage2022.auto.Action;
+import com.pwnagerobotics.pwnage2022.auto.Action.RobotState;
 import com.pwnagerobotics.pwnage2022.auto.Autos;
 import com.pwnagerobotics.pwnage2022.auto.Playback;
 import com.pwnagerobotics.pwnage2022.auto.Recorder;
@@ -90,7 +91,7 @@ public class Robot extends TimedRobot {
   public void autonomousPeriodic() {
     var timestamp = Timer.getFPGATimestamp();
 
-    Action action = new Action(0, 0, 0);
+    Action action = new Action(new RobotState(0, 0, 0), false);
     if (mAutoType == AutoType.RECORDER) {
       action = mRecorder.getSwerveStateAtTimestamp(timestamp);
     }

@@ -10,28 +10,57 @@ public class Action {
     private boolean kFieldCentricRotation;
     private double kRotationAngle;
 
-    public Action(double speed, double robotAngle, double turnSpeed) {
-        kSpeed = speed;
-        kRobotAngle = robotAngle;
-        kTurnSpeed = turnSpeed;
-        kFieldCentricRotation = false;
-    }
-
-    public Action(double throttle, double strafe, double rotationX, double rotationY, boolean fieldCentricRotation) {
-        kRobotAngle = Math.toDegrees(Math.atan2(strafe, throttle));
-        kRobotAngle = (kRobotAngle >= 0) ? kRobotAngle : kRobotAngle + 360;
-        kSpeed = Math.sqrt(Math.pow(Math.abs(strafe), 2) + Math.pow(Math.abs(throttle), 2));
-        kTurnSpeed = rotationX;
-        kRotationAngle = Math.toDegrees(Math.atan2(rotationX, rotationY));
-        kRotationAngle = (kRotationAngle >= 0) ? kRotationAngle : kRotationAngle + 360;
+    public Action(ControllerState controller, boolean fieldCentricRotation) {
+        kSpeed = controller.kSpeed;
+        kRobotAngle = controller.kRobotAngle;
+        kTurnSpeed = controller.kTurnSpeed;
         kFieldCentricRotation = fieldCentricRotation;
+        kRotationAngle = controller.kRotationAngle;
     }
 
-    public Action(double speed, double robotAngle, double rotationAngle, boolean fieldCentricRotation) {
-        kSpeed = speed;
-        kRobotAngle = robotAngle;
-        kRotationAngle = rotationAngle;
-        kFieldCentricRotation = true;
+    public Action(RobotState controller, boolean fieldCentricRotation) {
+        kSpeed = controller.kSpeed;
+        kRobotAngle = controller.kRobotAngle;
+        kTurnSpeed = controller.kTurn;
+        kFieldCentricRotation = fieldCentricRotation;
+        kRotationAngle = controller.kTurn;
+    }
+
+    public Action(RobotState controller, boolean fieldCentricRotation, double durration) {
+        kSpeed = controller.kSpeed;
+        kRobotAngle = controller.kRobotAngle;
+        kTurnSpeed = controller.kTurn;
+        kFieldCentricRotation = fieldCentricRotation;
+        kRotationAngle = controller.kTurn;
+        kDurration = durration;
+    }
+
+    public static class ControllerState {
+        public double kSpeed;
+        public double kRobotAngle;
+        public double kTurnSpeed;
+        public double kRotationAngle;
+
+        public ControllerState(double throttle, double strafe, double rotationX, double rotationY) {
+            kRobotAngle = Math.toDegrees(Math.atan2(strafe, throttle));
+            kRobotAngle = (kRobotAngle >= 0) ? kRobotAngle : kRobotAngle + 360;
+            kSpeed = Math.sqrt(Math.pow(Math.abs(strafe), 2) + Math.pow(Math.abs(throttle), 2));
+            kTurnSpeed = rotationX;
+            kRotationAngle = Math.toDegrees(Math.atan2(rotationX, rotationY));
+            kRotationAngle = (kRotationAngle >= 0) ? kRotationAngle : kRotationAngle + 360;
+        }
+    }
+
+    public static class RobotState {
+        public double kSpeed;
+        public double kRobotAngle;
+        public double kTurn; // Turn speed or angle
+
+        public RobotState(double speed, double robotAngle, double turn) {
+            kSpeed = speed;
+            kRobotAngle = robotAngle;
+            kTurn = turn;
+        }
     }
 
     public double[] getDrive() {

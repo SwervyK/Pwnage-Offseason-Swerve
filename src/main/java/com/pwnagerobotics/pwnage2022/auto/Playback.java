@@ -1,5 +1,7 @@
 package com.pwnagerobotics.pwnage2022.auto;
 
+import com.pwnagerobotics.pwnage2022.auto.Action.RobotState;
+
 public class Playback {
 
     private Action[] mActions;
@@ -25,7 +27,7 @@ public class Playback {
             if (mLoop) {
                 mCurrentAction = 0;
             } else {
-                return new Action(0, 0, 0);
+                return new Action(new RobotState(0, 0, 0), false);
             }
         }
         return mActions[mCurrentAction];
