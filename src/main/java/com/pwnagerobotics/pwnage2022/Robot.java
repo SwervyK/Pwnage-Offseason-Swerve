@@ -4,12 +4,12 @@
 
 package com.pwnagerobotics.pwnage2022;
 
+import com.pwnagerobotics.pwnage2022.auto.Action;
+import com.pwnagerobotics.pwnage2022.auto.Recorder;
 import com.pwnagerobotics.pwnage2022.humans.driver.XboxDriver;
 import com.pwnagerobotics.pwnage2022.subsystems.Drive;
-import com.pwnagerobotics.pwnage2022.subsystems.Recorder;
 import com.pwnagerobotics.pwnage2022.subsystems.Drive.DriveMode;
 import com.pwnagerobotics.pwnage2022.subsystems.Drive.RotationMode;
-import com.pwnagerobotics.pwnage2022.subsystems.Recorder.SwerveState;
 import com.team254.lib.subsystems.SubsystemManager;
 
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -74,8 +74,11 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     var timestamp = Timer.getFPGATimestamp();
-    SwerveState state = mRecorder.getSwerveStateAtTimestamp(timestamp);
-    mDrive.setSwerveDrive(state.kThrottle, state.kStrafe, state.kRotationX, state.kRotationY);
+
+    Action action = mRecorder.getSwerveStateAtTimestamp(timestamp);
+
+    mDrive.setRotationMode(action.getFieldCentricRotation() ? RotationMode.FEILD : RotationMode.ROBOT);
+    mDrive.setSwerveDrive(action.getDrive()[0], action.getDrive()[1], action.getRotation()[0], action.getRotation()[1]);
     
     mSubsystemManager.executeEnabledLoops(Timer.getFPGATimestamp());
   }
@@ -98,24 +101,22 @@ public class Robot extends TimedRobot {
     double strafe = mDriver.getPositionX();
     boolean wantFieldCentricDrive = !mDriver.wantFieldCentricDrive();
     boolean wantFieldCentricRotation = mDriver.wantFieldCentricRotation();
-    boolean wantZero = mDriver.getDPad() == 0;
     boolean wantGyroReset = mDriver.getDPad() == 180;
     
     mDrive.setDriveMode(wantFieldCentricDrive ? DriveMode.FEILD : DriveMode.ROBOT);
     mDrive.setRotationMode(wantFieldCentricRotation ? RotationMode.FEILD : RotationMode.ROBOT);
     mDrive.setSwerveDrive(throttle, strafe, rotationX, rotationY);
     
-    //mRecorder.recordInputs(throttle, strafe, rotationX, rotationY, timestamp);
-    
-    if (wantZero) {
-      //mRecorder.stopRecording();
-      mDrive.setSwerveDrive(0, 0, 0, 0);
-    }
-    
     if (wantGyroReset) {
       mDrive.zeroSensors();
     }
     
+    // boolean stopRecording = mDriver.getDPad() == 0;
+    // mRecorder.recordInputs(throttle, strafe, rotationX, rotationY, wantFieldCentricRotation, timestamp);
+    // if (stopRecording) {
+    //   mRecorder.stopRecording();
+    // }
+
     mSubsystemManager.executeEnabledLoops(timestamp);
   }
   
