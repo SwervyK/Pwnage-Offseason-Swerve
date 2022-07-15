@@ -38,14 +38,15 @@ public class SwerveModule {
   public void setModule(double wantedPosition, double throttle)
   {
     // Postion
-    double currentPosition = (mRotationEncoder.getAbsolutePosition() - mRotationOffset) * 360;
+    double currentPosition = (mRotationEncoder.getAbsolutePosition() - mRotationOffset) * 360; // * 360 is to convert from the 0 to 1 of the encoder to 0 to 360
     currentPosition = clamp(currentPosition, 360, 0, true);
     
     // Distance
     double distance = getDistance(currentPosition, wantedPosition);
     
     // 90 flip
-    if (Math.abs(distance) > 90) {
+    // TODO at higher speeds maybe need larger angles to flip because of the time is takes to reverse the drive direction
+    if (Math.abs(distance) > 90) { // Makes sure the robot is takig the most optimal path when rotating modues
       wantedPosition -= 180;
       wantedPosition = clamp(wantedPosition, 360, 0, true);
       distance = getDistance(currentPosition, wantedPosition);
@@ -61,9 +62,9 @@ public class SwerveModule {
     // Rotation
     double rotationSpeed = clamp(mPID.calculate(0, distance), 1, -1, false);
     if (mPID.atSetpoint())
-    mRotationController.set(0);
+      mRotationController.set(0);
     else
-    mRotationController.set(rotationSpeed * Constants.kRotationSlowDown);
+      mRotationController.set(rotationSpeed * Constants.kRotationSlowDown);
     mLastThrottle = throttle;
     
     // Logging
@@ -71,6 +72,9 @@ public class SwerveModule {
     mCurrentAngle = wantedPosition;
   }
   
+  // Ramp rate
+  // Slowing down is not limited
+  // Dont limit +-0.2 so if you go from 1 to -1 you can get to -0.2 unlimited so make slowing down faster
   private double getAdjustedThrottle(double lastThrottle, double throttle) {
     if (throttle == 0) {
       mDriveRateLimiter.reset(0);
@@ -92,6 +96,8 @@ public class SwerveModule {
     // mLastDriveValue = mDrivEncoder.getDistance();
   }
   
+  // Wraps around the value proportionally between min and max
+  // TODO create Math class
   public static double clamp(double value, double max, double min, boolean wrapAround) {
     if (wrapAround) {
       if (value > max)
