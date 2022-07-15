@@ -63,9 +63,15 @@ public class Drive extends Subsystem {
   
   public synchronized void setSwerveDrive(double throttle, double strafe, double rotationX, double rotationY) {
     double robotAngle = Math.toDegrees(Math.atan2(strafe, throttle)); // Find what angle we want to drive at
-    robotAngle = (robotAngle >= 0) ? robotAngle : robotAngle + 360; // Convert from (-180 to 180) to (0 to 360) 
+    robotAngle = (robotAngle >= 0) ? robotAngle : robotAngle + 360; // Convert from (-180 to 180) to (0 to 360)
     double speed = Math.sqrt(Math.pow(Math.abs(strafe), 2) + Math.pow(Math.abs(throttle), 2)); // Get wanted speed of robot
     speed = XboxDriver.scaleController(SwerveModule.clamp(speed, 1, 0, false), Constants.kDriveMaxValue, Constants.kDriveMinValue);
+    
+    double controllerAngle = robotAngle; // TODO change, verry sloppy fix
+    if (nearestPole(robotAngle) <= Constants.kPoleSnappingThreshold) { // Pole snaping
+      robotAngle = Math.round(robotAngle/90) * 90;
+    }
+
     // Rotation
     if (mCurrentRotationMode == RotationMode.FEILD) {
       double wantedRobotAngle = Math.toDegrees(Math.atan2(rotationX, rotationY)); // Point robot in direction of controller using pid
@@ -92,8 +98,8 @@ public class Drive extends Subsystem {
     if (rotationX == 0 && mCompensationActive) {
       double distance = mWantedAngle - getGyroAngle();
       rotationX = SwerveModule.clamp(mCompensationPID.calculate(0, distance), 1, -1, false);
-      rotationX = XboxDriver.scaleController(rotationX, Constants.kRotationMaxValue, Constants.kRotationMinValue);
-      if (mCompensationPID.atSetpoint() /*|| Math.abs(distance) > Constants.kStartCompensation*/) rotationX = 0; // TODO add back
+      rotationX = XboxDriver.scaleController(rotationX, Constants.kRotationMaxValue, Constants.kRotationMinValue); // So even when PID returns small values the robot still moves
+      if (mCompensationPID.atSetpoint() /*|| Math.abs(distance) > Constants.kStartCompensation*/) rotationX = 0; // TODO add back?
       mGyroLagDelay.update(Timer.getFPGATimestamp(), false);
     }
     else {
@@ -103,7 +109,7 @@ public class Drive extends Subsystem {
     // if (/* Motors move and we dont */) {
     //   mGyroLagDelay.update(Timer.getFPGATimestamp(), false);
     // }
-
+    
     if (!mCompensationActive) { // Adds a short delat to when we start using the Gyro to keep robot pointed in one direction
       if (rotationX == 0 && mGyroLagDelay.update(Timer.getFPGATimestamp(), true)) {
         mCompensationActive = true;
@@ -112,6 +118,7 @@ public class Drive extends Subsystem {
       }
     }
     
+    // When robot is moving slow enough set all module angles to *45 to make us harder to push
     // if (throttle == 0 && strafe == 0 && rotationX == 0 && rotationY == 0) {
     //   // if (mModules[0].getDeltaDrive() < Constants.kDriveMinSpeed &&
     //   //     mModules[1].getDeltaDrive() < Constants.kDriveMinSpeed &&
@@ -124,12 +131,12 @@ public class Drive extends Subsystem {
     //   // }
     //   return;
     // }
-    // if (speed == 0 && robotAngle == 0) {
-    //   robotAngle = mLastNonZeroRobotAngle; //TODO test  This does not work because of field centric
-    // }
-    setVectorSwerveDrive(speed, -rotationX, robotAngle); //TODO should it be -rotationX
-    // if (robotAngle != 0)
-    //   mLastNonZeroRobotAngle = robotAngle;
+    if (speed == 0 && controllerAngle == 0) {
+      robotAngle = mLastNonZeroRobotAngle;
+    }
+    setVectorSwerveDrive(speed, -rotationX, robotAngle); //TODO should it be -rotationX?
+    if (robotAngle != 0)
+      mLastNonZeroRobotAngle = controllerAngle;
   }
   
   private void setVectorSwerveDrive(double forwardSpeed, double rotationSpeed, double robotAngle) {
@@ -164,6 +171,7 @@ public class Drive extends Subsystem {
     return new Vector2d(v.x * scalar, v.y * scalar);
   }
   
+  // Get angle out of vector
   private double getVectorAngle(Vector2d v){
     double angle = Math.toDegrees(Math.atan(v.y / v.x));
     if (v.x == 0) angle = 0;
@@ -172,6 +180,24 @@ public class Drive extends Subsystem {
     return angle;
   }
 
+  private double nearestPole(double angle) {
+    double poleSin = 0.0;
+    double poleCos = 0.0;
+    double sin = Math.sin(angle);
+    double cos = Math.cos(angle);
+    if (Math.abs(cos) > Math.abs(sin)) {
+      poleCos = Math.signum(cos);
+      poleSin = 0.0;
+    } 
+    else {
+      poleCos = 0.0;
+      poleSin = Math.signum(sin);
+    }
+    return Math.toDegrees(Math.atan2(poleSin, poleCos));
+  }
+
+  // Get module spin angles using x and y position
+  // EX: on a square robot everything is 45 degrees
   private double getTurnAngle(double xPos, double yPos) {
     
     return 0;
@@ -198,6 +224,7 @@ public class Drive extends Subsystem {
     mCompensationPID.setPID(SmartDashboard.getNumber("kP", 0), SmartDashboard.getNumber("kI", 0), SmartDashboard.getNumber("kD", 0));
   }
   
+  // Gyro angle does not loop around so it can be 360> and <-360 so this wraps it around to -360:360
   private double getGyroAngle() { 
     double currentAngle = mNavX.getAngle();
     if (currentAngle > 360) {
