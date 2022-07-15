@@ -34,11 +34,13 @@ public class Robot extends TimedRobot {
   // Subsystemss
   private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
   private final Drive mDrive = Drive.getInstance();
-
+  
   // Auto
   private final Recorder mRecorder = new Recorder();
   private final Playback mPlayback = new Playback();
-
+  private double startPlayback = 0;
+  private double startRecording = 0;
+  
   private enum AutoType {
     RECORDER,
     PLAYBACK
@@ -82,24 +84,25 @@ public class Robot extends TimedRobot {
   public void autonomousInit() { 
     var timestamp = Timer.getFPGATimestamp();
     mSubsystemManager.executeEnabledLoopStarts(timestamp);
-
+    
     if (mAutoType == AutoType.PLAYBACK) {
-      mPlayback.startAction(Autos.square(), false);
+      mPlayback.startAction(Autos.square(), true);
     }
+    startPlayback = timestamp;
   }
   
   @Override
   public void autonomousPeriodic() {
     var timestamp = Timer.getFPGATimestamp();
-
+    
     Action action = new Action(new RobotState(0, 0, 0), false);
     if (mAutoType == AutoType.RECORDER) {
-      action = mRecorder.getSwerveStateAtTimestamp(timestamp);
+      action = mRecorder.getSwerveStateAtTimestamp(timestamp - startPlayback);
     }
     else if (mAutoType == AutoType.PLAYBACK) {
       action = mPlayback.getCurrentAction();
     }
-
+    
     mDrive.setRotationMode(action.getFieldCentricRotation() ? RotationMode.FEILD : RotationMode.ROBOT);
     mDrive.setSwerveDrive(action.getDrive()[0], action.getDrive()[1], action.getRotation()[0], action.getRotation()[1]);
     
@@ -112,6 +115,7 @@ public class Robot extends TimedRobot {
     mSubsystemManager.executeEnabledLoopStarts(Timer.getFPGATimestamp());
     
     //mRecorder.newAuto("spin");
+    //startRecording = Timer.getFPGATimestamp();
   }
   
   @Override
@@ -134,41 +138,37 @@ public class Robot extends TimedRobot {
       mDrive.zeroSensors();
     }
     
-    // boolean stopRecording = mDriver.getDPad() == 0;
-    // mRecorder.recordInputs(throttle, strafe, rotationX, rotationY, wantFieldCentricRotation, timestamp);
-    // if (stopRecording) {
-    //   mRecorder.stopRecording();
-    // }
-
+    if (mRecorder.isRecording()) {
+      boolean stopRecording = mDriver.getDPad() == 0;
+      mRecorder.recordInputs(throttle, strafe, rotationX, rotationY, wantFieldCentricRotation, timestamp - startRecording);
+      if (stopRecording) {
+        mRecorder.stopRecording();
+      }
+    }
+    
     mSubsystemManager.executeEnabledLoops(timestamp);
   }
   
   @Override
   public void testInit() { }
   
-  // SwerveModule[] mModules = new SwerveModule[4];
-  // {
-  //   mModules[0] = new SwerveModule(Constants.kFrontRightModuleConstants);
-  //   mModules[1] = new SwerveModule(Constants.kFrontLeftModuleConstants);
-  //   mModules[2] = new SwerveModule(Constants.kBackRightModuleConstants);
-  //   mModules[3] = new SwerveModule(Constants.kBackLeftModuleConstants);
-  // }
   @Override
   public void testPeriodic() {
     // Robot Rotation PID tuning
     // double throttle = mDriver.getPositionY();
     // double strafe = mDriver.getPositionX();
     // int dPad = mDriver.getDPad();
-
-    // mDrive.setDriveMode(DriveMode.FEILD);
+    
+    // mDrive.setRotationMode(RotationMode.FEILD);
     // mDrive.setSwerveDrive(throttle, strafe, Math.cos(Math.toRadians(dPad)), Math.sin(Math.toRadians(dPad)));
-
+    // System.out.println("X: " + Math.cos(Math.toRadians(dPad)) + " | Y: " + Math.sin(Math.toRadians(dPad))); //TODO I dont think the X and Y are correct
+    
     // Drive Roation PID tuning
-    // int dPad = mDriver.getDPad();
-    // mModules[0].setModule(dPad, 0);
-    // mModules[1].setModule(dPad, 0);
-    // mModules[2].setModule(dPad, 0);
-    // mModules[3].setModule(dPad, 0);
-
-   }
+    // int dPad = mDriver.getDPad(); // Cardinal Directions
+    // mDrive.setModule(0, dPad, 0);
+    // mDrive.setModule(1, dPad, 0);
+    // mDrive.setModule(2, dPad, 0);
+    // mDrive.setModule(3, dPad, 0);
+    
+  }
 }
