@@ -29,7 +29,7 @@ public class Drive extends Subsystem {
     ROBOT,
     FEILD
   }
-  private DriveMode mCurrentDriveMode = DriveMode.ROBOT;
+  private DriveMode mCurrentDriveMode = DriveMode.FEILD;
   public enum RotationMode {
     ROBOT,
     FEILD
@@ -44,6 +44,8 @@ public class Drive extends Subsystem {
   private AHRS mNavX = new AHRS();
   private PowerDistribution PDP = new PowerDistribution(0, ModuleType.kCTRE);
   private double mWantedAngle = 0.0; // Direction the robot should be pointing
+
+  private double mLastNonZeroRobotAngle = 0;
   
   public Drive() {
     mModules[0] = new SwerveModule(Constants.kFrontRightModuleConstants);
@@ -60,8 +62,8 @@ public class Drive extends Subsystem {
   }
   
   public synchronized void setSwerveDrive(double throttle, double strafe, double rotationX, double rotationY) {
-    double wheelAngle = Math.toDegrees(Math.atan2(strafe, throttle)); // Find what angle we want to drive at
-    wheelAngle = (wheelAngle >= 0) ? wheelAngle : wheelAngle + 360; // Convert from (-180 to 180) to (0 to 360) 
+    double robotAngle = Math.toDegrees(Math.atan2(strafe, throttle)); // Find what angle we want to drive at
+    robotAngle = (robotAngle >= 0) ? robotAngle : robotAngle + 360; // Convert from (-180 to 180) to (0 to 360) 
     double speed = Math.sqrt(Math.pow(Math.abs(strafe), 2) + Math.pow(Math.abs(throttle), 2)); // Get wanted speed of robot
     speed = XboxDriver.scaleController(SwerveModule.clamp(speed, 1, 0, false), Constants.kDriveMaxValue, Constants.kDriveMinValue);
     // Rotation
@@ -80,10 +82,10 @@ public class Drive extends Subsystem {
     
     // Drive
     if (mCurrentDriveMode == DriveMode.FEILD) {
-      wheelAngle -= getGyroAngle(); // Field centric
-      wheelAngle = SwerveModule.clamp(wheelAngle, 360, 0, true);
+      robotAngle -= getGyroAngle(); // Field centric
+      robotAngle = SwerveModule.clamp(robotAngle, 360, 0, true);
       if (mCurrentRotationMode != RotationMode.FEILD) {
-        wheelAngle -= Constants.kGyroLag*rotationX; // Compensate for Gyro Lag
+        robotAngle -= Constants.kGyroLag*rotationX; // Compensate for Gyro Lag
       }
     }
     // Gyro Drift/Lag Compensation
@@ -91,7 +93,7 @@ public class Drive extends Subsystem {
       double distance = mWantedAngle - getGyroAngle();
       rotationX = SwerveModule.clamp(mCompensationPID.calculate(0, distance), 1, -1, false);
       rotationX = XboxDriver.scaleController(rotationX, Constants.kRotationMaxValue, Constants.kRotationMinValue);
-      if (mCompensationPID.atSetpoint() || Math.abs(distance) > Constants.kStartCompensation) rotationX = 0;
+      if (mCompensationPID.atSetpoint() /*|| Math.abs(distance) > Constants.kStartCompensation*/) rotationX = 0; // TODO add back
       mGyroLagDelay.update(Timer.getFPGATimestamp(), false);
     }
     else {
@@ -122,7 +124,12 @@ public class Drive extends Subsystem {
     //   // }
     //   return;
     // }
-    setVectorSwerveDrive(speed, -rotationX, wheelAngle); //TODO should it be -rotationX
+    if (speed == 0 && robotAngle == 0) {
+      robotAngle = mLastNonZeroRobotAngle;
+    }
+    setVectorSwerveDrive(speed, -rotationX, robotAngle); //TODO should it be -rotationX
+    if (robotAngle != 0)
+      mLastNonZeroRobotAngle = robotAngle;
   }
   
   private void setVectorSwerveDrive(double forwardSpeed, double rotationSpeed, double robotAngle) {
@@ -205,6 +212,10 @@ public class Drive extends Subsystem {
 
   public double getCurrent(int port) {
     return PDP.getCurrent(port);
+  }
+
+  public void setModule(int module, double angle, double speed) {
+    mModules[module].setModule(angle, speed);
   }
   
   @Override
