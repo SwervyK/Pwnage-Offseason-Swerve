@@ -32,8 +32,8 @@ public class Constants {
     public static final double kFieldCentricRotationError = 2; // 4 degrees
 
     // Compsentation
-    public static final double kCompensationP = 0.0;
-    public static final double kCompensationI = 0.0;
+    public static final double kCompensationP = 0.005;
+    public static final double kCompensationI = 0.0005;
     public static final double kCompensationD = 0.0;
     public static final double kCompensationError = 4; // 8 degrees
     public static final double kStartCompensation = 6; // 12 degrees
