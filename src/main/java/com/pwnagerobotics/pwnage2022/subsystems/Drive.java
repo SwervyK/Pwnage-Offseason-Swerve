@@ -124,12 +124,12 @@ public class Drive extends Subsystem {
     //   // }
     //   return;
     // }
-    if (speed == 0 && robotAngle == 0) {
-      robotAngle = mLastNonZeroRobotAngle;
-    }
+    // if (speed == 0 && robotAngle == 0) {
+    //   robotAngle = mLastNonZeroRobotAngle; //TODO test  This does not work because of field centric
+    // }
     setVectorSwerveDrive(speed, -rotationX, robotAngle); //TODO should it be -rotationX
-    if (robotAngle != 0)
-      mLastNonZeroRobotAngle = robotAngle;
+    // if (robotAngle != 0)
+    //   mLastNonZeroRobotAngle = robotAngle;
   }
   
   private void setVectorSwerveDrive(double forwardSpeed, double rotationSpeed, double robotAngle) {
