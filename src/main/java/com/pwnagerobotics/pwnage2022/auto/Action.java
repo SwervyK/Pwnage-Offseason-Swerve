@@ -71,7 +71,7 @@ public class Action {
         if (kFieldCentricRotation) {
             return new double[] {Math.cos(Math.toRadians(kRotationAngle)), Math.sin(Math.toRadians(kRotationAngle))};
         } else {
-            return new double[] {kTurnSpeed};
+            return new double[] {kTurnSpeed, 0};
         }
     }
 

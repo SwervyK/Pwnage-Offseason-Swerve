@@ -21,12 +21,15 @@ public class Playback {
         }
         if (mActions[mCurrentAction].isDone()) { // Start next action if current one is done
             mCurrentAction++;
-            mActions[mCurrentAction].startAction();
+            mActions[mCurrentAction>=mActions.length?mActions.length-1:mCurrentAction].startAction();
         }
         if (mCurrentAction >= mActions.length) {
             if (mLoop) {
                 mCurrentAction = 0;
+                mActions[0].startAction();
+                return mActions[0];
             } else {
+                mCurrentAction--;
                 return new Action(new RobotState(0, 0, 0), false);
             }
         }
