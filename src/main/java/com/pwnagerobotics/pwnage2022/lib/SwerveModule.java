@@ -10,7 +10,24 @@ import edu.wpi.first.wpilibj.motorcontrol.PWMMotorController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveModule {
-  
+
+  public static class SwerveModuleConstants {
+    public String kName = "Name";
+    public int kDriveId = 0;
+    public int kRotationId = 0;
+    public int kDriveEncoderId = 0;
+    public int kRotationEncoderId = 0;
+    public int kPDPId = 0;
+    
+    public double kp = 0.01;
+    public double ki = 0.001;
+    public double kd = 0.0;
+    
+    public double kRotationOffset = 0.0;
+    public double kRotationError = 3; // Degrees
+    public double kWheelDiameter = 0.0;
+  }
+
   private SwerveModuleConstants mConstants;
   private MotorController mDriveController;
   private MotorController mRotationController;
@@ -62,31 +79,16 @@ public class SwerveModule {
     // Rotation
     double rotationSpeed = clamp(mPID.calculate(0, distance), 1, -1, false);
     if (mPID.atSetpoint())
-      mRotationController.set(0);
+    mRotationController.set(0);
     else
-      mRotationController.set(rotationSpeed * Constants.kRotationSlowDown);
+    mRotationController.set(rotationSpeed * Constants.kRotationSlowDown);
     mLastThrottle = throttle;
     
     // Logging
     mCurrentSpeed = throttle;
     mCurrentAngle = wantedPosition;
   }
-  
-  // Ramp rate
-  // Slowing down is not limited
-  // Dont limit +-0.2 so if you go from 1 to -1 you can get to -0.2 unlimited so make slowing down faster
-  private double getAdjustedThrottle(double lastThrottle, double throttle) {
-    if (throttle == 0) {
-      mDriveRateLimiter.reset(0);
-      return 0;
-    }
-    if (Math.abs(throttle) < Math.abs(lastThrottle) || Math.abs(throttle) < 0.2) {
-      mDriveRateLimiter.reset(throttle);
-      return throttle;
-    }
-    return mDriveRateLimiter.calculate(throttle);
-  }
-  
+
   private double mCurrentSpeed = 0;
   private double mCurrentAngle = 0;
   
@@ -95,7 +97,7 @@ public class SwerveModule {
     SmartDashboard.putNumber("Current Angle: " + mConstants.kName, mCurrentAngle);
     // mLastDriveValue = mDrivEncoder.getDistance();
   }
-  
+
   // Wraps around the value proportionally between min and max
   // TODO create Math class
   public static double clamp(double value, double max, double min, boolean wrapAround) {
@@ -131,6 +133,21 @@ public class SwerveModule {
     mRotationEncoder.reset();
   }
   
+  // Ramp rate
+  // Slowing down is not limited
+  // Dont limit +-0.2 so if you go from 1 to -1 you can get to -0.2 unlimited so make slowing down faster
+  private double getAdjustedThrottle(double lastThrottle, double throttle) {
+    if (throttle == 0) {
+      mDriveRateLimiter.reset(0);
+      return 0;
+    }
+    if (Math.abs(throttle) < Math.abs(lastThrottle) || Math.abs(throttle) < 0.2) {
+      mDriveRateLimiter.reset(throttle);
+      return throttle;
+    }
+    return mDriveRateLimiter.calculate(throttle);
+  }
+  
   private void tuneRobotRotationPID() {
     if (-1 == SmartDashboard.getNumber("kP", -1)) SmartDashboard.putNumber("kP", 0);
     if (-1 == SmartDashboard.getNumber("kI", -1)) SmartDashboard.putNumber("kI", 0);
@@ -140,7 +157,7 @@ public class SwerveModule {
   
   // private double mLastDriveValue;
   // public double getDeltaDrive() {
-    //   return mLastDriveValue - mDrivEncoder.getDistance();
-    // }
-  }
+  //   return mLastDriveValue - mDrivEncoder.getDistance();
+  // }
+}
   

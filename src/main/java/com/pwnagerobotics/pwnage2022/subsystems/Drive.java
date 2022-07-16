@@ -61,7 +61,7 @@ public class Drive extends Subsystem {
     mNavX.setAngleAdjustment(-Constants.kGyroOffset);
   }
   
-  public synchronized void setSwerveDrive(double throttle, double strafe, double rotationX, double rotationY) {
+  public void setSwerveDrive(double throttle, double strafe, double rotationX, double rotationY) {
     double robotAngle = Math.toDegrees(Math.atan2(strafe, throttle)); // Find what angle we want to drive at
     robotAngle = (robotAngle >= 0) ? robotAngle : robotAngle + 360; // Convert from (-180 to 180) to (0 to 360)
     double speed = Math.sqrt(Math.pow(Math.abs(strafe), 2) + Math.pow(Math.abs(throttle), 2)); // Get wanted speed of robot
@@ -198,7 +198,7 @@ public class Drive extends Subsystem {
 
   // Get module spin angles using x and y position
   // EX: on a square robot everything is 45 degrees
-  private double getTurnAngle(double xPos, double yPos) {
+  private double getTurnAngle(double xPos, double yPos) { // TODO finish
     
     return 0;
   }
@@ -237,14 +237,6 @@ public class Drive extends Subsystem {
     return currentAngle;
   }
 
-  public double getCurrent(int port) {
-    return PDP.getCurrent(port);
-  }
-
-  public void setModule(int module, double angle, double speed) {
-    mModules[module].setModule(angle, speed);
-  }
-  
   @Override
   public void onEnabledLoopStart(double timestamp) {
     synchronized (Drive.this) {
@@ -305,5 +297,13 @@ public class Drive extends Subsystem {
   
   public void setRotationMode(RotationMode mode) {
     mCurrentRotationMode = mode;
+  }
+
+  public double getCurrent(int port) {
+    return PDP.getCurrent(port);
+  }
+
+  public void setModule(int module, double angle, double speed) {
+    mModules[module].setModule(angle, speed);
   }
 }

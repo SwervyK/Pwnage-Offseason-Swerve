@@ -1,6 +1,6 @@
 package com.pwnagerobotics.pwnage2022;
 
-import com.pwnagerobotics.pwnage2022.lib.SwerveModuleConstants;
+import com.pwnagerobotics.pwnage2022.lib.SwerveModule.SwerveModuleConstants;
 
 /**
  * A list of constants used by the rest of the robot code. This includes physics
