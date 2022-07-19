@@ -25,6 +25,7 @@ public class Constants {
     public static final double kDriveCurrentLimit = 50;
     public static final double kDriveRateLimit = 1;
     public static final double kDriveMinSpeed = 5; //Last encoder value - current encoder value
+    public static final double kDriveEncoderCPR = 8192; //Encoder counts per revolution
 
     // Field Centric Rotaion
     public static final double kRotationkP = 0.005;

@@ -159,5 +159,8 @@ public class SwerveModule {
   // public double getDeltaDrive() {
   //   return mLastDriveValue - mDrivEncoder.getDistance();
   // }
+     public double getDriveEncoderDistance() {
+       return 0; //mDrivEncoder.getDistance();
+     }
 }
   

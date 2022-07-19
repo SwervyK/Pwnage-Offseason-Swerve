@@ -12,6 +12,7 @@ import com.pwnagerobotics.pwnage2022.auto.Recorder;
 import com.pwnagerobotics.pwnage2022.humans.driver.XboxDriver;
 import com.pwnagerobotics.pwnage2022.lib.SwerveModule;
 import com.pwnagerobotics.pwnage2022.subsystems.Drive;
+import com.pwnagerobotics.pwnage2022.subsystems.RobotStateEstimator;
 import com.pwnagerobotics.pwnage2022.subsystems.Drive.DriveMode;
 import com.pwnagerobotics.pwnage2022.subsystems.Drive.RotationMode;
 import com.team254.lib.subsystems.SubsystemManager;
@@ -34,6 +35,7 @@ public class Robot extends TimedRobot {
   // Subsystemss
   private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
   private final Drive mDrive = Drive.getInstance();
+  private final RobotStateEstimator mRobotStateEstimator = RobotStateEstimator.getInstance();
   
   // Auto
   private final Recorder mRecorder = new Recorder();
@@ -57,7 +59,8 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     mSubsystemManager.setSubsystems(
-    mDrive
+    mDrive,
+    mRobotStateEstimator
     );
     
     mDrive.zeroSensors();
@@ -72,12 +75,14 @@ public class Robot extends TimedRobot {
   public void disabledInit() {
     var timestamp = Timer.getFPGATimestamp();
     mSubsystemManager.executeEnabledLoopStops(timestamp);
+    mRobotStateEstimator.onEnabledLoopStart(timestamp);
   }
   
   @Override
   public void disabledPeriodic() {
     var timestamp = Timer.getFPGATimestamp();
     mSubsystemManager.executeDisabledLoops(timestamp);
+    mRobotStateEstimator.onEnabledLoop(timestamp);
   }
   
   @Override

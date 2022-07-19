@@ -2,6 +2,7 @@ package com.pwnagerobotics.pwnage2022.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.pwnagerobotics.pwnage2022.Constants;
+import com.pwnagerobotics.pwnage2022.Kinematics;
 import com.pwnagerobotics.pwnage2022.humans.driver.XboxDriver;
 import com.pwnagerobotics.pwnage2022.lib.SwerveModule;
 import com.pwnagerobotics.pwnage2022.subsystems.Drive;
@@ -13,12 +14,14 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 
+import com.team254.lib.geometry.Pose2d;
+import com.team254.lib.geometry.Rotation2d;
+import com.team254.lib.geometry.Translation2d;
 import com.team254.lib.subsystems.Subsystem;
 import com.team254.lib.util.DelayedBoolean;
 
 public class Drive extends Subsystem {
 
-  // Singleton Drive
   public static Drive mInstance;
   public synchronized static Drive getInstance() {
     if (mInstance == null) mInstance = new Drive();
@@ -237,6 +240,15 @@ public class Drive extends Subsystem {
     return currentAngle;
   }
 
+  public void PoseToDrive(Pose2d velocity) {
+    Translation2d[] wheelVelocities = Kinematics.inverseKinematics(velocity);
+
+    mModules[0].setModule(wheelVelocities[0].direction().getDegrees(), Math.sqrt(wheelVelocities[0].norm2()));
+    mModules[1].setModule(wheelVelocities[1].direction().getDegrees(), Math.sqrt(wheelVelocities[1].norm2()));
+    mModules[2].setModule(wheelVelocities[2].direction().getDegrees(), Math.sqrt(wheelVelocities[2].norm2()));
+    mModules[3].setModule(wheelVelocities[3].direction().getDegrees(), Math.sqrt(wheelVelocities[3].norm2()));
+  }
+
   @Override
   public void onEnabledLoopStart(double timestamp) {
     synchronized (Drive.this) {
@@ -305,5 +317,16 @@ public class Drive extends Subsystem {
 
   public void setModule(int module, double angle, double speed) {
     mModules[module].setModule(angle, speed);
+  }
+
+  public Rotation2d getRobotAngle() {
+    return new Rotation2d(Math.toRadians(getGyroAngle()), false);
+  }
+
+  public double[] getEncoderDistances() {
+    return new double[] {mModules[0].getDriveEncoderDistance() / Constants.kDriveEncoderCPR,
+                          mModules[1].getDriveEncoderDistance() / Constants.kDriveEncoderCPR,
+                          mModules[2].getDriveEncoderDistance() / Constants.kDriveEncoderCPR,
+                          mModules[3].getDriveEncoderDistance() / Constants.kDriveEncoderCPR};
   }
 }
