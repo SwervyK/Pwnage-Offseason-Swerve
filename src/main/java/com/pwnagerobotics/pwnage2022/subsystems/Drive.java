@@ -323,10 +323,7 @@ public class Drive extends Subsystem {
     return new Rotation2d(Math.toRadians(getGyroAngle()), false);
   }
 
-  public double[] getEncoderDistances() {
-    return new double[] {mModules[0].getDriveEncoderDistance() / Constants.kDriveEncoderCPR,
-                          mModules[1].getDriveEncoderDistance() / Constants.kDriveEncoderCPR,
-                          mModules[2].getDriveEncoderDistance() / Constants.kDriveEncoderCPR,
-                          mModules[3].getDriveEncoderDistance() / Constants.kDriveEncoderCPR};
+  public Translation2d getModuleState(int module) {
+    return new Translation2d(mModules[module].getDriveVelocity()*Math.cos(Math.toRadians(mModules[module].getRotation())), mModules[module].getDriveVelocity()*Math.sin(Math.toRadians(mModules[module].getRotation())));
   }
 }

@@ -162,5 +162,13 @@ public class SwerveModule {
      public double getDriveEncoderDistance() {
        return 0; //mDrivEncoder.getDistance();
      }
+
+     public double getDriveVelocity() {
+      return mDriveController.get();
+     }
+
+     public double getModuleAngle() {
+      return mCurrentAngle;
+     }
 }
   
