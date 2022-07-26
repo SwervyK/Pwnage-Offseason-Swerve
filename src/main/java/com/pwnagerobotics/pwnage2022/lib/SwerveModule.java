@@ -1,6 +1,9 @@
 package com.pwnagerobotics.pwnage2022.lib;
 
 import com.pwnagerobotics.pwnage2022.Constants;
+import com.pwnagerobotics.pwnage2022.Kinematics;
+import com.pwnagerobotics.pwnage2022.RobotState;
+import com.pwnagerobotics.pwnage2022.subsystems.Drive;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -35,7 +38,7 @@ public class SwerveModule {
   private AnalogEncoder mRotationEncoder;
   private PIDController mPID;
   private double mRotationOffset;
-  
+  private RobotState mRobotState = RobotState.getInstance();
   private SlewRateLimiter mDriveRateLimiter = new SlewRateLimiter(Constants.kDriveRateLimit);
   private double mLastThrottle = 0;
   private static final double kPIDInputRange = 90;
@@ -62,8 +65,9 @@ public class SwerveModule {
     double distance = getDistance(currentPosition, wantedPosition);
     
     // 90 flip
-    // TODO at higher speeds maybe need larger angles to flip because of the time is takes to reverse the drive direction
-    if (Math.abs(distance) > 90) { // Makes sure the robot is takig the most optimal path when rotating modues
+    // At higher speeds maybe need larger angles to flip because of the time is takes to reverse the drive direction
+    // TODO make it scale based on speed?
+    if (Math.abs(distance) > 90 /*|| mRobotState.getMeasuredVelocity().norm() < 5*/) { // Makes sure the robot is takig the most optimal path when rotating modues
       wantedPosition -= 180;
       wantedPosition = clamp(wantedPosition, 360, 0, true);
       distance = getDistance(currentPosition, wantedPosition);
@@ -99,7 +103,6 @@ public class SwerveModule {
   }
 
   // Wraps around the value proportionally between min and max
-  // TODO create Math class
   public static double clamp(double value, double max, double min, boolean wrapAround) {
     if (wrapAround) {
       if (value > max)

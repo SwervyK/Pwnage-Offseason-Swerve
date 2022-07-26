@@ -1,5 +1,7 @@
 package com.pwnagerobotics.pwnage2022.subsystems;
 
+import javax.xml.crypto.dsig.keyinfo.KeyInfo;
+
 import com.kauailabs.navx.frc.AHRS;
 import com.pwnagerobotics.pwnage2022.Constants;
 import com.pwnagerobotics.pwnage2022.Kinematics;
@@ -94,7 +96,7 @@ public class Drive extends Subsystem {
       robotAngle -= getGyroAngle(); // Field centric
       robotAngle = SwerveModule.clamp(robotAngle, 360, 0, true);
       if (mCurrentRotationMode != RotationMode.FEILD) {
-        robotAngle -= Constants.kGyroLag*rotationX; // Compensate for Gyro Lag
+        robotAngle -= Constants.kGyroLag*rotationX; // Compensate for Gyro Lag // TODO Gyro
       }
     }
     // Gyro Drift/Lag Compensation
@@ -114,7 +116,7 @@ public class Drive extends Subsystem {
     // }
     
     if (!mCompensationActive) { // Adds a short delat to when we start using the Gyro to keep robot pointed in one direction
-      if (rotationX == 0 && mGyroLagDelay.update(Timer.getFPGATimestamp(), true)) {
+      if (rotationX == 0 && mGyroLagDelay.update(Timer.getFPGATimestamp(), true)) { // TODO Gyro
         mCompensationActive = true;
         mWantedAngle = getGyroAngle();
         //mCompensationPID.reset(); //TODO test
@@ -137,9 +139,10 @@ public class Drive extends Subsystem {
     if (speed == 0 && controllerAngle == 0) {
       robotAngle = mLastNonZeroRobotAngle;
     }
-    setVectorSwerveDrive(speed, -rotationX, robotAngle); //TODO should it be -rotationX?
+    setVectorSwerveDrive(speed, -rotationX, robotAngle);
     if (robotAngle != 0)
       mLastNonZeroRobotAngle = controllerAngle;
+    System.out.println(mLastNonZeroRobotAngle);
   }
   
   private void setVectorSwerveDrive(double forwardSpeed, double rotationSpeed, double robotAngle) {
@@ -186,6 +189,7 @@ public class Drive extends Subsystem {
   private double nearestPole(double angle) {
     double poleSin = 0.0;
     double poleCos = 0.0;
+    angle = Math.toRadians(angle);
     double sin = Math.sin(angle);
     double cos = Math.cos(angle);
     if (Math.abs(cos) > Math.abs(sin)) {
