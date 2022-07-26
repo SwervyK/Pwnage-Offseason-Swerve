@@ -1,6 +1,6 @@
 package com.pwnagerobotics.pwnage2022;
 
-import com.pwnagerobotics.pwnage2022.lib.SwerveModuleConstants;
+import com.pwnagerobotics.pwnage2022.lib.SwerveModule.SwerveModuleConstants;
 
 /**
  * A list of constants used by the rest of the robot code. This includes physics
@@ -25,6 +25,7 @@ public class Constants {
     public static final double kDriveCurrentLimit = 50;
     public static final double kDriveRateLimit = 1;
     public static final double kDriveMinSpeed = 5; //Last encoder value - current encoder value
+    public static final double kDriveEncoderCPR = 8192; //Encoder counts per revolution
 
     // Field Centric Rotaion
     public static final double kRotationkP = 0.005;
