@@ -172,7 +172,7 @@ public class Drive extends Subsystem {
   }
   
   // Get angle out of vector
-  private double getVectorAngle(Vector2d v){
+  private double getVectorAngle(Vector2d v) {
     double angle = Math.toDegrees(Math.atan(v.y / v.x));
     if (v.x == 0) angle = 0;
     if (v.x < 0) angle += 180;

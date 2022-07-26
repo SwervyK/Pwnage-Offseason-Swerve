@@ -15,7 +15,7 @@ public class Constants {
     public static final double kRotationMinValue = 0.1;
     public static final double kLeftStickDeadband = 0.1;
     public static final double kRightStickDeadband = 0.1;
-    public static final double kPoleSnappingThreshold = 10;
+    public static final double kPoleSnappingThreshold = 4;
     
     // Drivetrain
     public static final double kDriveWidth = 21.5; //Width between center of drive modules, inches
