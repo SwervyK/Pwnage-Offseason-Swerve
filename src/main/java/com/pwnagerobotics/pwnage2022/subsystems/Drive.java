@@ -172,7 +172,7 @@ public class Drive extends Subsystem {
     }
   }
   
-  private Vector2d scaleVector2d(Vector2d v, double scalar){
+  private Vector2d scaleVector2d(Vector2d v, double scalar) {
     return new Vector2d(v.x * scalar, v.y * scalar);
   }
   
@@ -212,8 +212,9 @@ public class Drive extends Subsystem {
   // Get module spin angles using x and y position
   // EX: on a square robot everything is 45 degrees
   private double getTurnAngle(double xPos, double yPos) { // TODO finish
-    
-    return 0;
+    double theta = Math.tan(yPos/xPos);
+    theta += yPos>0?180:0 + Math.signum(xPos)==Math.signum(yPos)?90:0;
+    return theta;
   }
   
   /**
