@@ -1,7 +1,5 @@
 package com.pwnagerobotics.pwnage2022.subsystems;
 
-import javax.xml.crypto.dsig.keyinfo.KeyInfo;
-
 import com.kauailabs.navx.frc.AHRS;
 import com.pwnagerobotics.pwnage2022.Constants;
 import com.pwnagerobotics.pwnage2022.Kinematics;
@@ -144,39 +142,33 @@ public class Drive extends Subsystem {
   }
   
   private void setVectorSwerveDrive(double forwardSpeed, double rotationSpeed, double robotAngle) {
-    Vector2d FRVector, FLVector, BRVector, BLVector;
-    FRVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 315);
-    FLVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 225);
-    BRVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 45);
-    BLVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 135); 
-    // FRVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, getTurnAngle(Constants.kDriveWidth/2, Constants.kDriveLength/2));
-    // FLVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, getTurnAngle(-Constants.kDriveWidth/2, Constants.kDriveLength/2));
-    // BRVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, getTurnAngle(Constants.kDriveWidth/2, -Constants.kDriveLength/2));
-    // BLVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, getTurnAngle(-Constants.kDriveWidth/2, -Constants.kDriveLength/2)); 
+    Vector2d[] vectors = new Vector2d[4];
+    // FRVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 315);
+    // FLVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 225);
+    // BRVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 45);
+    // BLVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 135); 
+    for (int i = 0; i < vectors.length; i++) {
+      vectors[i] = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 
+      getTurnAngle(i%2==0?Constants.kDriveWidth/2:-Constants.kDriveWidth/2, i<2?Constants.kDriveLength/2:-Constants.kDriveLength)
+      );
+    }
     double maxMagnitude = Math.max(Math.max(Math.max(
-    FRVector.magnitude(), 
-    FLVector.magnitude()), 
-    BLVector.magnitude()),
-    BRVector.magnitude());
+    vectors[0].magnitude(), 
+    vectors[1].magnitude()), 
+    vectors[2].magnitude()),
+    vectors[3].magnitude());
     if(maxMagnitude > 1){
       //Normalize vectors, preserving proportions while reducing all below 1
-      FRVector = scaleVector2d(FRVector, 1.0 / maxMagnitude);
-      FLVector = scaleVector2d(FLVector, 1.0 / maxMagnitude);
-      BRVector = scaleVector2d(BRVector, 1.0 / maxMagnitude);
-      BLVector = scaleVector2d(BLVector, 1.0 / maxMagnitude);
+      for (Vector2d v : vectors) v = scaleVector2d(v, 1.0 / maxMagnitude);
     }
     // When robot is not moving set angle to robotAngle (otherwise if rotationSpeed and driveSpeed are 0 angle is 0)
     if (forwardSpeed == 0 && rotationSpeed == 0)  {
-      mModules[0].setModule(robotAngle, 0);
-      mModules[1].setModule(robotAngle, 0);
-      mModules[2].setModule(robotAngle, 0);
-      mModules[3].setModule(robotAngle, 0);
+      for (SwerveModule m : mModules) m.setModule(robotAngle, 0);
     }
     else {
-      mModules[0].setModule(getVectorAngle(FRVector), FRVector.magnitude());
-      mModules[1].setModule(getVectorAngle(FLVector), FLVector.magnitude());
-      mModules[2].setModule(getVectorAngle(BRVector), BRVector.magnitude());
-      mModules[3].setModule(getVectorAngle(BLVector), BLVector.magnitude());
+      for (int i = 0; i < mModules.length; i++) {
+        mModules[i].setModule(getVectorAngle(vectors[i]), vectors[i].magnitude());
+      }
     }
   }
   
@@ -261,10 +253,9 @@ public class Drive extends Subsystem {
   public void PoseToDrive(Pose2d velocity) {
     Translation2d[] wheelVelocities = Kinematics.inverseKinematics(velocity);
 
-    mModules[0].setModule(wheelVelocities[0].direction().getDegrees(), Math.sqrt(wheelVelocities[0].norm2()));
-    mModules[1].setModule(wheelVelocities[1].direction().getDegrees(), Math.sqrt(wheelVelocities[1].norm2()));
-    mModules[2].setModule(wheelVelocities[2].direction().getDegrees(), Math.sqrt(wheelVelocities[2].norm2()));
-    mModules[3].setModule(wheelVelocities[3].direction().getDegrees(), Math.sqrt(wheelVelocities[3].norm2()));
+    for (int i = 0; i < mModules.length; i++) {
+      mModules[i].setModule(wheelVelocities[i].direction().getDegrees(), Math.sqrt(wheelVelocities[i].norm2()));
+    }
   }
 
   @Override
@@ -290,10 +281,7 @@ public class Drive extends Subsystem {
   
   @Override
   public void stop() {
-    mModules[0].setModule(0, 0);
-    mModules[1].setModule(0, 0);
-    mModules[2].setModule(0, 0);
-    mModules[3].setModule(0, 0);
+    for (SwerveModule m : mModules) m.setModule(0, 0);
   }
   
   @Override
@@ -304,10 +292,7 @@ public class Drive extends Subsystem {
     SmartDashboard.putNumber("Back Left Angle", mModules[3].getRotation());
     SmartDashboard.putNumber("Gyro Angle", getGyroAngle());
     SmartDashboard.putNumber("Raw Gyro Angle", mNavX.getYaw());
-    mModules[0].outputTelemetry();
-    mModules[1].outputTelemetry();
-    mModules[2].outputTelemetry();
-    mModules[3].outputTelemetry();
+    for (SwerveModule m : mModules) m.outputTelemetry();
   }
   
   @Override
