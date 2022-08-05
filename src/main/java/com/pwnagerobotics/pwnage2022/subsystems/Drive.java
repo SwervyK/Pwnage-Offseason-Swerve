@@ -212,7 +212,8 @@ public class Drive extends Subsystem {
   // Get module spin angles using x and y position
   // EX: on a square robot everything is 45 degrees
   private double getTurnAngle(double xPos, double yPos) { // TODO finish
-    double theta = Math.tan(yPos/xPos);
+    double theta = Math.atan2(yPos, xPos);
+    theta = theta>=0?theta:theta+360;
     theta += yPos>0?180:0 + Math.signum(xPos)==Math.signum(yPos)?90:0;
     return theta;
   }
