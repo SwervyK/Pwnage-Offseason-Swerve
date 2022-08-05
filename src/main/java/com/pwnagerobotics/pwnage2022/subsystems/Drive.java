@@ -73,9 +73,8 @@ public class Drive extends Subsystem {
     speed = XboxDriver.scaleController(SwerveModule.clamp(speed, 1, 0, false), Constants.kDriveMaxValue, Constants.kDriveMinValue);
     
     double controllerAngle = robotAngle; // TODO change, verry sloppy fix
-    if (nearestPole(robotAngle) <= Constants.kPoleSnappingThreshold) { // Pole snaping
-      robotAngle = Math.round(robotAngle/90) * 90;
-    }
+    // Pole Snapping
+    robotAngle = nearestPoleSnap(robotAngle);
 
     // Rotation
     if (mCurrentRotationMode == RotationMode.FEILD) {
@@ -136,13 +135,12 @@ public class Drive extends Subsystem {
     //   // }
     //   return;
     // }
-    if (speed == 0 && controllerAngle == 0) {
+    if (speed == 0 && controllerAngle == 0) { // Dont set module direction to 0 if not moving
       robotAngle = mLastNonZeroRobotAngle;
     }
     setVectorSwerveDrive(speed, -rotationX, robotAngle);
-    if (robotAngle != 0)
+    if (controllerAngle != 0)
       mLastNonZeroRobotAngle = controllerAngle;
-    System.out.println(mLastNonZeroRobotAngle);
   }
   
   private void setVectorSwerveDrive(double forwardSpeed, double rotationSpeed, double robotAngle) {
@@ -167,10 +165,19 @@ public class Drive extends Subsystem {
       BRVector = scaleVector2d(BRVector, 1.0 / maxMagnitude);
       BLVector = scaleVector2d(BLVector, 1.0 / maxMagnitude);
     }
-    mModules[0].setModule(getVectorAngle(FRVector), FRVector.magnitude());
-    mModules[1].setModule(getVectorAngle(FLVector), FLVector.magnitude());
-    mModules[2].setModule(getVectorAngle(BRVector), BRVector.magnitude());
-    mModules[3].setModule(getVectorAngle(BLVector), BLVector.magnitude());
+    // When robot is not moving set angle to robotAngle (otherwise if rotationSpeed and driveSpeed are 0 angle is 0)
+    if (forwardSpeed == 0 && rotationSpeed == 0)  {
+      mModules[0].setModule(robotAngle, 0);
+      mModules[1].setModule(robotAngle, 0);
+      mModules[2].setModule(robotAngle, 0);
+      mModules[3].setModule(robotAngle, 0);
+    }
+    else {
+      mModules[0].setModule(getVectorAngle(FRVector), FRVector.magnitude());
+      mModules[1].setModule(getVectorAngle(FLVector), FLVector.magnitude());
+      mModules[2].setModule(getVectorAngle(BRVector), BRVector.magnitude());
+      mModules[3].setModule(getVectorAngle(BLVector), BLVector.magnitude());
+    }
   }
   
   private Vector2d scaleVector2d(Vector2d v, double scalar){
@@ -186,12 +193,11 @@ public class Drive extends Subsystem {
     return angle;
   }
 
-  private double nearestPole(double angle) {
+  private double nearestPoleSnap(double angle) {
     double poleSin = 0.0;
     double poleCos = 0.0;
-    angle = Math.toRadians(angle);
-    double sin = Math.sin(angle);
-    double cos = Math.cos(angle);
+    double sin = Math.sin(Math.toRadians(angle));
+    double cos = Math.cos(Math.toRadians(angle));
     if (Math.abs(cos) > Math.abs(sin)) {
       poleCos = Math.signum(cos);
       poleSin = 0.0;
@@ -200,7 +206,15 @@ public class Drive extends Subsystem {
       poleCos = 0.0;
       poleSin = Math.signum(sin);
     }
-    return Math.toDegrees(Math.atan2(poleSin, poleCos));
+    double pole = Math.toDegrees(Math.atan2(poleSin, poleCos));
+    pole = (pole >= 0) ? pole : pole + 360; // Convert from -180 to 180 to 0 to 360
+    if (Math.abs(pole - angle) <= Constants.kPoleSnappingThreshold) {
+      // change angle from 359 to 1 so pole snapping works TODO make better
+      if (angle > 270 + Constants.kPoleSnappingThreshold) angle = Math.abs(angle-360); 
+      return Math.toDegrees(Math.atan2(poleSin, poleCos));
+    }
+    else 
+      return angle;
   }
 
   // Get module spin angles using x and y position

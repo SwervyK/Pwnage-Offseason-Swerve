@@ -41,7 +41,7 @@ public class SwerveModule {
   private RobotState mRobotState = RobotState.getInstance();
   private SlewRateLimiter mDriveRateLimiter = new SlewRateLimiter(Constants.kDriveRateLimit);
   private double mLastThrottle = 0;
-  private static final double kPIDInputRange = 90;
+  private static final double kPIDInputRange = 180;
   
   public SwerveModule(SwerveModuleConstants constants) {
     mConstants = constants;
@@ -67,7 +67,7 @@ public class SwerveModule {
     // 90 flip
     // At higher speeds maybe need larger angles to flip because of the time is takes to reverse the drive direction
     // TODO make it scale based on speed?
-    if (Math.abs(distance) > 90 /*|| mRobotState.getMeasuredVelocity().norm() < 5*/) { // Makes sure the robot is takig the most optimal path when rotating modues
+    if (Math.abs(distance) > 90 && !(throttle >= 0.75) /*|| mRobotState.getMeasuredVelocity().norm() < 5*/) { // Makes sure the robot is takig the most optimal path when rotating modues
       wantedPosition -= 180;
       wantedPosition = clamp(wantedPosition, 360, 0, true);
       distance = getDistance(currentPosition, wantedPosition);
@@ -76,7 +76,7 @@ public class SwerveModule {
     
     // Drive
     //if (Drive.getInstance().getCurrent(mConstants.kPDPId) > Constants.kDriveCurrentLimit) throttle = 0; // Current Limit
-    throttle = getAdjustedThrottle(mLastThrottle, throttle); // Ramp rate
+    // throttle = getAdjustedThrottle(mLastThrottle, throttle); // Ramp rate
     if (throttle == 0) mDriveController.stopMotor();
     else mDriveController.set(throttle * Constants.kDriveSlowDown);
     
