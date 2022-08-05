@@ -67,7 +67,10 @@ public class SwerveModule {
     // 90 flip
     // At higher speeds maybe need larger angles to flip because of the time is takes to reverse the drive direction
     // TODO make it scale based on speed?
-    if (Math.abs(distance) > 90 && !(throttle >= 0.75) /*|| mRobotState.getMeasuredVelocity().norm() < 5*/) { // Makes sure the robot is takig the most optimal path when rotating modues
+    if (!(throttle >= 0.75)) {
+      throttle = mLastThrottle; // Without this wheels will only move fowared regardless of their last direction
+    }
+    else if (Math.abs(distance) > 90 /*|| mRobotState.getMeasuredVelocity().norm() < 5*/) { // Makes sure the robot is takig the most optimal path when rotating modues
       wantedPosition -= 180;
       wantedPosition = clamp(wantedPosition, 360, 0, true);
       distance = getDistance(currentPosition, wantedPosition);
