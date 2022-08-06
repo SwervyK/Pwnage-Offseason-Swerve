@@ -14,7 +14,7 @@ public class Constants {
     public static final double kRotationMaxValue = 1.0;
     public static final double kRotationMinValue = 0.1;
     public static final double kLeftStickDeadband = 0.1;
-    public static final double kRightStickDeadband = 0.1;
+    public static final double kRightStickDeadband = 0.15;
     public static final double kPoleSnappingThreshold = 10;
     
     // Drivetrain
@@ -43,7 +43,7 @@ public class Constants {
     // Gyro
     public static final double kGyroOffset = 346.75;
     public static final double kGyroLag = 50.0; // When moving compensate for gyro lag
-    public static final double kGyroDelay = 1; // Seonds after turing to enable compensation 
+    public static final double kGyroDelay = 2; // Seonds after turing to enable compensation 
 
     // Modules
     public static final SwerveModuleConstants kFrontRightModuleConstants = new SwerveModuleConstants();
