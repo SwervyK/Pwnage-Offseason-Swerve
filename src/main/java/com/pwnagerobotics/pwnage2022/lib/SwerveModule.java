@@ -5,6 +5,7 @@ import com.pwnagerobotics.pwnage2022.Constants;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.AnalogEncoder;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.motorcontrol.PWMMotorController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -15,7 +16,7 @@ public class SwerveModule {
     public String kName = "Name";
     public int kDriveId = 0;
     public int kRotationId = 0;
-    public int kDriveEncoderId = 0;
+    public int[] kDriveEncoderId = {0, 0};
     public int kRotationEncoderId = 0;
     public int kPDPId = 0;
     
@@ -31,7 +32,7 @@ public class SwerveModule {
   private SwerveModuleConstants mConstants;
   private MotorController mDriveController;
   private MotorController mRotationController;
-  // private AnalogEncoder mDrivEncoder;
+  // private Encoder mDrivEncoder;
   private AnalogEncoder mRotationEncoder;
   private PIDController mPID;
   private double mRotationOffset;
@@ -44,7 +45,7 @@ public class SwerveModule {
     mConstants = constants;
     mDriveController = new PWMMotorController(mConstants.kName + " Drive",  mConstants.kDriveId) { };
     mRotationController = new PWMMotorController(mConstants.kName + " Rotation", mConstants.kRotationId) { };
-    // mDrivEncoder = new AnalogEncoder(mConstants.kDriveEncoderId);
+    // mDrivEncoder = new Encoder (mConstants.kDriveEncoderId[0], mConstants.kDriveEncoderId[1]);
     mRotationEncoder = new AnalogEncoder(mConstants.kRotationEncoderId);
     mRotationOffset = mConstants.kRotationOffset;
     mPID = new PIDController(mConstants.kp, mConstants.ki, mConstants.kd);

@@ -51,7 +51,7 @@ public class Constants {
         kFrontRightModuleConstants.kName = "Front Right";
         kFrontRightModuleConstants.kDriveId = 1;
         kFrontRightModuleConstants.kRotationId = 0;
-        kFrontRightModuleConstants.kDriveEncoderId = 0;
+        kFrontRightModuleConstants.kDriveEncoderId = new int[]{0, 1};
         kFrontRightModuleConstants.kRotationOffset =  0.092;
         kFrontRightModuleConstants.kRotationEncoderId = 2;
         kFrontRightModuleConstants.kPDPId = 3;
@@ -62,7 +62,7 @@ public class Constants {
         kFrontLeftModuleConstants.kName = "Front Left";
         kFrontLeftModuleConstants.kDriveId = 5;
         kFrontLeftModuleConstants.kRotationId = 4;
-        kFrontLeftModuleConstants.kDriveEncoderId = 0;
+        kFrontLeftModuleConstants.kDriveEncoderId = new int[]{4, 5};
         kFrontLeftModuleConstants.kRotationOffset =  0.126;
         kFrontLeftModuleConstants.kRotationEncoderId = 0;
         kFrontLeftModuleConstants.kPDPId = 14;
@@ -73,7 +73,7 @@ public class Constants {
         kBackRightModuleConstants.kName = "Back Right";
         kBackRightModuleConstants.kDriveId = 3;
         kBackRightModuleConstants.kRotationId = 2;
-        kBackRightModuleConstants.kDriveEncoderId = 0;
+        kBackRightModuleConstants.kDriveEncoderId = new int[]{2, 3};
         kBackRightModuleConstants.kRotationOffset =  0.735;
         kBackRightModuleConstants.kRotationEncoderId = 3;
         kBackRightModuleConstants.kPDPId = 0;
@@ -84,7 +84,7 @@ public class Constants {
         kBackLeftModuleConstants.kName = "Back Left";
         kBackLeftModuleConstants.kDriveId = 9;
         kBackLeftModuleConstants.kRotationId = 6;
-        kBackLeftModuleConstants.kDriveEncoderId = 0;
+        kBackLeftModuleConstants.kDriveEncoderId = new int[]{6, 7};
         kBackLeftModuleConstants.kRotationOffset =  0.189;
         kBackLeftModuleConstants.kRotationEncoderId = 1;
         kBackLeftModuleConstants.kPDPId = 15;
