@@ -90,7 +90,7 @@ public class Robot extends TimedRobot {
     mSubsystemManager.executeEnabledLoopStarts(timestamp);
     
     if (mAutoType == AutoType.PLAYBACK) {
-      mPlayback.startAction(Autos.square(), true);
+      mPlayback.setActions(Autos.square(), true);
     }
     startPlayback = timestamp;
   }
@@ -107,7 +107,7 @@ public class Robot extends TimedRobot {
       action = mPlayback.getCurrentAction();
     }
     
-    mDrive.setRotationMode(action.getFieldCentricRotation() ? RotationMode.FEILD : RotationMode.ROBOT);
+    mDrive.setRotationMode(action.isFieldCentricRotation() ? RotationMode.FEILD : RotationMode.ROBOT);
     mDrive.setSwerveDrive(action.getDrive()[0], action.getDrive()[1], action.getRotation()[0], action.getRotation()[1]);
     
     mSubsystemManager.executeEnabledLoops(Timer.getFPGATimestamp());

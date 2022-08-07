@@ -15,20 +15,17 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Recorder {
     
     private File mAutoFile;
-    private File[] mAutoFiles;
     private File mAutoDir = new File("home/lvuser/autoRecordings");
     private static SendableChooser<File> mAutoChooser = new SendableChooser<File>();
-    private ArrayList<String> mAutoPath = new ArrayList<String>();
+    private ArrayList<String> mActions = new ArrayList<String>();
     private boolean mIsRecording = false;
     
-    public Recorder(){
+    public Recorder() {
         try {
             String[] fileNames = mAutoDir.list();
-            mAutoFiles = new File[fileNames.length];
             if (fileNames.length > 0) {
                 for (int i = 0; i < fileNames.length; i++) {
-                    mAutoFiles[i] = new File(mAutoDir.getPath(), fileNames[i]);
-                    mAutoChooser.addOption(fileNames[i], mAutoFiles[i]);
+                    mAutoChooser.addOption(fileNames[i], new File(mAutoDir.getPath(), fileNames[i]));
                 }
                 mAutoFile = mAutoChooser.getSelected();
             }
@@ -53,13 +50,20 @@ public class Recorder {
     }
     
     public void recordInputs(double throttle, double strafe, double rotationX, double rotationY, boolean fieldCentricRotation, double timestamp) {
-        mAutoPath.add(timestamp+":[t="+throttle+"]"+"[s="+strafe+"]"+"[rx="+rotationX+"]"+"[ry="+rotationY+"]"+"[fc="+fieldCentricRotation+"] ");
+        mActions.add(timestamp+":[t="+throttle+"]"+"[s="+strafe+"]"+"[rx="+rotationX+"]"+"[ry="+rotationY+"]"+"[fc="+fieldCentricRotation+"] ");
     }
     
     public void stopRecording() {
-        String[] data = new String[mAutoPath.size()];
-        data = mAutoPath.toArray(data);
-        writeData(data, mAutoFile);
+        try {
+            FileWriter writer = new FileWriter(mAutoFile);
+            for (String s : mActions) {
+                writer.write(s + "\n");
+            }
+            writer.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error while saving file: Recorder.java");
+        }
         System.out.print("Auto saved as: " + mAutoFile.getName());
         mIsRecording = false;
     }
@@ -69,15 +73,14 @@ public class Recorder {
     }
     
     private Action[] autoActions;
-    
     public Action getSwerveStateAtTimestamp(double timestamp) {
-        if (autoActions == null) loadFromFile();
+        if (autoActions == null) loadAuto();
         int closestIndex = 0;
-        double difference = 999999999; //INFINITY
-        for(int i = 0; i < autoActions.length; i++) {
-            if(timestamp - autoActions[i].getTimestamp() < difference){
+        double difference = Double.POSITIVE_INFINITY;
+        for (int i = 0; i < autoActions.length; i++) {
+            if (timestamp - autoActions[i].getTimestamp() < difference) {
                 difference = timestamp - autoActions[i].getTimestamp();
-                if(difference < 0){
+                if (difference < 0) {
                     break;
                 }
                 closestIndex = i;
@@ -86,10 +89,10 @@ public class Recorder {
         return autoActions[closestIndex];
     }
     
-    private void loadFromFile() {
+    private void loadAuto() {
         String[] data = readData(mAutoChooser.getSelected());
         autoActions = new Action[data.length];
-        for(int i = 0; i < data.length; i++){
+        for (int i = 0; i < data.length; i++) {
             double throttle = Double.parseDouble(data[i].substring(data[i].indexOf("t=")+2,data[i].indexOf("][s")));
             double strafe = Double.parseDouble(data[i].substring(data[i].indexOf("s=")+2,data[i].indexOf("][rx")));
             double rotationX = Double.parseDouble(data[i].substring(data[i].indexOf("rx=")+3,data[i].indexOf("][ry")));
@@ -117,24 +120,5 @@ public class Recorder {
             e.printStackTrace();
         }
         return result;
-    }
-    
-    private void writeData(String data, File file) {
-        try  {
-            FileWriter writer = new FileWriter(file);
-            writer.write(data);
-            writer.close();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    
-    private void writeData(String[] dataArr, File file) {
-        String data = "";
-        for (int i = 0; i < dataArr.length; i++) {
-            data += (dataArr[i] + "\n");
-        }
-        writeData(data, file);
     }
 }

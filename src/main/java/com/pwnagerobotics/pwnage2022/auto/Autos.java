@@ -6,12 +6,12 @@ public class Autos {
     // Last command will loop foreaver
     public static Action[] square() {
         double driveSpeed = 0.3;
-        double turnSpeed = 0;
+        double rotationSpeed = 0;
         return new Action[] {
-            new Action(new RobotState(driveSpeed, 0, turnSpeed), false, 1),
-            new Action(new RobotState(driveSpeed, 90, turnSpeed), false, 1),
-            new Action(new RobotState(driveSpeed, 180, turnSpeed), false, 1),
-            new Action(new RobotState(driveSpeed, 270, turnSpeed), false, 1),
+            new Action(new RobotState(driveSpeed, 0, rotationSpeed), false, 1),
+            new Action(new RobotState(driveSpeed, 90, rotationSpeed), false, 1),
+            new Action(new RobotState(driveSpeed, 180, rotationSpeed), false, 1),
+            new Action(new RobotState(driveSpeed, 270, rotationSpeed), false, 1),
             new Action(new RobotState(0, 0, 0), false, 0),
         };
     }
@@ -29,10 +29,10 @@ public class Autos {
 
     public static Action[] spinLine() {
         double driveSpeed = 0.3;
-        double turnSpeed = 0.7;
+        double rotationSpeed = 0.7;
         return new Action[] {
-            new Action(new RobotState(driveSpeed, 0, turnSpeed), false, 2),
-            new Action(new RobotState(driveSpeed, 90, turnSpeed), false, 2),
+            new Action(new RobotState(driveSpeed, 0, rotationSpeed), false, 2),
+            new Action(new RobotState(driveSpeed, 90, rotationSpeed), false, 2),
             new Action(new RobotState(0, 0, 0), false, 0),
         };
     }
