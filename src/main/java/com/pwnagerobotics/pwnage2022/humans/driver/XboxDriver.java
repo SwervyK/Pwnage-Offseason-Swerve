@@ -10,19 +10,19 @@ public class XboxDriver {
     private final XboxController mController = new XboxController(0);
     
     public double getPositionX() {
-        return modifyAxis(mController.getJoystick(Side.LEFT, Axis.X), getPositionY(true), Constants.kLeftStickDeadband);
+        return modifyAxis(mController.getJoystick(Side.LEFT, Axis.X), mController.getJoystick(Side.LEFT, Axis.Y), Constants.kLeftStickDeadband);
     }
     
     public double getPositionY() {
-        return modifyAxis(mController.getJoystick(Side.LEFT, Axis.Y), getPositionX(true), Constants.kLeftStickDeadband);
+        return modifyAxis(mController.getJoystick(Side.LEFT, Axis.Y), mController.getJoystick(Side.LEFT, Axis.X), Constants.kLeftStickDeadband);
     }
     
     public double getRotationX() {
-        return modifyAxis(mController.getJoystick(Side.RIGHT, Axis.X), getRotationY(true), Constants.kRightStickDeadband);
+        return modifyAxis(mController.getJoystick(Side.RIGHT, Axis.X), mController.getJoystick(Side.RIGHT, Axis.Y), Constants.kRightStickDeadband);
     }
     
     public double getRotationY() {
-        return modifyAxis(mController.getJoystick(Side.RIGHT, Axis.Y), getRotationX(true), Constants.kRightStickDeadband);
+        return modifyAxis(mController.getJoystick(Side.RIGHT, Axis.Y), mController.getJoystick(Side.RIGHT, Axis.X), Constants.kRightStickDeadband);
     }
     
     public boolean wantFieldCentricDrive() {
@@ -37,47 +37,13 @@ public class XboxDriver {
         return mController.getDPad();
     }
     
-    public boolean wantShift() {
-        return mController.getTrigger(Side.LEFT);
-    }
-    
-    public double getPositionX(boolean raw) {
-        return mController.getJoystick(Side.LEFT, Axis.X);
-    }
-    
-    public double getPositionY(boolean raw) {
-        return mController.getJoystick(Side.LEFT, Axis.Y);
-    }
-    
-    public double getRotationX(boolean raw) {
-        return mController.getJoystick(Side.RIGHT, Axis.X);
-    }
-    
-    public double getRotationY(boolean raw) {
-        return mController.getJoystick(Side.RIGHT, Axis.Y);
-    }
-    
     public static double scaleController(double value, double max, double min) {
         return ((max-min)*((Math.abs(value)-0)/(1-0))+min)*Math.signum(value);
         //xnormalized=(b−a)x−min(x)max(x)−min(x)+a //Min + Max
         //return (value * (1-min)) + min; //Min only
         //return (value * max); //Max only
     }
-    
-    private static double deadband(double value, double opposite, double deadband) {
-        if (Math.abs(value) < deadband) {
-            if (Math.abs(opposite) > deadband) {
-                return value;
-            }
-            else {
-                return 0;
-            }
-        }
-        else {
-            return ((Math.abs(value) * (1-deadband)) + deadband) * Math.signum(value);
-        }
-    }
-    
+
     private static double modifyAxis(double value, double opposite, double deadband) {
         // Deadband
         value = deadband(value, opposite, deadband);
@@ -86,5 +52,12 @@ public class XboxDriver {
         value = Math.copySign(value * value, value);
         
         return value;
+    }
+    
+    private static double deadband(double value, double opposite, double deadband) {
+        if (Math.abs(value) < deadband && Math.abs(opposite) > deadband) {
+            return 0;
+        }
+        return ((Math.abs(value) * (1-deadband)) + deadband) * Math.signum(value);
     }
 }
