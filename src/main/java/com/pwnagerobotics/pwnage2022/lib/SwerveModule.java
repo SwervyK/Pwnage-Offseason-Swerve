@@ -1,9 +1,6 @@
 package com.pwnagerobotics.pwnage2022.lib;
 
 import com.pwnagerobotics.pwnage2022.Constants;
-import com.pwnagerobotics.pwnage2022.Kinematics;
-import com.pwnagerobotics.pwnage2022.RobotState;
-import com.pwnagerobotics.pwnage2022.subsystems.Drive;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -15,6 +12,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveModule {
 
+  private final boolean DEBUG_MODE = false;
+  
   public static class SwerveModuleConstants {
     public String kName = "Name";
     public int kDriveId = 0;
@@ -31,118 +30,75 @@ public class SwerveModule {
     public double kRotationError = 3; // Degrees
     public double kWheelDiameter = 0.0;
   }
-
+  
   private SwerveModuleConstants mConstants;
   private MotorController mDriveController;
   private MotorController mRotationController;
-  // private Encoder mDrivEncoder;
+  // private Encoder mDriveEncoder;
   private AnalogEncoder mRotationEncoder;
   private PIDController mPID;
-  private double mRotationOffset;
-  private RobotState mRobotState = RobotState.getInstance();
   private SlewRateLimiter mDriveRateLimiter = new SlewRateLimiter(Constants.kDriveRateLimit);
   private double mLastThrottle = 0;
+  // private double mLastDrive = 0;
+  private double mLastRotation = 0;
   private static final double kPIDInputRange = 180;
   
   public SwerveModule(SwerveModuleConstants constants) {
     mConstants = constants;
     mDriveController = new PWMMotorController(mConstants.kName + " Drive",  mConstants.kDriveId) { };
     mRotationController = new PWMMotorController(mConstants.kName + " Rotation", mConstants.kRotationId) { };
-    // mDrivEncoder = new Encoder (mConstants.kDriveEncoderId[0], mConstants.kDriveEncoderId[1]);
+    // mDriveEncoder = new Encoder (mConstants.kDriveEncoderId[0], mConstants.kDriveEncoderId[1]);
     mRotationEncoder = new AnalogEncoder(mConstants.kRotationEncoderId);
-    mRotationOffset = mConstants.kRotationOffset;
     mPID = new PIDController(mConstants.kp, mConstants.ki, mConstants.kd);
     mPID.enableContinuousInput(-kPIDInputRange, kPIDInputRange);
     mPID.setTolerance(mConstants.kRotationError);
   }
   
-  public void setModule(double wantedPosition, double throttle)
-  {
-    // Postion
-    double currentPosition = (mRotationEncoder.getAbsolutePosition() - mRotationOffset) * 360; // * 360 is to convert from the 0 to 1 of the encoder to 0 to 360
-    currentPosition = clamp(currentPosition, 360, 0, true);
-    
-    // Distance
-    double distance = getDistance(currentPosition, wantedPosition);
+  /**
+  * Set module speed and rotation
+  * @param wantedAngle Module angle (0 is forward)
+  * @param magnitude Speed (-1 to 1)
+  */
+  public void setModule(double wantedAngle, double magnitude) {
+    if (DEBUG_MODE) tuneRobotRotationPID();
+    double currentAngle = (mRotationEncoder.getAbsolutePosition() - mConstants.kRotationOffset) * 360; // * 360 is to convert from the 0 to 1 of the encoder to 0 to 360
+    currentAngle = Util.clamp(currentAngle, 360, 0, true);
+    double distance = Util.getDistance(currentAngle, wantedAngle);
     
     // 90 flip
-    // At higher speeds maybe need larger angles to flip because of the time is takes to reverse the drive direction
+    // At higher speeds you need larger angles to flip because of the time is takes to reverse the drive direction
     // TODO make it scale based on speed?
-    if (!(throttle >= 0.75)) {
-      throttle = mLastThrottle; // Without this wheels will only move fowared regardless of their last direction
+    if (!(magnitude >= 0.75)) {
+      magnitude = mLastThrottle; // Without this wheels will only move forward regardless of their last direction
     }
-    else if (Math.abs(distance) > 90 /*|| mRobotState.getMeasuredVelocity().norm() < 5*/) { // Makes sure the robot is takig the most optimal path when rotating modues
-      wantedPosition -= 180;
-      wantedPosition = clamp(wantedPosition, 360, 0, true);
-      distance = getDistance(currentPosition, wantedPosition);
-      throttle *= -1;
+    else if (Math.abs(distance) > 90 /*|| mRobotState.getMeasuredVelocity().norm() < 5*/) { // Makes sure the robot is taking the most optimal path when rotating modules
+      wantedAngle = Util.clamp(wantedAngle-180, 360, 0, true);
+      distance = Util.getDistance(currentAngle, wantedAngle);
+      magnitude *= -1;
     }
     
-    // Drive
-    //if (Drive.getInstance().getCurrent(mConstants.kPDPId) > Constants.kDriveCurrentLimit) throttle = 0; // Current Limit
+    // if (Drive.getInstance().getCurrent(mConstants.kPDPId) > Constants.kDriveCurrentLimit) throttle = 0; // Current Limit
     // throttle = getAdjustedThrottle(mLastThrottle, throttle); // Ramp rate
-    if (throttle == 0) mDriveController.stopMotor();
-    else mDriveController.set(throttle * Constants.kDriveSlowDown);
+    if (magnitude == 0) mDriveController.stopMotor();
+    else mDriveController.set(magnitude * Constants.kDriveSlowDown);
     
-    // Rotation
-    double rotationSpeed = clamp(mPID.calculate(0, distance), 1, -1, false);
-    if (mPID.atSetpoint())
-    mRotationController.set(0);
-    else
-    mRotationController.set(rotationSpeed * Constants.kRotationSlowDown);
-    mLastThrottle = throttle;
-    
-    // Logging
-    mCurrentSpeed = throttle;
-    mCurrentAngle = wantedPosition;
-  }
+    double rotationSpeed = Util.clamp(mPID.calculate(0, distance), 1, -1, false);
+    if (mPID.atSetpoint()) mRotationController.set(0);
+    else mRotationController.set(rotationSpeed * Constants.kRotationSlowDown);
 
-  private double mCurrentSpeed = 0;
-  private double mCurrentAngle = 0;
+    mLastThrottle = magnitude;
+    // mLastDrive = getDrive();
+    mLastRotation = getRotation();
+  }
   
   public void outputTelemetry() {
-    SmartDashboard.putNumber("Current Speed: " + mConstants.kName, mCurrentSpeed);
-    SmartDashboard.putNumber("Current Angle: " + mConstants.kName, mCurrentAngle);
-    // mLastDriveValue = mDrivEncoder.getDistance();
+    SmartDashboard.putNumber("Current Speed: " + mConstants.kName, mDriveController.get());
+    SmartDashboard.putNumber("Current Angle: " + mConstants.kName, (mRotationEncoder.getAbsolutePosition() - mConstants.kRotationOffset) * 360);
   }
 
-  // Wraps around the value proportionally between min and max
-  public static double clamp(double value, double max, double min, boolean wrapAround) {
-    if (wrapAround) {
-      if (value > max)
-      return (value - (max-min) * ((int)((value-max-1)/(max - min)))) - max + min;
-      else if (value < min)
-      return value + (max-min) * -((((int)((value-max)/(max - min))))+1) - min + max;
-      return value;
-    }
-    else 
-    return (value>=max)?max:(value<=min)?min:value;
-  }
-  
-  // Built in 180 flip
-  public static double getDistance(double current, double wanted) {
-    double result = current - wanted;
-    if (Math.abs(result) > 180) {
-      result += 360 * -Math.signum(result);
-    }
-    return result;
-  }
-  
-  public void setPID(double kp, double ki, double kd) {
-    mPID.setPID(kp, ki, kd);
-  }
-  
-  public double getRotation() {
-    return mRotationEncoder.getAbsolutePosition() * 360;
-  }
-  
-  public void zeroEncoders() {
-    mRotationEncoder.reset();
-  }
-  
   // Ramp rate
   // Slowing down is not limited
-  // Dont limit +-0.2 so if you go from 1 to -1 you can get to -0.2 unlimited so make slowing down faster
+  // from -0.2 to 0.2 is not limited
   private double getAdjustedThrottle(double lastThrottle, double throttle) {
     if (throttle == 0) {
       mDriveRateLimiter.reset(0);
@@ -162,20 +118,33 @@ public class SwerveModule {
     mPID.setPID(SmartDashboard.getNumber("kP", 0), SmartDashboard.getNumber("kI", 0), SmartDashboard.getNumber("kD", 0));
   }
   
-  // private double mLastDriveValue;
-  // public double getDeltaDrive() {
-  //   return mLastDriveValue - mDrivEncoder.getDistance();
-  // }
-     public double getDriveEncoderDistance() {
-       return 0; //mDrivEncoder.getDistance();
-     }
+  public void zeroEncoders() {
+    mRotationEncoder.reset();
+    // mDriveEncoder.reset();
+  }
 
-     public double getDriveVelocity() {
-      return mDriveController.get();
-     }
+  public double getDrive() {
+    return 0; // mDrivEncoder.getDistance();
+  }
 
-     public double getModuleAngle() {
-      return mCurrentAngle;
-     }
-}
+  public double getDriveDelta() {
+    return 0; // mLastDrive - getDrive();
+  }
+
+  public double getDriveVelocity() {
+    return mDriveController.get();
+  }
+
+  public double getRotation() {
+    return mRotationEncoder.getAbsolutePosition() * 360;
+  }
+
+  public double getRotationDelta() {
+    return mLastRotation - getRotation();
+  }
   
+  public double getRotationVelocity() {
+    return mRotationController.get();
+  }
+  
+}

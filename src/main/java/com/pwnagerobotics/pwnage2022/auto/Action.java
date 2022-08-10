@@ -44,7 +44,7 @@ public class Action {
         public ControllerState(double throttle, double strafe, double rotationX, double rotationY) {
             kDirection = Math.toDegrees(Math.atan2(strafe, throttle));
             if (kDirection < 0) kDirection += 360;
-            kMagnitude = Math.sqrt(Math.pow(Math.abs(strafe), 2) + Math.pow(Math.abs(throttle), 2));
+            kMagnitude = Math.hypot(Math.abs(strafe), Math.abs(throttle));
             kRotationSpeed = rotationX;
             kRobotAngle = Math.toDegrees(Math.atan2(rotationX, rotationY));
             if (kRobotAngle < 0) kRobotAngle += 360;
