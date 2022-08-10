@@ -31,7 +31,7 @@ import edu.wpi.first.wpilibj.Timer;
 */
 public class Robot extends TimedRobot {
   
-  // Subsystemss
+  // Subsystems
   private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
   private final Drive mDrive = Drive.getInstance();
   private final RobotStateEstimator mRobotStateEstimator = RobotStateEstimator.getInstance();
@@ -107,7 +107,7 @@ public class Robot extends TimedRobot {
       action = mPlayback.getCurrentAction();
     }
     
-    mDrive.setRotationMode(action.isFieldCentricRotation() ? RotationMode.FEILD : RotationMode.ROBOT);
+    mDrive.setRotationMode(action.isFieldCentricRotation() ? RotationMode.FIELD : RotationMode.ROBOT);
     mDrive.setSwerveDrive(action.getDrive()[0], action.getDrive()[1], action.getRotation()[0], action.getRotation()[1]);
     
     mSubsystemManager.executeEnabledLoops(Timer.getFPGATimestamp());
@@ -134,8 +134,8 @@ public class Robot extends TimedRobot {
     boolean wantFieldCentricRotation = mDriver.wantFieldCentricRotation();
     boolean wantGyroReset = mDriver.getDPad() == 180;
     
-    mDrive.setDriveMode(wantFieldCentricDrive ? DriveMode.FEILD : DriveMode.ROBOT);
-    mDrive.setRotationMode(wantFieldCentricRotation ? RotationMode.FEILD : RotationMode.ROBOT);
+    mDrive.setDriveMode(wantFieldCentricDrive ? DriveMode.FIELD : DriveMode.ROBOT);
+    mDrive.setRotationMode(wantFieldCentricRotation ? RotationMode.FIELD : RotationMode.ROBOT);
     mDrive.setSwerveDrive(throttle, strafe, rotationX, rotationY);
     
     if (wantGyroReset) {
@@ -163,11 +163,11 @@ public class Robot extends TimedRobot {
     // double strafe = mDriver.getPositionX();
     // int dPad = mDriver.getDPad();
     
-    // mDrive.setRotationMode(RotationMode.FEILD);
+    // mDrive.setRotationMode(RotationMode.FIELD);
     // mDrive.setSwerveDrive(throttle, strafe, Math.cos(Math.toRadians(dPad)), Math.sin(Math.toRadians(dPad)));
     // System.out.println("X: " + Math.cos(Math.toRadians(dPad)) + " | Y: " + Math.sin(Math.toRadians(dPad))); //TODO I dont think the X and Y are correct
     
-    // Drive Roation PID tuning
+    // Drive Rotation PID tuning
     // int dPad = mDriver.getDPad(); // Cardinal Directions
     // mDrive.setModule(0, dPad, 0);
     // mDrive.setModule(1, dPad, 0);

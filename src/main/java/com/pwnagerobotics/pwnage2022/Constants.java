@@ -27,13 +27,13 @@ public class Constants {
     public static final double kDriveMinSpeed = 5; //Last encoder value - current encoder value
     public static final double kDriveEncoderCPR = 8192; //Encoder counts per revolution
 
-    // Field Centric Rotaion
-    public static final double kRotationkP = 0.005;
-    public static final double kRotationkI = 0.0005;
-    public static final double kRotationkD = 0.0;
+    // Field Centric Rotation
+    public static final double kRotationP = 0.005;
+    public static final double kRotationI = 0.0005;
+    public static final double kRotationD = 0.0;
     public static final double kFieldCentricRotationError = 2; // 4 degrees
 
-    // Compsentation
+    // Compensation
     public static final double kCompensationP = 0.005;
     public static final double kCompensationI = 0.0005;
     public static final double kCompensationD = 0.0;
@@ -43,7 +43,7 @@ public class Constants {
     // Gyro
     public static final double kGyroOffset = 346.75;
     public static final double kGyroLag = 50.0; // When moving compensate for gyro lag
-    public static final double kGyroDelay = 2; // Seonds after turing to enable compensation 
+    public static final double kGyroDelay = 2; // Seconds after turing to enable compensation 
     public static final double kMinGyroDelta = 1; // Gyro delta to consider robot not rotating
 
     // Modules

@@ -33,18 +33,18 @@ public class Drive extends Subsystem {
   
   public enum DriveMode {
     ROBOT,
-    FEILD
+    FIELD
   }
-  private DriveMode mCurrentDriveMode = DriveMode.FEILD;
+  private DriveMode mCurrentDriveMode = DriveMode.FIELD;
   public enum RotationMode {
     ROBOT,
-    FEILD
+    FIELD
   }
   private RotationMode mCurrentRotationMode = RotationMode.ROBOT;
 
   private DelayedBoolean mGyroLagDelay = new DelayedBoolean(Constants.kGyroDelay); // TODO change?
   private boolean mCompensationActive = false;
-  private PIDController mFieldCentricRotationPID = new PIDController(Constants.kRotationkP, Constants.kRotationkI, Constants.kRotationkD);
+  private PIDController mFieldCentricRotationPID = new PIDController(Constants.kRotationP, Constants.kRotationI, Constants.kRotationD);
   private PIDController mCompensationPID = new PIDController(Constants.kCompensationP, Constants.kCompensationI, Constants.kCompensationD);
   private SwerveModule[] mModules = new SwerveModule[4];
   private AHRS mNavX = new AHRS();
@@ -86,7 +86,7 @@ public class Drive extends Subsystem {
     direction = nearestPoleSnap(direction);
 
     // Rotation
-    if (mCurrentRotationMode == RotationMode.FEILD) { // Point robot in direction of controller using pid
+    if (mCurrentRotationMode == RotationMode.FIELD) { // Point robot in direction of controller using pid
       double wantedRobotAngle = Math.toDegrees(Math.atan2(rotationX, rotationY));
       if (wantedRobotAngle < 0) wantedRobotAngle += 360;
       double distance = Util.getDistance(mPeriodicIO.gyro_angle, wantedRobotAngle);
@@ -100,10 +100,10 @@ public class Drive extends Subsystem {
     }
     
     // Drive
-    if (mCurrentDriveMode == DriveMode.FEILD) {
+    if (mCurrentDriveMode == DriveMode.FIELD) {
       direction -= mPeriodicIO.gyro_angle; // Field centric
       direction = Util.clamp(direction, 360, 0, true);
-      if (mCurrentRotationMode != RotationMode.FEILD) {
+      if (mCurrentRotationMode != RotationMode.FIELD) {
         direction -= Constants.kGyroLag*rotationX; // Compensate for Gyro Lag // TODO Gyro
       }
     }
@@ -263,11 +263,11 @@ public class Drive extends Subsystem {
     // Inputs
     public double[] drive_distances = new double[4];
     public double[] drive_deltas = new double[4];
-    public double[] drive_velocitys = new double[4];
+    public double[] drive_velocities = new double[4];
 
     public double[] rotation_angles = new double[4];
     public double[] rotation_deltas = new double[4];
-    public double[] rotation_velocitys = new double[4];
+    public double[] rotation_velocities = new double[4];
 
     public double gyro_angle;
 
@@ -281,11 +281,11 @@ public class Drive extends Subsystem {
     for (int i = 0; i < mModules.length; i++) {
       mPeriodicIO.drive_distances[i] = mModules[i].getDrive();
       mPeriodicIO.drive_deltas[i] = mModules[i].getDriveDelta();
-      mPeriodicIO.drive_velocitys[i] = mModules[i].getDriveVelocity();
+      mPeriodicIO.drive_velocities[i] = mModules[i].getDriveVelocity();
 
       mPeriodicIO.rotation_angles[i] = mModules[i].getRotation();
       mPeriodicIO.rotation_deltas[i] = mModules[i].getRotationDelta();
-      mPeriodicIO.rotation_velocitys[i] = mModules[i].getRotationVelocity();
+      mPeriodicIO.rotation_velocities[i] = mModules[i].getRotationVelocity();
     }
 
     mPeriodicIO.gyro_angle = Util.clamp(mNavX.getAngle(), 360, 0, true);
@@ -379,7 +379,7 @@ public class Drive extends Subsystem {
   }
 
   public Translation2d getModuleState(int module) {
-    return new Translation2d(mPeriodicIO.drive_velocitys[module]*Math.cos(Math.toRadians(mPeriodicIO.rotation_angles[module])), mPeriodicIO.drive_velocitys[module]*Math.sin(Math.toRadians(mPeriodicIO.rotation_angles[module])));
+    return new Translation2d(mPeriodicIO.drive_velocities[module]*Math.cos(Math.toRadians(mPeriodicIO.rotation_angles[module])), mPeriodicIO.drive_velocities[module]*Math.sin(Math.toRadians(mPeriodicIO.rotation_angles[module])));
   }
 
   public double gyroDelta() {

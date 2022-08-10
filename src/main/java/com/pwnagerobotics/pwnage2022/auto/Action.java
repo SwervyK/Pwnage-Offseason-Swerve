@@ -98,8 +98,8 @@ public class Action {
         kStartTime = Timer.getFPGATimestamp();
     }
 
-    public void setDurration(double durration) {
-        kDuration = durration;
+    public void setDuration(double duration) {
+        kDuration = duration;
     }
 
     public boolean isDone() {

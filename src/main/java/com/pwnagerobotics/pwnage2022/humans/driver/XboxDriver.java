@@ -46,16 +46,16 @@ public class XboxDriver {
     */
     public static double scaleController(double value, double max, double min) {
         return ((max-min)*((Math.abs(value)-0)/(1-0))+min)*Math.signum(value);
-        //xnormalized=(b−a)x−min(x)max(x)−min(x)+a //Min + Max
+        //return (b−a)x−min(x)max(x)−min(x)+a //Min + Max
         //return (value * (1-min)) + min; //Min only
         //return (value * max); //Max only
     }
 
     /**
-    * Returns value if value is greator that deadband or opposite is greated that deadband and squares it
+    * Returns value if value is greater that deadband or opposite is greater that deadband and squares it
     * @param value Value to modify
     * @param opposite Opposite controller value
-    * @param deadband Value to modify
+    * @param deadband Minimum value controller needs to read to be considered valid
     * @return Modified value
     */
     private static double modifyAxis(double value, double opposite, double deadband) {
