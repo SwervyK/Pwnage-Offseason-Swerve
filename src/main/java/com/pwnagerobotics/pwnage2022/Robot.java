@@ -10,7 +10,6 @@ import com.pwnagerobotics.pwnage2022.auto.Autos;
 import com.pwnagerobotics.pwnage2022.auto.Playback;
 import com.pwnagerobotics.pwnage2022.auto.Recorder;
 import com.pwnagerobotics.pwnage2022.humans.driver.XboxDriver;
-import com.pwnagerobotics.pwnage2022.lib.SwerveModule;
 import com.pwnagerobotics.pwnage2022.subsystems.Drive;
 import com.pwnagerobotics.pwnage2022.subsystems.Drive.DriveMode;
 import com.pwnagerobotics.pwnage2022.subsystems.Drive.RotationMode;
@@ -46,8 +45,18 @@ public class Robot extends TimedRobot {
     RECORDER,
     PLAYBACK
   }
+  private enum TuningMode {
+    ROBOT,
+    MODULE
+  }
+
+  // CONFIG
+  private boolean isRecordingAuto = false;
+  private TuningMode mTuningMode = TuningMode.MODULE;
   private AutoType mAutoType = AutoType.RECORDER;
-  
+  private Action[] mCurrentAuto = Autos.square();
+  // CONFIG
+
   public Robot(){
     super(0.04);
   }
@@ -90,7 +99,7 @@ public class Robot extends TimedRobot {
     mSubsystemManager.executeEnabledLoopStarts(timestamp);
     
     if (mAutoType == AutoType.PLAYBACK) {
-      mPlayback.setActions(Autos.square(), true);
+      mPlayback.setActions(mCurrentAuto, true);
     }
     startPlayback = timestamp;
   }
@@ -118,8 +127,10 @@ public class Robot extends TimedRobot {
     mSubsystemManager.executeEnabledLoopStops(Timer.getFPGATimestamp());
     mSubsystemManager.executeEnabledLoopStarts(Timer.getFPGATimestamp());
     
-    //mRecorder.newAuto("spin");
-    //startRecording = Timer.getFPGATimestamp();
+    if (isRecordingAuto) {
+      mRecorder.newAuto("spin");
+      startRecording = Timer.getFPGATimestamp();
+    }
   }
   
   @Override
@@ -159,20 +170,22 @@ public class Robot extends TimedRobot {
   @Override
   public void testPeriodic() {
     // Robot Rotation PID tuning
-    // double throttle = mDriver.getPositionY();
-    // double strafe = mDriver.getPositionX();
-    // int dPad = mDriver.getDPad();
-    
-    // mDrive.setRotationMode(RotationMode.FIELD);
-    // mDrive.setSwerveDrive(throttle, strafe, Math.cos(Math.toRadians(dPad)), Math.sin(Math.toRadians(dPad)));
-    // System.out.println("X: " + Math.cos(Math.toRadians(dPad)) + " | Y: " + Math.sin(Math.toRadians(dPad))); //TODO I dont think the X and Y are correct
-    
-    // Drive Rotation PID tuning
-    // int dPad = mDriver.getDPad(); // Cardinal Directions
-    // mDrive.setModule(0, dPad, 0);
-    // mDrive.setModule(1, dPad, 0);
-    // mDrive.setModule(2, dPad, 0);
-    // mDrive.setModule(3, dPad, 0);
-    
+    if (mTuningMode == TuningMode.ROBOT) {
+      double throttle = mDriver.getPositionY();
+      double strafe = mDriver.getPositionX();
+      int dPad = mDriver.getDPad();
+      
+      mDrive.setRotationMode(RotationMode.FIELD);
+      mDrive.setSwerveDrive(throttle, strafe, Math.cos(Math.toRadians(dPad)), Math.sin(Math.toRadians(dPad)));
+      System.out.println("X: " + Math.cos(Math.toRadians(dPad)) + " | Y: " + Math.sin(Math.toRadians(dPad))); //TODO I dont think the X and Y are correct
+    }
+    else if (mTuningMode == TuningMode.MODULE) {
+      // Module Rotation PID tuning
+      int dPad = mDriver.getDPad(); // Cardinal Directions
+      mDrive.setModule(0, dPad, 0);
+      mDrive.setModule(1, dPad, 0);
+      mDrive.setModule(2, dPad, 0);
+      mDrive.setModule(3, dPad, 0);
+    }
   }
 }
