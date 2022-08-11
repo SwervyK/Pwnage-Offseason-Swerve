@@ -21,7 +21,7 @@ public class RobotState {
     private InterpolatingTreeMap<InterpolatingDouble, Pose2d> mFieldToVehicle;
     private Translation2d mVehicleVelocityPredicted;
     private Pose2d mPredictedVehiclePosition;
-    private Translation2d mVehicleVelocityMeasured;
+    private Translation2d mVehicleVelocityCurrent;
     private double mDistanceDriven;
 
     private RobotState() {
@@ -33,7 +33,7 @@ public class RobotState {
         mFieldToVehicle.put(new InterpolatingDouble(startTime), initialFieldToVehicle);
         mVehicleVelocityPredicted = Translation2d.identity();
         mPredictedVehiclePosition = Pose2d.identity();
-        mVehicleVelocityMeasured = Translation2d.identity();
+        mVehicleVelocityCurrent = Translation2d.identity();
         mDistanceDriven = 0.0;
     }
 
@@ -65,7 +65,7 @@ public class RobotState {
                                                 Pose2d predictedPosition) {
         mDistanceDriven += Math.sqrt(Math.pow(currentPosition.getTranslation().x(), 2) + Math.pow(currentPosition.getTranslation().y(), 2));
         addFieldToVehicleObservation(timestamp, currentPosition);
-        mVehicleVelocityMeasured = new Translation2d(Math.pow(currentPosition.getTranslation().x(), 2), Math.pow(currentPosition.getTranslation().y(), 2));
+        mVehicleVelocityCurrent = new Translation2d(Math.pow(currentPosition.getTranslation().x(), 2), Math.pow(currentPosition.getTranslation().y(), 2));
         mVehicleVelocityPredicted = new Translation2d(Math.pow(predictedPosition.getTranslation().x(), 2), Math.pow(predictedPosition.getTranslation().y(), 2));
         mPredictedVehiclePosition = predictedPosition;
     }
@@ -82,7 +82,7 @@ public class RobotState {
         return mVehicleVelocityPredicted;
     }
 
-    public synchronized Translation2d getMeasuredVelocity() {
-        return mVehicleVelocityMeasured;
+    public synchronized Translation2d getCurrentVelocity() {
+        return mVehicleVelocityCurrent;
     }
 }

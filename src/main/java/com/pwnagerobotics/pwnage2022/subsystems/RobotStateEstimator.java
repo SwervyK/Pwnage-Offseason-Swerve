@@ -38,7 +38,7 @@ public class RobotStateEstimator extends Subsystem {
         // final double dt = timestamp - mPrevTimestamp;
         // final Pose2d currentState = Kinematics.forwardKinematics(moduleState);
         // final Pose2d displacement = currentState.transformBy(mPreviousState.inverse());
-        // final Pose2d predictedState = currentState.interpolate(currentState.transformBy(mPreviousState.inverse()), dt);
+        // final Pose2d predictedState = currentState.interpolate(displacement, dt);
 
         // mRobotState.addObservations(timestamp, displacement, currentState, predictedState);
         // mPrevTimestamp = timestamp;
