@@ -2,6 +2,7 @@ package com.pwnagerobotics.pwnage2022.humans.driver;
 
 import com.pwnagerobotics.lib.drivers.XboxController;
 import com.pwnagerobotics.lib.drivers.XboxController.Axis;
+import com.pwnagerobotics.lib.drivers.XboxController.Button;
 import com.pwnagerobotics.lib.drivers.XboxController.Side;
 import com.pwnagerobotics.pwnage2022.Constants;
 
@@ -31,6 +32,14 @@ public class XboxDriver {
 
     public boolean wantFieldCentricRotation() {
         return mController.getTrigger(Side.RIGHT);
+    }
+
+    public boolean wantJukeRight() {
+        return mController.getButton(Button.RB);
+    }
+
+    public boolean wantJukeLeft() {
+        return mController.getButton(Button.LB);
     }
 
     public int getDPad() {

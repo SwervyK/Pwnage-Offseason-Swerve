@@ -143,9 +143,12 @@ public class Robot extends TimedRobot {
     double strafe = mDriver.getPositionX();
     boolean wantFieldCentricDrive = !mDriver.wantFieldCentricDrive();
     boolean wantFieldCentricRotation = mDriver.wantFieldCentricRotation();
+    boolean jukeRight = mDriver.wantJukeRight();
+    boolean jukeLeft = mDriver.wantJukeLeft();
     boolean wantGyroReset = mDriver.getDPad() == 180;
     
     mDrive.setDriveMode(wantFieldCentricDrive ? DriveMode.FIELD : DriveMode.ROBOT);
+    mDrive.jukeMove(jukeRight, jukeLeft);
     mDrive.setRotationMode(wantFieldCentricRotation ? RotationMode.FIELD : RotationMode.ROBOT);
     mDrive.setSwerveDrive(throttle, strafe, rotationX, rotationY);
     

@@ -52,6 +52,8 @@ public class Drive extends Subsystem {
   private double mWantedAngle = 0.0; // Direction the robot should be pointing
   private double mLastNonZeroRobotAngle = 0;
   private double mLastGyro;
+  private double mRobotCenterX = 0;
+  private double mRobotCenterY = 0;
   
   public Drive() {
     mModules[0] = new SwerveModule(Constants.kFrontRightModuleConstants);
@@ -154,6 +156,25 @@ public class Drive extends Subsystem {
       mLastNonZeroRobotAngle = controllerAngle;
       mLastGyro = mPeriodicIO.gyro_angle;
   }
+
+  public void jukeMove(boolean jukeRight, boolean jukeLeft) {
+    double direction = mLastNonZeroRobotAngle - mPeriodicIO.gyro_angle;
+    if (direction < 0) direction += 360;
+    int side = (int)(direction/90);
+    if (jukeRight) {
+      mRobotCenterX = Constants.kDriveWidth/2*(side>2?1:-1);
+      mRobotCenterY = Constants.kDriveLength/2*(side>0&&side<3?-1:1);
+    }
+    else if (jukeLeft) {
+      if (++side > 3) side -= 3;
+      mRobotCenterX = Constants.kDriveWidth/2*(side>2?1:-1);
+      mRobotCenterY = Constants.kDriveLength/2*(side>0&&side<3?-1:1);
+    }
+    else {
+      mRobotCenterX = 0;
+      mRobotCenterY = 0;
+    }
+  }
   
   private void setVectorSwerveDrive(double forwardSpeed, double rotationSpeed, double robotAngle) {
     Vector2d[] vectors = new Vector2d[4];
@@ -162,8 +183,9 @@ public class Drive extends Subsystem {
     // BRVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 45);
     // BLVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 135); 
     for (int i = 0; i < mModules.length; i++) {
-      vectors[i] = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 
-      getTurnAngle(i%2==0?Constants.kDriveWidth/2:-Constants.kDriveWidth/2, i<2?Constants.kDriveLength/2:-Constants.kDriveLength)
+      vectors[i] = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed,
+      getTurnAngle(((i%2==0?1:-1)*Constants.kDriveWidth/2)+mRobotCenterX, 
+                  ((i<2?1:-1)*Constants.kDriveLength/2)+mRobotCenterY)
       );
     }
     double maxMagnitude = Math.max(Math.max(Math.max(
