@@ -27,7 +27,7 @@ public class SwerveModule {
     public double kd = 0.0;
     
     public double kRotationOffset = 0.0;
-    public double kRotationError = 3; // Degrees
+    public double kRotationError = 3; // Degrees // TODO tune
     public double kWheelDiameter = 0.0;
   }
   

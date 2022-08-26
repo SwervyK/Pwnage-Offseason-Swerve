@@ -76,7 +76,7 @@ public class Drive extends Subsystem {
     double direction = Math.toDegrees(Math.atan2(strafe, throttle)); // Find what angle we want to drive at
     if (direction < 0) direction += 360; // Convert from (-180 to 180) to (0 to 360)
     double magnitude = Math.hypot(Math.abs(strafe), Math.abs(throttle)); // Get wanted speed of robot
-    magnitude = XboxDriver.scaleController(Util.clamp(magnitude, 1, 0, false), Constants.kDriveMaxValue, Constants.kDriveMinValue); // TODO dont need to do this twice
+    magnitude = XboxDriver.scaleController(Util.clamp(magnitude, 1, 0, false), Constants.kDriveMaxValue, Constants.kDriveMinValue);
     
     double controllerAngle = direction;
     // Pole Snapping
@@ -87,8 +87,7 @@ public class Drive extends Subsystem {
       double wantedRobotAngle = Math.toDegrees(Math.atan2(rotationX, rotationY));
       if (wantedRobotAngle < 0) wantedRobotAngle += 360;
       double distance = Util.getDistance(mPeriodicIO.gyro_angle, wantedRobotAngle);
-      rotationX = Util.clamp(mFieldCentricRotationPID.calculate(0, -distance), 1, -1, false);
-      rotationX = XboxDriver.scaleController(rotationX, Constants.kRotationMaxValue, Constants.kRotationMinValue);
+      rotationX = Util.clamp(mFieldCentricRotationPID.calculate(0, distance), 1, -1, false);
       if (mFieldCentricRotationPID.atSetpoint()) rotationX = 0;
     }
     else { // Make easier to drive
@@ -102,13 +101,13 @@ public class Drive extends Subsystem {
       direction -= mPeriodicIO.gyro_angle; // Field centric
       direction = Util.clamp(direction, 360, 0, true);
       if (mCurrentRotationMode != RotationMode.FIELD) {
-        direction -= Constants.kGyroLag*rotationX; // Compensate for Gyro Lag // TODO Gyro
+        direction -= Constants.kGyroLag*rotationX; // Compensate for Gyro Lag? // TODO Gyro
       }
     }
 
     // Drive Compensation
     if (rotationX == 0 && gyroDelta() < Constants.kMinGyroDelta) {
-      double distance = mWantedAngle - mPeriodicIO.gyro_angle;
+      double distance = Util.getDistance(mPeriodicIO.gyro_angle, mWantedAngle);
       rotationX = Util.clamp(mCompensationPID.calculate(0, distance), 1, -1, false);
       if (mCompensationPID.atSetpoint()) rotationX = 0;
     }
@@ -237,9 +236,9 @@ public class Drive extends Subsystem {
   // Get module rotation angles using x and y position relative to center of robot
   // EX: on a square robot everything is 45 degrees
   private double getTurnAngle(double xPos, double yPos) {
-    double theta = Math.atan2(yPos, xPos);
+    double theta = Math.toDegrees(Math.atan2(yPos, xPos));
     if (theta<0) theta += 360;
-    //theta += yPos>0?180:0+Math.signum(xPos)==Math.signum(yPos)?90:0; // TODO test
+    theta += (yPos>0?180:0) + ((Math.signum(xPos)==Math.signum(yPos))?90:0);
     return theta;
   }
   
