@@ -12,14 +12,12 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.drive.Vector2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
 import com.team254.lib.subsystems.Subsystem;
-import com.team254.lib.util.DelayedBoolean;
 
 public class Drive extends Subsystem {
 
@@ -42,13 +40,11 @@ public class Drive extends Subsystem {
   }
   private RotationMode mCurrentRotationMode = RotationMode.ROBOT;
 
-  private DelayedBoolean mGyroLagDelay = new DelayedBoolean(Constants.kGyroDelay); // TODO change?
-  private boolean mCompensationActive = false;
   private PIDController mFieldCentricRotationPID = new PIDController(Constants.kRotationP, Constants.kRotationI, Constants.kRotationD);
   private PIDController mCompensationPID = new PIDController(Constants.kCompensationP, Constants.kCompensationI, Constants.kCompensationD);
   private SwerveModule[] mModules = new SwerveModule[4];
   private AHRS mNavX = new AHRS();
-  private PowerDistribution PDP = new PowerDistribution(0, ModuleType.kRev);
+  private PowerDistribution PDP = new PowerDistribution(0, ModuleType.kCTRE);
   private double mWantedAngle = 0.0; // Direction the robot should be pointing
   private double mLastNonZeroRobotAngle = 0;
   private double mLastGyro;
@@ -56,14 +52,13 @@ public class Drive extends Subsystem {
   private double mRobotCenterY = 0;
   
   public Drive() {
+    mPeriodicIO = new PeriodicIO();
     mModules[0] = new SwerveModule(Constants.kFrontRightModuleConstants);
     mModules[1] = new SwerveModule(Constants.kFrontLeftModuleConstants);
     mModules[2] = new SwerveModule(Constants.kBackRightModuleConstants);
     mModules[3] = new SwerveModule(Constants.kBackLeftModuleConstants);
 
-    mFieldCentricRotationPID.enableContinuousInput(-180, 180);
     mFieldCentricRotationPID.setTolerance(Constants.kFieldCentricRotationError);
-    mCompensationPID.enableContinuousInput(-180, 180);
     mCompensationPID.setTolerance(Constants.kCompensationError);
     
     mNavX.setAngleAdjustment(-Constants.kGyroOffset);
@@ -99,6 +94,7 @@ public class Drive extends Subsystem {
     else { // Make easier to drive
       rotationX = XboxDriver.scaleController(rotationX, Constants.kRotationMaxValue, Constants.kRotationMinValue); // Adjust controller
       mFieldCentricRotationPID.reset();
+      mCompensationPID.reset();
     }
     
     // Drive
@@ -109,52 +105,40 @@ public class Drive extends Subsystem {
         direction -= Constants.kGyroLag*rotationX; // Compensate for Gyro Lag // TODO Gyro
       }
     }
-    // Robot Drift/Lag Compensation
-    if (gyroDelta() < Constants.kMinGyroDelta && mCompensationActive) {
-      double distance = mPeriodicIO.gyro_angle - mWantedAngle;
-      rotationX = Util.clamp(mCompensationPID.calculate(0, -distance), 1, -1, false);
-      rotationX = XboxDriver.scaleController(rotationX, Constants.kRotationMaxValue, Constants.kRotationMinValue);
+
+    // Drive Compensation
+    if (rotationX == 0 && gyroDelta() < Constants.kMinGyroDelta) {
+      double distance = mWantedAngle - mPeriodicIO.gyro_angle;
+      rotationX = Util.clamp(mCompensationPID.calculate(0, distance), 1, -1, false);
       if (mCompensationPID.atSetpoint()) rotationX = 0;
-      mGyroLagDelay.update(Timer.getFPGATimestamp(), false);
-    }
-    else {
-      mCompensationActive = false;
     }
 
     // if (/* Motors move and we dont */) {
     //   mGyroLagDelay.update(Timer.getFPGATimestamp(), false);
     // }
-    
-    if (!mCompensationActive) { // Adds a short delay to when we start using the gyro to keep robot pointed in one direction
-      if (gyroDelta() < Constants.kMinGyroDelta && mGyroLagDelay.update(Timer.getFPGATimestamp(), true)) {
-        mCompensationActive = true;
-        mWantedAngle = mPeriodicIO.gyro_angle;
-        mCompensationPID.reset();
-      }
-    }
-    
-    // When robot is moving slow enough set all module angles to *45 to make us harder to push
+
+    // // When robot is moving slow enough set all module angles to *45 to make us harder to push
     // if (throttle == 0 && strafe == 0 && rotationX == 0 && rotationY == 0) {
-    //   if (mModules[0].getDeltaDrive() < Constants.kDriveMinSpeed &&
-    //       mModules[1].getDeltaDrive() < Constants.kDriveMinSpeed &&
-    //       mModules[2].getDeltaDrive() < Constants.kDriveMinSpeed &&
-    //       mModules[3].getDeltaDrive() < Constants.kDriveMinSpeed) {
+    //     if (mModules[0].getDeltaDrive() < Constants.kDriveMinSpeed &&
+    //         mModules[1].getDeltaDrive() < Constants.kDriveMinSpeed &&
+    //         mModules[2].getDeltaDrive() < Constants.kDriveMinSpeed &&
+    //         mModules[3].getDeltaDrive() < Constants.kDriveMinSpeed) {
     //         for (int i = 0; i < mModules.length; i++) {
     //           mModules[i].setModule(
-    //             getTurnAngle(i%2==0?Constants.kDriveWidth/2:-Constants.kDriveWidth/2, i<2?Constants.kDriveLength/2:-Constants.kDriveLength),
-    //             0);
+    //           getTurnAngle(i%2==0?Constants.kDriveWidth/2:-Constants.kDriveWidth/2, i<2?Constants.kDriveLength/2:-Constants.kDriveLength),0);
     //         }
-    //   }
+    //     }
     //   return;
     // }
-
+      
     if (controllerAngle == 0) { // Dont set module direction to 0 if not moving
       direction = mLastNonZeroRobotAngle;
     }
+    
     setVectorSwerveDrive(magnitude, -rotationX, direction);
     if (controllerAngle != 0)
-      mLastNonZeroRobotAngle = controllerAngle;
-      mLastGyro = mPeriodicIO.gyro_angle;
+    mLastNonZeroRobotAngle = controllerAngle;
+    mLastGyro = mPeriodicIO.gyro_angle;
   }
 
   public void jukeMove(boolean jukeRight, boolean jukeLeft) {
@@ -178,16 +162,16 @@ public class Drive extends Subsystem {
   
   private void setVectorSwerveDrive(double forwardSpeed, double rotationSpeed, double robotAngle) {
     Vector2d[] vectors = new Vector2d[4];
-    // FRVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 315);
-    // FLVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 225);
-    // BRVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 45);
-    // BLVector = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 135); 
-    for (int i = 0; i < mModules.length; i++) {
-      vectors[i] = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed,
-      getTurnAngle(((i%2==0?1:-1)*Constants.kDriveWidth/2)+mRobotCenterX, 
-                  ((i<2?1:-1)*Constants.kDriveLength/2)+mRobotCenterY)
-      );
-    }
+    vectors[0] = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 315);
+    vectors[1] = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 225);
+    vectors[2] = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 45);
+    vectors[3] = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 135);
+    // for (int i = 0; i < mModules.length; i++) {
+    //   vectors[i] = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed,
+    //   getTurnAngle(((i%2==0?1:-1)*Constants.kDriveWidth/2)+mRobotCenterX, 
+    //               ((i<2?1:-1)*Constants.kDriveLength/2)+mRobotCenterY)
+    //   );
+    // }
     double maxMagnitude = Math.max(Math.max(Math.max(
     vectors[0].magnitude(), 
     vectors[1].magnitude()), 
@@ -254,8 +238,8 @@ public class Drive extends Subsystem {
   // EX: on a square robot everything is 45 degrees
   private double getTurnAngle(double xPos, double yPos) {
     double theta = Math.atan2(yPos, xPos);
-    theta = theta>=0?theta:theta+360;
-    theta += yPos>0?180:0 + Math.signum(xPos)==Math.signum(yPos)?90:0;
+    if (theta<0) theta += 360;
+    //theta += yPos>0?180:0+Math.signum(xPos)==Math.signum(yPos)?90:0; // TODO test
     return theta;
   }
   
@@ -341,7 +325,10 @@ public class Drive extends Subsystem {
   
   @Override
   public void stop() {
-    for (SwerveModule m : mModules) m.setModule(0, 0);
+    for (int i = 0; i < mModules.length; i++) {
+      mPeriodicIO.module_angles[i] = 0; 
+      mPeriodicIO.module_magnitudes[i] = 0;
+    }
   }
   
   @Override

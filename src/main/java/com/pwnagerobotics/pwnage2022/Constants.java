@@ -42,8 +42,7 @@ public class Constants {
     // Gyro
     public static final double kGyroOffset = 0.0;
     public static final double kGyroLag = 50.0; // When moving compensate for gyro lag
-    public static final double kGyroDelay = 2; // Seconds after turing to enable compensation 
-    public static final double kMinGyroDelta = 1; // Gyro delta to consider robot not rotating
+    public static final double kMinGyroDelta = 10; // Gyro delta to consider robot not rotating
 
     // Modules
     public static final SwerveModuleConstants kFrontRightModuleConstants = new SwerveModuleConstants();
