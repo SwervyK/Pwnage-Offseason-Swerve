@@ -90,7 +90,7 @@ public class Drive extends Subsystem {
       double wantedRobotAngle = Math.toDegrees(Math.atan2(rotationX, rotationY));
       if (wantedRobotAngle < 0) wantedRobotAngle += 360;
       double distance = Util.getDistance(mPeriodicIO.gyro_angle, wantedRobotAngle);
-      rotationX = Util.clamp(mFieldCentricRotationPID.calculate(0, -distance), 1, -1, false);
+      rotationX = Util.clamp(mFieldCentricRotationPID.calculate(0, distance), 1, -1, false);
       rotationX = XboxDriver.scaleController(rotationX, Constants.kRotationMaxValue, Constants.kRotationMinValue);
       if (mFieldCentricRotationPID.atSetpoint()) rotationX = 0;
     }
@@ -109,8 +109,8 @@ public class Drive extends Subsystem {
     }
     // Robot Drift/Lag Compensation
     if (gyroDelta() < Constants.kMinGyroDelta && mCompensationActive) {
-      double distance = mPeriodicIO.gyro_angle - mWantedAngle;
-      rotationX = Util.clamp(mCompensationPID.calculate(0, -distance), 1, -1, false);
+      double distance = mWantedAngle - mPeriodicIO.gyro_angle;
+      rotationX = Util.clamp(mCompensationPID.calculate(0, distance), 1, -1, false);
       rotationX = XboxDriver.scaleController(rotationX, Constants.kRotationMaxValue, Constants.kRotationMinValue);
       if (mCompensationPID.atSetpoint()) rotationX = 0;
       mGyroLagDelay.update(Timer.getFPGATimestamp(), false);

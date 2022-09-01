@@ -19,7 +19,7 @@ public class Util {
     // Pass in a value between 0 and 360
     // Returns a value between 0 and 180
     public static double getDistance(double current, double wanted) {
-        double difference = current - wanted;
+        double difference = wanted - current;
         if (Math.abs(difference) > 180) difference += 360 * -Math.signum(difference);
         return difference;
     }
