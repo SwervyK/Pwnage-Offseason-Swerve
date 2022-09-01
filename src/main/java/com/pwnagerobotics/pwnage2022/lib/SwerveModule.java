@@ -27,7 +27,7 @@ public class SwerveModule {
     public double kd = 0.0;
     
     public double kRotationOffset = 0.0;
-    public double kRotationError = 3; // Degrees
+    public double kRotationError = 3; // Degrees // TODO tune
     public double kWheelDiameter = 0.0;
   }
   
@@ -38,10 +38,10 @@ public class SwerveModule {
   private AnalogEncoder mRotationEncoder;
   private PIDController mPID;
   private SlewRateLimiter mDriveRateLimiter = new SlewRateLimiter(Constants.kDriveRateLimit);
-  private double mLastThrottle = 0;
+  private double mLastMagnitude = 0;
   // private double mLastDrive = 0;
   private double mLastRotation = 0;
-  private static final double kPIDInputRange = 180;
+  private boolean mFlipped = false;
   
   public SwerveModule(SwerveModuleConstants constants) {
     mConstants = constants;
@@ -50,7 +50,6 @@ public class SwerveModule {
     // mDriveEncoder = new Encoder (mConstants.kDriveEncoderId[0], mConstants.kDriveEncoderId[1]);
     mRotationEncoder = new AnalogEncoder(mConstants.kRotationEncoderId);
     mPID = new PIDController(mConstants.kp, mConstants.ki, mConstants.kd);
-    mPID.enableContinuousInput(-kPIDInputRange, kPIDInputRange);
     mPID.setTolerance(mConstants.kRotationError);
   }
   
@@ -67,18 +66,28 @@ public class SwerveModule {
     
     // 90 flip
     // At higher speeds you need larger angles to flip because of the time is takes to reverse the drive direction
-    // TODO make it scale based on speed?
-    if (!(magnitude >= 0.75)) {
-      magnitude = mLastThrottle; // Without this wheels will only move forward regardless of their last direction
+    // TODO make it scale based on speed not controller
+    // Module Speed or Robot Speed?    
+    if (magnitude >= 0.75) {
+      if (mLastMagnitude < 0) magnitude *= -1; // Without this wheels will only move forward regardless of their last direction
+      if (mFlipped) {
+        wantedAngle = Util.clamp(wantedAngle-180, 360, 0, true);
+        distance = Util.getDistance(currentAngle, wantedAngle);
+      }
     }
-    else if (Math.abs(distance) > 90 /*|| mRobotState.getMeasuredVelocity().norm() < 5*/) { // Makes sure the robot is taking the most optimal path when rotating modules
+    else if (Math.abs(distance) > 90) { // Makes sure the robot is taking the most optimal path when rotating modules
       wantedAngle = Util.clamp(wantedAngle-180, 360, 0, true);
       distance = Util.getDistance(currentAngle, wantedAngle);
       magnitude *= -1;
+      mFlipped = true;
     }
-    
+    else {
+      mFlipped = false;
+    }
+
     // if (Drive.getInstance().getCurrent(mConstants.kPDPId) > Constants.kDriveCurrentLimit) throttle = 0; // Current Limit
     // throttle = getAdjustedThrottle(mLastThrottle, throttle); // Ramp rate
+    
     if (magnitude == 0) mDriveController.stopMotor();
     else mDriveController.set(magnitude * Constants.kDriveSlowDown);
     
@@ -86,7 +95,7 @@ public class SwerveModule {
     if (mPID.atSetpoint()) mRotationController.set(0);
     else mRotationController.set(rotationSpeed * Constants.kRotationSlowDown);
 
-    mLastThrottle = magnitude;
+    mLastMagnitude = magnitude;
     // mLastDrive = getDrive();
     mLastRotation = getRotation();
   }
