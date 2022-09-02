@@ -63,7 +63,10 @@ public class SwerveModule {
     double currentAngle = (mRotationEncoder.getAbsolutePosition() - mConstants.kRotationOffset) * 360; // * 360 is to convert from the 0 to 1 of the encoder to 0 to 360
     currentAngle = Util.clamp(currentAngle, 360, 0, true);
     double distance = Util.getDistance(currentAngle, wantedAngle);
-    
+    if (mConstants.kName.equals("Front Right")) {
+      SmartDashboard.putNumber("Magnitude Initial", magnitude);
+      SmartDashboard.putNumber("Controller Initial", wantedAngle);
+    }
     // 90 flip
     // At higher speeds you need larger angles to flip because of the time is takes to reverse the drive direction
     // TODO make it scale based on speed not controller
@@ -87,7 +90,10 @@ public class SwerveModule {
 
     // if (Drive.getInstance().getCurrent(mConstants.kPDPId) > Constants.kDriveCurrentLimit) throttle = 0; // Current Limit
     // throttle = getAdjustedThrottle(mLastThrottle, throttle); // Ramp rate
-    
+    if (mConstants.kName.equals("Front Right")) {
+      SmartDashboard.putNumber("Magnitude Final", magnitude);
+      SmartDashboard.putNumber("Controller Final", wantedAngle);
+    }
     if (magnitude == 0) mDriveController.stopMotor();
     else mDriveController.set(magnitude * Constants.kDriveSlowDown);
     
