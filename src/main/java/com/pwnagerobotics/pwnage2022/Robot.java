@@ -52,7 +52,7 @@ public class Robot extends TimedRobot {
 
   // CONFIG
   private boolean isRecordingAuto = false;
-  private TuningMode mTuningMode = TuningMode.MODULE;
+  private TuningMode mTuningMode = TuningMode.ROBOT;
   private AutoType mAutoType = AutoType.RECORDER;
   private Action[] mCurrentAuto = Autos.square();
   // CONFIG
@@ -179,8 +179,8 @@ public class Robot extends TimedRobot {
       int dPad = mDriver.getDPad();
       
       mDrive.setRotationMode(RotationMode.FIELD);
-      mDrive.setSwerveDrive(throttle, strafe, Math.cos(Math.toRadians(dPad)), Math.sin(Math.toRadians(dPad)));
-      System.out.println("X: " + Math.cos(Math.toRadians(dPad)) + " | Y: " + Math.sin(Math.toRadians(dPad))); //TODO I dont think the X and Y are correct
+      mDrive.setSwerveDrive(throttle, strafe, Math.toDegrees(Math.sqrt(2)*Math.cos(Math.toRadians(dPad))), Math.toDegrees(Math.sqrt(2)*Math.sin(Math.toRadians(dPad))));
+      System.out.println("X: " + Math.sqrt(2)*Math.toDegrees(Math.cos(Math.toRadians(dPad))) + " | Y: " + Math.sqrt(2)*Math.toDegrees(Math.sin(Math.toRadians(dPad)))); //TODO I dont think the X and Y are correct
     }
     else if (mTuningMode == TuningMode.MODULE) {
       // Module Rotation PID tuning

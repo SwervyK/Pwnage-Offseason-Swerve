@@ -16,7 +16,7 @@ public class Constants {
     public static final double kLeftStickDeadband = 0.1;
     public static final double kRightStickDeadband = 0.15;
     public static final double kPoleSnappingThreshold = 10;
-    
+
     // Drivetrain
     public static final double kDriveWidth = 21.5; //Width between center of drive modules, inches
     public static final double kDriveLength = 21.5; //Width between center of drive modules, inches
@@ -28,21 +28,21 @@ public class Constants {
     public static final double kDriveEncoderCPR = 8192; //Encoder counts per revolution
 
     // Field Centric Rotation
-    public static final double kRotationP = 0.005;
-    public static final double kRotationI = 0.0005;
-    public static final double kRotationD = 0.0;
+    public static final double kRotationP = 0.008; // 0.005
+    public static final double kRotationI = 0.0001; // 0.0005
+    public static final double kRotationD = 0.001; // 0.0
     public static final double kFieldCentricRotationError = 2;
 
     // Compensation
-    public static final double kCompensationP = 0.005;
-    public static final double kCompensationI = 0.0005;
-    public static final double kCompensationD = 0.0;
+    public static final double kCompensationP = 0.008;
+    public static final double kCompensationI = 0.0001;
+    public static final double kCompensationD = 0.001;
     public static final double kCompensationError = 2;
 
     // Gyro
     public static final double kGyroOffset = 0.0;
     public static final double kGyroLag = 50.0; // When moving compensate for gyro lag
-    public static final double kMinGyroDelta = 10; // Gyro delta to consider robot not rotating
+    public static final double kMinGyroDelta = 5; // Gyro delta to consider robot not rotating
 
     // Modules
     public static final SwerveModuleConstants kFrontRightModuleConstants = new SwerveModuleConstants();

@@ -69,7 +69,7 @@ public class XboxDriver {
     */
     private static double modifyAxis(double value, double opposite, double deadband) {
         // Deadband
-        if (Math.abs(value) < deadband && Math.abs(opposite) > deadband) {
+        if (Math.abs(value) < deadband && Math.abs(opposite) < deadband) {
             return 0;
         }
         value = ((Math.abs(value) * (1-deadband)) + deadband) * Math.signum(value);

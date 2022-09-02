@@ -87,13 +87,12 @@ public class Drive extends Subsystem {
       double wantedRobotAngle = Math.toDegrees(Math.atan2(rotationX, rotationY));
       if (wantedRobotAngle < 0) wantedRobotAngle += 360;
       double distance = Util.getDistance(mPeriodicIO.gyro_angle, wantedRobotAngle);
-      rotationX = Util.clamp(mFieldCentricRotationPID.calculate(0, distance), 1, -1, false);
+      rotationX = Util.clamp(mFieldCentricRotationPID.calculate(0, -distance), 1, -1, false);
       if (mFieldCentricRotationPID.atSetpoint()) rotationX = 0;
     }
     else { // Make easier to drive
       rotationX = XboxDriver.scaleController(rotationX, Constants.kRotationMaxValue, Constants.kRotationMinValue); // Adjust controller
       mFieldCentricRotationPID.reset();
-      mCompensationPID.reset();
     }
     
     // Drive
@@ -101,15 +100,19 @@ public class Drive extends Subsystem {
       direction -= mPeriodicIO.gyro_angle; // Field centric
       direction = Util.clamp(direction, 360, 0, true);
       if (mCurrentRotationMode != RotationMode.FIELD) {
-        direction -= Constants.kGyroLag*rotationX; // Compensate for Gyro Lag? // TODO Gyro
+        direction -= Constants.kGyroLag*rotationX; // Compensate for Lag? // TODO Gyro
       }
     }
 
     // Drive Compensation
-    if (rotationX == 0 && gyroDelta() < Constants.kMinGyroDelta) {
+    if (rotationX == 0 && Math.abs(gyroDelta()) < Constants.kMinGyroDelta) {
       double distance = Util.getDistance(mPeriodicIO.gyro_angle, mWantedAngle);
-      rotationX = Util.clamp(mCompensationPID.calculate(0, distance), 1, -1, false);
+      rotationX = Util.clamp(mCompensationPID.calculate(0, -distance), 1, -1, false);
       if (mCompensationPID.atSetpoint()) rotationX = 0;
+    }
+    else {
+      mCompensationPID.reset();
+      mWantedAngle = mPeriodicIO.gyro_angle;
     }
 
     // if (/* Motors move and we dont */) {
@@ -161,16 +164,16 @@ public class Drive extends Subsystem {
   
   private void setVectorSwerveDrive(double forwardSpeed, double rotationSpeed, double robotAngle) {
     Vector2d[] vectors = new Vector2d[4];
-    vectors[0] = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 315);
-    vectors[1] = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 225);
-    vectors[2] = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 45);
-    vectors[3] = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 135);
-    // for (int i = 0; i < mModules.length; i++) {
-    //   vectors[i] = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed,
-    //   getTurnAngle(((i%2==0?1:-1)*Constants.kDriveWidth/2)+mRobotCenterX, 
-    //               ((i<2?1:-1)*Constants.kDriveLength/2)+mRobotCenterY)
-    //   );
-    // }
+    // vectors[0] = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 315);
+    // vectors[1] = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 225);
+    // vectors[2] = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 45);
+    // vectors[3] = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 135);
+    for (int i = 0; i < mModules.length; i++) {
+      vectors[i] = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed,
+      getTurnAngle(((i%2==0?1:-1)*Constants.kDriveWidth/2)+mRobotCenterX, 
+                  ((i<2?1:-1)*Constants.kDriveLength/2)+mRobotCenterY)
+      );
+    }
     double maxMagnitude = Math.max(Math.max(Math.max(
     vectors[0].magnitude(), 
     vectors[1].magnitude()), 
@@ -237,9 +240,12 @@ public class Drive extends Subsystem {
   // EX: on a square robot everything is 45 degrees
   private double getTurnAngle(double xPos, double yPos) {
     double theta = Math.toDegrees(Math.atan2(yPos, xPos));
-    if (theta<0) theta += 360;
-    theta += (yPos>0?180:0) + ((Math.signum(xPos)==Math.signum(yPos))?90:0);
-    return theta;
+    System.out.print(theta + " | ");
+    // if (theta<0) theta = Math.abs(theta);
+    // theta += (yPos>0?90:0) + ((Math.signum(xPos)==Math.signum(yPos))?180:0);
+    if (theta > 0) theta -= 360;
+    System.out.print(Math.abs(theta));
+    return Math.abs(theta);
   }
   
   /**
@@ -260,7 +266,7 @@ public class Drive extends Subsystem {
     if (-1 == SmartDashboard.getNumber("kP", -1)) SmartDashboard.putNumber("kP", 0);
     if (-1 == SmartDashboard.getNumber("kI", -1)) SmartDashboard.putNumber("kI", 0);
     if (-1 == SmartDashboard.getNumber("kD", -1)) SmartDashboard.putNumber("kD", 0);
-    mCompensationPID.setPID(SmartDashboard.getNumber("kP", 0), SmartDashboard.getNumber("kI", 0), SmartDashboard.getNumber("kD", 0));
+    mFieldCentricRotationPID.setPID(SmartDashboard.getNumber("kP", 0), SmartDashboard.getNumber("kI", 0), SmartDashboard.getNumber("kD", 0));
   }
 
   private PeriodicIO mPeriodicIO;
@@ -328,6 +334,8 @@ public class Drive extends Subsystem {
       mPeriodicIO.module_angles[i] = 0; 
       mPeriodicIO.module_magnitudes[i] = 0;
     }
+    mCompensationPID.reset();
+    mFieldCentricRotationPID.reset();
   }
   
   @Override
