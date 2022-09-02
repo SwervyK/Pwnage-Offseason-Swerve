@@ -87,7 +87,7 @@ public class Drive extends Subsystem {
       double wantedRobotAngle = Math.toDegrees(Math.atan2(rotationX, rotationY));
       if (wantedRobotAngle < 0) wantedRobotAngle += 360;
       double distance = Util.getDistance(mPeriodicIO.gyro_angle, wantedRobotAngle);
-      rotationX = Util.clamp(mFieldCentricRotationPID.calculate(0, -distance), 1, -1, false);
+      rotationX = Util.clamp(mFieldCentricRotationPID.calculate(0, distance), 1, -1, false);
       if (mFieldCentricRotationPID.atSetpoint()) rotationX = 0;
     }
     else { // Make easier to drive
@@ -107,7 +107,7 @@ public class Drive extends Subsystem {
     // Drive Compensation
     if (rotationX == 0 && Math.abs(gyroDelta()) < Constants.kMinGyroDelta) {
       double distance = Util.getDistance(mPeriodicIO.gyro_angle, mWantedAngle);
-      rotationX = Util.clamp(mCompensationPID.calculate(0, -distance), 1, -1, false);
+      rotationX = Util.clamp(mCompensationPID.calculate(0, distance), 1, -1, false);
       if (mCompensationPID.atSetpoint()) rotationX = 0;
     }
     else {
@@ -147,16 +147,16 @@ public class Drive extends Subsystem {
     double direction = mLastNonZeroRobotAngle - mPeriodicIO.gyro_angle;
     if (direction < 0) direction += 360;
     int side = (int)(direction/90);
-    if (jukeRight) {
-      mRobotCenterX = Constants.kDriveWidth/2*(side>2?1:-1);
+    if (jukeRight && mRobotCenterX == 0 && mRobotCenterY == 0) {
+      mRobotCenterX = Constants.kDriveWidth/2*(side<2?1:-1);
       mRobotCenterY = Constants.kDriveLength/2*(side>0&&side<3?-1:1);
     }
-    else if (jukeLeft) {
+    else if (jukeLeft && mRobotCenterX == 0 && mRobotCenterY == 0) {
       if (++side > 3) side -= 3;
-      mRobotCenterX = Constants.kDriveWidth/2*(side>2?1:-1);
-      mRobotCenterY = Constants.kDriveLength/2*(side>0&&side<3?-1:1);
+      mRobotCenterX = Constants.kDriveWidth/2*(side>0&&side<3?1:-1);
+      mRobotCenterY = Constants.kDriveLength/2*(side<2?1:-1);
     }
-    else {
+    else if (!jukeRight && !jukeLeft ) {
       mRobotCenterX = 0;
       mRobotCenterY = 0;
     }
@@ -240,11 +240,7 @@ public class Drive extends Subsystem {
   // EX: on a square robot everything is 45 degrees
   private double getTurnAngle(double xPos, double yPos) {
     double theta = Math.toDegrees(Math.atan2(yPos, xPos));
-    System.out.print(theta + " | ");
-    // if (theta<0) theta = Math.abs(theta);
-    // theta += (yPos>0?90:0) + ((Math.signum(xPos)==Math.signum(yPos))?180:0);
     if (theta > 0) theta -= 360;
-    System.out.print(Math.abs(theta));
     return Math.abs(theta);
   }
   
