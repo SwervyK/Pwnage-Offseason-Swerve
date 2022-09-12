@@ -79,6 +79,7 @@ public class Drive extends Subsystem {
     magnitude = XboxDriver.scaleController(Util.clamp(magnitude, 1, 0, false), Constants.kDriveMaxValue, Constants.kDriveMinValue);
     
     double controllerAngle = direction;
+    System.out.println("Controller Dir:" + direction);
     // Pole Snapping
     direction = nearestPoleSnap(direction);
 
