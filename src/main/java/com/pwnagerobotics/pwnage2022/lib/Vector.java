@@ -7,25 +7,6 @@ public class Vector {
     private double mMagnitude = 0;
     private double mAngle = 0; // Rad
 
-    public static void main(String[] args) {
-        Vector v = new Vector(0, 1);
-        System.out.println(v.getAngleFromZero());
-        v = new Vector(1, 1);
-        System.out.println(v.getAngleFromZero());
-        v = new Vector(1, 0);
-        System.out.println(v.getAngleFromZero());
-        v = new Vector(1, -1);
-        System.out.println(v.getAngleFromZero());
-        v = new Vector(0, -1);
-        System.out.println(v.getAngleFromZero());
-        v = new Vector(-1, -1);
-        System.out.println(v.getAngleFromZero());
-        v = new Vector(-1, 0);
-        System.out.println(v.getAngleFromZero());
-        v = new Vector(-1, 1);
-        System.out.println(v.getAngleFromZero());
-    }
-
     public Vector(double x, double y) {
         this.x = x;
         this.y = y;
