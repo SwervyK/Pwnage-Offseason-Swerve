@@ -60,7 +60,7 @@ public class Drive extends Subsystem {
     mModules[3] = new SwerveModule(Constants.kBackLeftModuleConstants);
 
     mFieldCentricRotationPID.setTolerance(Constants.kFieldCentricRotationError);
-    mCompensationPID.setTolerance(Constants.kCompensationError);
+    mCompensationPID.setTolerance(Constants.kCompensationErrorLow);
     
     mNavX.setAngleAdjustment(-Constants.kGyroOffset);
   }
@@ -112,12 +112,19 @@ public class Drive extends Subsystem {
     if (rotationX == 0 && Math.abs(gyroDelta()) < Constants.kMinGyroDelta) {
       double distance = Util.getDistance(mPeriodicIO.gyro_angle, mWantedAngle);
       rotationX = Util.clamp(mCompensationPID.calculate(0, distance), 1, -1, false);
-      if (mCompensationPID.atSetpoint()) rotationX = 0;
+      if (mCompensationPID.atSetpoint()) {
+        rotationX = 0;
+        mCompensationPID.setTolerance(Constants.kCompensationErrorHigh);
+      }
+      if (Math.abs(distance) > Constants.kCompensationErrorHigh) {
+        mCompensationPID.setTolerance(Constants.kCompensationErrorLow);
+      }
       if (DEBUG_MODE) SmartDashboard.putBoolean("Compensation Active", true);
       if (DEBUG_MODE) SmartDashboard.putNumber("Compensation Rot", rotationX);
     }
     else {
       mCompensationPID.reset();
+      mCompensationPID.setTolerance(Constants.kCompensationErrorLow);
       mWantedAngle = mPeriodicIO.gyro_angle;
       if (DEBUG_MODE) SmartDashboard.putBoolean("Compensation Active", false);
 
@@ -144,10 +151,10 @@ public class Drive extends Subsystem {
     if (controllerAngle == 0 && magnitude == 0) { // Dont set module direction to 0 if not moving
       direction = mLastNonZeroRobotAngle;
     }
-
-    mLastNonZeroRobotAngle = controllerAngle;
-    setVectorSwerveDrive(magnitude, -rotationX, direction);
     if (controllerAngle != 0)
+    mLastNonZeroRobotAngle = controllerAngle;
+    
+    setVectorSwerveDrive(magnitude, -rotationX, direction);
     mLastGyro = mPeriodicIO.gyro_angle;
   }
 

@@ -38,7 +38,8 @@ public class Constants {
     public static final double kCompensationP = 0.008;
     public static final double kCompensationI = 0.0001;
     public static final double kCompensationD = 0.001;
-    public static final double kCompensationError = 2;
+    public static final double kCompensationErrorLow = 2;
+    public static final double kCompensationErrorHigh = 10;
 
     // Gyro
     public static final double kGyroOffset = 0.0;
