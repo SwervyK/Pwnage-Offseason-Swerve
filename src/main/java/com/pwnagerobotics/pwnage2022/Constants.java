@@ -15,7 +15,8 @@ public class Constants {
     public static final double kRotationMinValue = 0.1;
     public static final double kLeftStickDeadband = 0.1;
     public static final double kRightStickDeadband = 0.15;
-    public static final double kPoleSnappingThreshold = 10;
+    public static final double kPoleSnappingAngle = 10; // +-10 deg
+    public static final double kPoleSnappingThreshold = 0.5; // mag > threshold
 
     // Drivetrain
     public static final double kDriveWidth = 21.5; //Width between center of drive modules, inches
@@ -41,7 +42,7 @@ public class Constants {
 
     // Gyro
     public static final double kGyroOffset = 0.0;
-    public static final double kGyroLag = 50.0; // When moving compensate for gyro lag
+    public static final double kGyroLag = 0.0; // When moving compensate for gyro lag
     public static final double kMinGyroDelta = 5; // Gyro delta to consider robot not rotating
 
     // Modules

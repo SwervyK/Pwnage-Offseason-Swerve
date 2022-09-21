@@ -21,7 +21,8 @@ import com.team254.lib.subsystems.Subsystem;
 
 public class Drive extends Subsystem {
 
-  private final boolean DEBUG_MODE = false;
+  public boolean DEBUG_MODE = true;
+  public boolean TUNING = false;
 
   public static Drive mInstance;
   public synchronized static Drive getInstance() {
@@ -72,16 +73,17 @@ public class Drive extends Subsystem {
   * @param rotationY If field centric rotation: Y value of angle (-1 to 1)
   */
   public void setSwerveDrive(double throttle, double strafe, double rotationX, double rotationY) {
-    if (DEBUG_MODE) tuneRobotRotationPID();
+    if (TUNING) tuneRobotRotationPID();
     double direction = Math.toDegrees(Math.atan2(strafe, throttle)); // Find what angle we want to drive at
     if (direction < 0) direction += 360; // Convert from (-180 to 180) to (0 to 360)
     double magnitude = Math.hypot(Math.abs(strafe), Math.abs(throttle)); // Get wanted speed of robot
     magnitude = XboxDriver.scaleController(Util.clamp(magnitude, 1, 0, false), Constants.kDriveMaxValue, Constants.kDriveMinValue);
     
     double controllerAngle = direction;
-    System.out.println("Controller Dir:" + direction);
+    if (DEBUG_MODE) SmartDashboard.putNumber("Controller Dir", direction);
+    if (DEBUG_MODE) SmartDashboard.putNumber("Controller Mag", magnitude);
     // Pole Snapping
-    direction = nearestPoleSnap(direction);
+    if (magnitude > Constants.kPoleSnappingThreshold) direction = nearestPoleSnap(direction, Constants.kPoleSnappingAngle);
 
     // Rotation
     if (mCurrentRotationMode == RotationMode.FIELD) { // Point robot in direction of controller using pid
@@ -90,6 +92,7 @@ public class Drive extends Subsystem {
       double distance = Util.getDistance(mPeriodicIO.gyro_angle, wantedRobotAngle);
       rotationX = Util.clamp(mFieldCentricRotationPID.calculate(0, distance), 1, -1, false);
       if (mFieldCentricRotationPID.atSetpoint()) rotationX = 0;
+      if (DEBUG_MODE) SmartDashboard.putNumber("Field Centric Rot", rotationX);
     }
     else { // Make easier to drive
       rotationX = XboxDriver.scaleController(rotationX, Constants.kRotationMaxValue, Constants.kRotationMinValue); // Adjust controller
@@ -110,10 +113,14 @@ public class Drive extends Subsystem {
       double distance = Util.getDistance(mPeriodicIO.gyro_angle, mWantedAngle);
       rotationX = Util.clamp(mCompensationPID.calculate(0, distance), 1, -1, false);
       if (mCompensationPID.atSetpoint()) rotationX = 0;
+      if (DEBUG_MODE) SmartDashboard.putBoolean("Compensation Active", true);
+      if (DEBUG_MODE) SmartDashboard.putNumber("Compensation Rot", rotationX);
     }
     else {
       mCompensationPID.reset();
       mWantedAngle = mPeriodicIO.gyro_angle;
+      if (DEBUG_MODE) SmartDashboard.putBoolean("Compensation Active", false);
+
     }
 
     // if (/* Motors move and we dont */) {
@@ -134,33 +141,36 @@ public class Drive extends Subsystem {
     //   return;
     // }
       
-    if (controllerAngle == 0) { // Dont set module direction to 0 if not moving
+    if (controllerAngle == 0 && magnitude == 0) { // Dont set module direction to 0 if not moving
       direction = mLastNonZeroRobotAngle;
     }
-    
+
+    mLastNonZeroRobotAngle = controllerAngle;
     setVectorSwerveDrive(magnitude, -rotationX, direction);
     if (controllerAngle != 0)
-    mLastNonZeroRobotAngle = controllerAngle;
     mLastGyro = mPeriodicIO.gyro_angle;
   }
 
   public void jukeMove(boolean jukeRight, boolean jukeLeft) {
     double direction = mLastNonZeroRobotAngle - mPeriodicIO.gyro_angle;
     if (direction < 0) direction += 360;
-    int side = (int)(direction/90);
+    int side = (int)(nearestPoleSnap(direction, 45)/90);
+    SmartDashboard.putNumber("Side", side);
     if (jukeRight && mRobotCenterX == 0 && mRobotCenterY == 0) {
-      mRobotCenterX = Constants.kDriveWidth/2*(side<2?1:-1);
-      mRobotCenterY = Constants.kDriveLength/2*(side>0&&side<3?-1:1);
+      mRobotCenterX = Constants.kDriveWidth*(side<2?1:-1);
+      mRobotCenterY = Constants.kDriveLength*(side==0||side==3?1:-1);
     }
     else if (jukeLeft && mRobotCenterX == 0 && mRobotCenterY == 0) {
       if (++side > 3) side -= 3;
-      mRobotCenterX = Constants.kDriveWidth/2*(side>0&&side<3?1:-1);
-      mRobotCenterY = Constants.kDriveLength/2*(side<2?1:-1);
+      mRobotCenterX = Constants.kDriveWidth*(side<2?-1:1);
+      mRobotCenterY = Constants.kDriveLength*(side==1||side==3?-1:1);
     }
     else if (!jukeRight && !jukeLeft ) {
       mRobotCenterX = 0;
       mRobotCenterY = 0;
     }
+    SmartDashboard.putNumber("Center X", mRobotCenterX);
+    SmartDashboard.putNumber("Center Y", mRobotCenterY);
   }
   
   private void setVectorSwerveDrive(double forwardSpeed, double rotationSpeed, double robotAngle) {
@@ -171,8 +181,8 @@ public class Drive extends Subsystem {
     // vectors[3] = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 135);
     for (int i = 0; i < mModules.length; i++) {
       vectors[i] = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed,
-      getTurnAngle(((i%2==0?1:-1)*Constants.kDriveWidth/2)+mRobotCenterX, 
-                  ((i<2?1:-1)*Constants.kDriveLength/2)+mRobotCenterY)
+      getTurnAngle(((i%2==0?1:-1)*Constants.kDriveWidth/2)-mRobotCenterX, 
+                  ((i<2?1:-1)*Constants.kDriveLength/2)-mRobotCenterY) // You need to subtract center
       );
     }
     double maxMagnitude = Math.max(Math.max(Math.max(
@@ -203,7 +213,7 @@ public class Drive extends Subsystem {
     return new Vector2d(v.x * scalar, v.y * scalar);
   }
   
-  // Get angle of a vector
+  // Get angle of a vector 0 is front 90 is right
   private double getVectorAngle(Vector2d v) {
     double angle = Math.toDegrees(Math.atan(v.y / v.x));
     if (v.x == 0) angle = 0;
@@ -213,7 +223,7 @@ public class Drive extends Subsystem {
   }
 
   // Get nearest pole of an angle (N S E W)
-  private double nearestPoleSnap(double angle) {
+  private static double nearestPoleSnap(double angle, double threshold) {
     double poleSin = 0.0;
     double poleCos = 0.0;
     double sin = Math.sin(Math.toRadians(angle));
@@ -226,16 +236,17 @@ public class Drive extends Subsystem {
       poleCos = 0.0;
       poleSin = Math.signum(sin);
     }
-    double pole = Math.toDegrees(Math.atan2(poleSin, poleCos));
-    if (pole < 0) pole += 360;
-    if (Math.abs(pole - angle) <= Constants.kPoleSnappingThreshold) {
-      // change angle from 359 to 1 so pole snapping works
-      if (angle > 270 + Constants.kPoleSnappingThreshold) angle = Math.abs(angle-360); 
-      return Math.toDegrees(Math.atan2(poleSin, poleCos));
+    double pole = Math.atan2(poleSin, poleCos);
+    if (pole < 0) pole += 2*Math.PI;
+    if (Math.toRadians(angle) > Math.PI && poleCos == 1) pole = 2*Math.PI;
+    if (Math.abs(pole - Math.toRadians(angle)) <= Math.toRadians(threshold)) {
+      double result = Math.toDegrees(Math.atan2(poleSin, poleCos));
+      if (result < 0) result += 360;
+      return result;
     }
     else 
       return angle;
-  }
+}
 
   // Get module rotation angles using x and y position relative to center of robot
   // EX: on a square robot everything is 45 degrees

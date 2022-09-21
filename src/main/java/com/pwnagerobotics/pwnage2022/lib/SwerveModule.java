@@ -12,7 +12,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveModule {
 
-  private final boolean DEBUG_MODE = false;
+  private final boolean DEBUG_MODE = true;
+  private final boolean TUNING = false;
   
   public static class SwerveModuleConstants {
     public String kName = "Name";
@@ -59,11 +60,11 @@ public class SwerveModule {
   * @param magnitude Speed (-1 to 1)
   */
   public void setModule(double wantedAngle, double magnitude) {
-    if (DEBUG_MODE) tuneRobotRotationPID();
+    if (TUNING) tuneRobotRotationPID();
     double currentAngle = (mRotationEncoder.getAbsolutePosition() - mConstants.kRotationOffset) * 360; // * 360 is to convert from the 0 to 1 of the encoder to 0 to 360
     currentAngle = Util.clamp(currentAngle, 360, 0, true);
     double distance = Util.getDistance(currentAngle, wantedAngle);
-    if (mConstants.kName.equals("Front Right")) {
+    if (mConstants.kName.equals("Front Right") && DEBUG_MODE) {
       SmartDashboard.putNumber("Magnitude Initial", magnitude);
       SmartDashboard.putNumber("Controller Initial", wantedAngle);
     }
@@ -90,14 +91,14 @@ public class SwerveModule {
 
     // if (Drive.getInstance().getCurrent(mConstants.kPDPId) > Constants.kDriveCurrentLimit) throttle = 0; // Current Limit
     // throttle = getAdjustedThrottle(mLastThrottle, throttle); // Ramp rate
-    if (mConstants.kName.equals("Front Right")) {
+    if (mConstants.kName.equals("Front Right") && DEBUG_MODE) {
       SmartDashboard.putNumber("Magnitude Final", magnitude);
       SmartDashboard.putNumber("Controller Final", wantedAngle);
     }
     if (magnitude == 0) mDriveController.stopMotor();
     else mDriveController.set(magnitude * Constants.kDriveSlowDown);
     
-    double rotationSpeed = Util.clamp(mPID.calculate(0, distance), 1, -1, false);
+    double rotationSpeed = Util.clamp(mPID.calculate(0, -distance), 1, -1, false);
     if (mPID.atSetpoint()) mRotationController.set(0);
     else mRotationController.set(rotationSpeed * Constants.kRotationSlowDown);
 
@@ -147,7 +148,7 @@ public class SwerveModule {
   }
 
   public double getDriveVelocity() {
-    return mDriveController.get();
+    return mDriveController.get(); // TODO fix
   }
 
   public double getRotation() {
