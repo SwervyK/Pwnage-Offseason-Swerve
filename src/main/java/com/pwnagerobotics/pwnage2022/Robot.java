@@ -51,7 +51,7 @@ public class Robot extends TimedRobot {
   }
 
   // CONFIG
-  private boolean isRecordingAuto = false;
+  private boolean isRecordingAuto = true;
   private TuningMode mTuningMode = TuningMode.ROBOT;
   private AutoType mAutoType = AutoType.RECORDER;
   private Action[] mCurrentAuto = Autos.square();

@@ -17,6 +17,7 @@ public class Recorder {
     private File mAutoFile;
     private File mAutoDir = new File("home/lvuser/autoRecordings");
     private static SendableChooser<File> mAutoChooser = new SendableChooser<File>();
+    private static File mCurrentAuto;
     private ArrayList<String> mActions = new ArrayList<String>();
     private boolean mIsRecording = false;
     
@@ -74,7 +75,7 @@ public class Recorder {
     
     private Action[] autoActions;
     public Action getSwerveStateAtTimestamp(double timestamp) {
-        if (autoActions == null) loadAuto();
+        if (autoActions == null || mCurrentAuto != mAutoChooser.getSelected()) loadAuto();
         int closestIndex = 0;
         double difference = Double.POSITIVE_INFINITY;
         for (int i = 0; i < autoActions.length; i++) {
@@ -91,6 +92,9 @@ public class Recorder {
     
     private void loadAuto() {
         String[] data = readData(mAutoChooser.getSelected());
+        mCurrentAuto = mAutoChooser.getSelected();
+        SmartDashboard.putString("Current Auto", mCurrentAuto.toString());
+        System.out.println("Auto: " + mAutoChooser.getSelected());
         autoActions = new Action[data.length];
         for (int i = 0; i < data.length; i++) {
             double throttle = Double.parseDouble(data[i].substring(data[i].indexOf("t=")+2,data[i].indexOf("][s")));

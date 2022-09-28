@@ -121,6 +121,7 @@ public class Drive extends Subsystem {
       }
       if (DEBUG_MODE) SmartDashboard.putBoolean("Compensation Active", true);
       if (DEBUG_MODE) SmartDashboard.putNumber("Compensation Rot", rotationX);
+      if (DEBUG_MODE) SmartDashboard.putNumber("Compensation Distance", distance);
     }
     else {
       mCompensationPID.reset();
