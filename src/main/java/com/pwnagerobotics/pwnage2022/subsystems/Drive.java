@@ -72,14 +72,14 @@ public class Drive extends Subsystem {
   * @param rotationX If robot centric rotation: rotation speed (-1 to 1), If field centric rotation: X value of angle (-1 to 1)
   * @param rotationY If field centric rotation: Y value of angle (-1 to 1)
   */
-  public void setSwerveDrive(double throttle, double strafe, double rotationX, double rotationY) {
+  public void setSwerveDrive(final double throttle, final double strafe, double rotationX, double rotationY) {
     if (TUNING) tuneRobotRotationPID();
     double direction = Math.toDegrees(Math.atan2(strafe, throttle)); // Find what angle we want to drive at
     if (direction < 0) direction += 360; // Convert from (-180 to 180) to (0 to 360)
     double magnitude = Math.hypot(Math.abs(strafe), Math.abs(throttle)); // Get wanted speed of robot
     magnitude = XboxDriver.scaleController(Util.clamp(magnitude, 1, 0, false), Constants.kDriveMaxValue, Constants.kDriveMinValue);
     
-    double controllerAngle = direction;
+    final double controllerAngle = direction;
     if (DEBUG_MODE) SmartDashboard.putNumber("Controller Dir", direction);
     if (DEBUG_MODE) SmartDashboard.putNumber("Controller Mag", magnitude);
     // Pole Snapping
@@ -414,7 +414,27 @@ public class Drive extends Subsystem {
     return new Translation2d(mPeriodicIO.drive_velocities[module]*Math.cos(Math.toRadians(mPeriodicIO.rotation_angles[module])), mPeriodicIO.drive_velocities[module]*Math.sin(Math.toRadians(mPeriodicIO.rotation_angles[module])));
   }
 
+  public double[] getModuleVelocities() {
+    double[] velocities = new double[4];
+    for (int i = 0; i < velocities.length; i++) {
+      velocities[i] = mModules[i].getDriveVelocity();
+    }
+    return velocities;
+  }
+
+  public Rotation2d[] getModuleRotations() {
+    Rotation2d[] rotations = new Rotation2d[4];
+    for (int i = 0; i < rotations.length; i++) {
+      rotations[i] = new Rotation2d(mModules[i].getRotation(), false);
+    }
+    return rotations;
+  }
+
   public double gyroDelta() {
     return mLastGyro - mPeriodicIO.gyro_angle;
+  }
+
+  public double getGyro() {
+    return mPeriodicIO.gyro_angle;
   }
 }

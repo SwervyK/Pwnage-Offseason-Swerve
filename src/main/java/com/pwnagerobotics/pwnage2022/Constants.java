@@ -1,12 +1,46 @@
 package com.pwnagerobotics.pwnage2022;
 
 import com.pwnagerobotics.pwnage2022.lib.SwerveModule.SwerveModuleConstants;
+import com.team254.lib.geometry.Translation2d;
+import com.team254.lib.vision.GoalTrack.GoalTrackConstants;
 
 /**
  * A list of constants used by the rest of the robot code. This includes physics
  * constants as well as constants determined through calibration.
  */
 public class Constants {
+
+    //
+    public static final Translation2d kVehicleToTurretTranslation = new Translation2d(-0.75, 0);
+
+    // Goal Trackers
+    public static final double kDefaultMaxTrackAge = 2.5;
+    public static final double kMaxTrackerDistance = 20.0;
+    public static final double kMaxGoalTrackAge = 2.5; 
+    public static final double kMaxGoalTrackAgeNotTracking = 0.1;
+    public static final double kMaxGoalTrackSmoothingTime = 0.5; 
+    public static final double kTrackStabilityWeight = 0.0; 
+    public static final double kTrackAgeWeight = 10.0;
+    public static final double kTrackSwitchingWeight = 100.0;
+    public static final double kCameraFrameRate = 90.0;
+    public static final double kGoalHeight = 100.0;
+
+    // Limelight
+    public static final double kHorizontalFOV_1X = 59.6; // degrees
+    public static final double kVerticalFOV_1X = 49.7; // degrees
+    public static final double kVPW_1X = 2.0 * Math.tan(Math.toRadians(kHorizontalFOV_1X / 2.0)); 
+    public static final double kVPH_1X = 2.0 * Math.tan(Math.toRadians(kVerticalFOV_1X / 2.0));
+    public static final double kDistanceFudgeFactor = 1.0; // 0 to 1. decrease if overshooting
+    public static final double kImageCaptureLatency = 11.0 / 1000.0;
+
+    // GoalTrack
+    public static final GoalTrackConstants kGoalTrackConstants = new GoalTrackConstants();
+    static {
+        kGoalTrackConstants.kMaxTrackerDistance = kMaxTrackerDistance;
+        kGoalTrackConstants.kMaxGoalTrackAge = kMaxGoalTrackAge;
+        kGoalTrackConstants.kMaxGoalTrackSmoothingTime = kMaxGoalTrackSmoothingTime;
+        kGoalTrackConstants.kCameraFrameRate = kCameraFrameRate;
+    }
 
     // Controller
     public static final double kDriveMaxValue = 1.0;
