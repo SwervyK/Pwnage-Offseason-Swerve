@@ -13,6 +13,10 @@ public class Constants {
     //
     public static final Translation2d kVehicleToTurretTranslation = new Translation2d(-0.75, 0);
 
+    // Power Limits
+    public static final double kDriveVoltageOpenLoopCompSaturation = 12.0;
+    public static final int kDriveCurrentLimit = 60;
+
     // Goal Trackers
     public static final double kDefaultMaxTrackAge = 2.5;
     public static final double kMaxTrackerDistance = 20.0;
@@ -57,8 +61,6 @@ public class Constants {
     public static final double kDriveLength = 21.5; //Width between center of drive modules, inches
     public static final double kDriveSlowDown = 1.0;
     public static final double kRotationSlowDown = 1.0;
-    public static final double kDriveCurrentLimit = 50;
-    public static final double kDriveRateLimit = 1;
     public static final double kDriveMinSpeed = 5; //Last encoder value - current encoder value
     public static final double kDriveEncoderCPR = 8192; //Encoder counts per revolution
 

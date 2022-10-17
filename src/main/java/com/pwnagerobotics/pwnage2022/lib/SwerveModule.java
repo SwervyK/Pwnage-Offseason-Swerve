@@ -1,13 +1,15 @@
 package com.pwnagerobotics.pwnage2022.lib;
 
 import com.pwnagerobotics.pwnage2022.Constants;
+import com.team254.lib.drivers.LazySparkMax;
+import com.team254.lib.drivers.SparkMaxFactory;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxAlternateEncoder;
+import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.AnalogEncoder;
-import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.motorcontrol.MotorController;
-import edu.wpi.first.wpilibj.motorcontrol.PWMMotorController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveModule {
@@ -33,21 +35,32 @@ public class SwerveModule {
   }
   
   private SwerveModuleConstants mConstants;
-  private MotorController mDriveController;
-  private MotorController mRotationController;
-  // private Encoder mDriveEncoder;
+  //private MotorController mDriveController;
+  private LazySparkMax mDriveController;
+  private LazySparkMax mRotationController;
+  private RelativeEncoder mDriveEncoder;
   private AnalogEncoder mRotationEncoder;
   private PIDController mPID;
-  private SlewRateLimiter mDriveRateLimiter = new SlewRateLimiter(Constants.kDriveRateLimit);
   private double mLastMagnitude = 0;
-  // private double mLastDrive = 0;
+  private double mLastDrive = 0;
   private double mLastRotation = 0;
   private boolean mFlipped = false;
   
   public SwerveModule(SwerveModuleConstants constants) {
     mConstants = constants;
-    mDriveController = new PWMMotorController(mConstants.kName + " Drive",  mConstants.kDriveId) { };
-    mRotationController = new PWMMotorController(mConstants.kName + " Rotation", mConstants.kRotationId) { };
+    //mDriveController = new PWMMotorController(mConstants.kName + " Drive",  mConstants.kDriveId) { };
+    mDriveController = SparkMaxFactory.createDefaultSparkMax(mConstants.kDriveId);
+    mDriveController.enableVoltageCompensation(Constants.kDriveVoltageOpenLoopCompSaturation);
+    mDriveController.setSmartCurrentLimit(Constants.kDriveCurrentLimit);
+    mDriveController.burnFlash();
+
+    mDriveEncoder = mDriveController.getAlternateEncoder(SparkMaxAlternateEncoder.Type.kQuadrature, (int)Constants.kDriveEncoderCPR);
+
+    mRotationController = SparkMaxFactory.createDefaultSparkMax(mConstants.kRotationId);
+    mRotationController.enableVoltageCompensation(Constants.kDriveVoltageOpenLoopCompSaturation);
+    mRotationController.setSmartCurrentLimit(Constants.kDriveCurrentLimit);
+    mRotationController.burnFlash();
+
     // mDriveEncoder = new Encoder (mConstants.kDriveEncoderId[0], mConstants.kDriveEncoderId[1]);
     mRotationEncoder = new AnalogEncoder(mConstants.kRotationEncoderId);
     mPID = new PIDController(mConstants.kp, mConstants.ki, mConstants.kd);
@@ -96,11 +109,11 @@ public class SwerveModule {
       SmartDashboard.putNumber("Controller Final", wantedAngle);
     }
     if (magnitude == 0) mDriveController.stopMotor();
-    else mDriveController.set(magnitude * Constants.kDriveSlowDown);
+    else mDriveController.set(ControlType.kDutyCycle, magnitude * Constants.kDriveSlowDown);
     
     double rotationSpeed = Util.clamp(mPID.calculate(0, -distance), 1, -1, false);
     if (mPID.atSetpoint()) mRotationController.set(0);
-    else mRotationController.set(rotationSpeed * Constants.kRotationSlowDown);
+    else mRotationController.set(ControlType.kDutyCycle, rotationSpeed * Constants.kRotationSlowDown);
 
     mLastMagnitude = magnitude;
     // mLastDrive = getDrive();
@@ -111,21 +124,6 @@ public class SwerveModule {
     SmartDashboard.putNumber("Current Speed: " + mConstants.kName, mDriveController.get());
     SmartDashboard.putNumber("Current Angle: " + mConstants.kName, (mRotationEncoder.getAbsolutePosition() - mConstants.kRotationOffset) * 360);
   }
-
-  // Ramp rate
-  // Slowing down is not limited
-  // from -0.2 to 0.2 is not limited
-  private double getAdjustedThrottle(double lastThrottle, double throttle) {
-    if (throttle == 0) {
-      mDriveRateLimiter.reset(0);
-      return 0;
-    }
-    if (Math.abs(throttle) < Math.abs(lastThrottle) || Math.abs(throttle) < 0.2) {
-      mDriveRateLimiter.reset(throttle);
-      return throttle;
-    }
-    return mDriveRateLimiter.calculate(throttle);
-  }
   
   private void tuneRobotRotationPID() {
     if (-1 == SmartDashboard.getNumber("kP", -1)) SmartDashboard.putNumber("kP", 0);
@@ -133,22 +131,27 @@ public class SwerveModule {
     if (-1 == SmartDashboard.getNumber("kD", -1)) SmartDashboard.putNumber("kD", 0);
     mPID.setPID(SmartDashboard.getNumber("kP", 0), SmartDashboard.getNumber("kI", 0), SmartDashboard.getNumber("kD", 0));
   }
+
+  public void setBrake(boolean brake) {
+    mDriveController.setIdleMode(brake ? IdleMode.kBrake : IdleMode.kCoast);
+    mRotationController.setIdleMode(brake ? IdleMode.kBrake : IdleMode.kCoast);
+  }
   
   public void zeroEncoders() {
     mRotationEncoder.reset();
-    // mDriveEncoder.reset();
+    mDriveEncoder.setPosition(0);
   }
 
   public double getDrive() {
-    return 0; // mDriveEncoder.getDistance();
+    return mDriveEncoder.getPosition() / Constants.kDriveEncoderCPR;
   }
 
   public double getDriveDelta() {
-    return 0; // mLastDrive - getDrive();
+    return mLastDrive - getDrive();
   }
 
   public double getDriveVelocity() {
-    return mDriveController.get(); // TODO fix
+    return mDriveEncoder.getVelocity() / Constants.kDriveEncoderCPR;
   }
 
   public double getRotation() {
@@ -160,7 +163,7 @@ public class SwerveModule {
   }
   
   public double getRotationVelocity() {
-    return mRotationController.get();
+    return mRotationController.get(); // TODO fix
   }
   
 }
