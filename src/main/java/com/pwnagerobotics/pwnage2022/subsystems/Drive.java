@@ -65,6 +65,51 @@ public class Drive extends Subsystem {
     mNavX.setAngleAdjustment(-Constants.kGyroOffset);
   }
   
+  public void setKinematicsDrive(final double throttle, final double strafe, double rotationX, double rotationY) {
+    // Rotation
+    if (mCurrentRotationMode == RotationMode.FIELD) { // Point robot in direction of controller using pid
+      double wantedRobotAngle = Math.toDegrees(Math.atan2(rotationX, rotationY));
+      if (wantedRobotAngle < 0) wantedRobotAngle += 360;
+      double distance = Util.getDistance(mPeriodicIO.gyro_angle, wantedRobotAngle);
+      rotationX = Util.clamp(mFieldCentricRotationPID.calculate(0, distance), 1, -1, false);
+      if (mFieldCentricRotationPID.atSetpoint()) rotationX = 0;
+      if (DEBUG_MODE) SmartDashboard.putNumber("Field Centric Rot", rotationX);
+    }
+    else { // Make easier to drive
+      rotationX = XboxDriver.scaleController(rotationX, Constants.kRotationMaxValue, Constants.kRotationMinValue); // Adjust controller
+      mFieldCentricRotationPID.reset();
+    }
+
+    // Drive Compensation
+    if (rotationX == 0 && Math.abs(gyroDelta()) < Constants.kMinGyroDelta) {
+      double distance = Util.getDistance(mPeriodicIO.gyro_angle, mWantedAngle);
+      rotationX = Util.clamp(mCompensationPID.calculate(0, distance), 1, -1, false);
+      if (mCompensationPID.atSetpoint()) {
+        rotationX = 0;
+        mCompensationPID.setTolerance(Constants.kCompensationErrorHigh);
+      }
+      if (Math.abs(distance) > Constants.kCompensationErrorHigh) {
+        mCompensationPID.setTolerance(Constants.kCompensationErrorLow);
+      }
+      if (DEBUG_MODE) SmartDashboard.putBoolean("Compensation Active", true);
+      if (DEBUG_MODE) SmartDashboard.putNumber("Compensation Rot", rotationX);
+      if (DEBUG_MODE) SmartDashboard.putNumber("Compensation Distance", distance);
+    }
+    else {
+      mCompensationPID.reset();
+      mCompensationPID.setTolerance(Constants.kCompensationErrorLow);
+      mWantedAngle = mPeriodicIO.gyro_angle;
+      if (DEBUG_MODE) SmartDashboard.putBoolean("Compensation Active", false);
+    }
+
+    Object[][] module = Kinematics.inverseKinematics(throttle, strafe, rotationX, mCurrentDriveMode == DriveMode.FIELD);
+
+    for (int i = 0; i < module.length; i++) {
+      mPeriodicIO.module_magnitudes[i] = (double)module[0][i]; 
+      mPeriodicIO.module_angles[i] = ((Rotation2d)module[1][i]).getDegrees();
+    }
+  }
+
   /**
   * Sets swerve drivetrain
   * @param throttle Forward/Backward movement (-1 to 1)
@@ -128,7 +173,6 @@ public class Drive extends Subsystem {
       mCompensationPID.setTolerance(Constants.kCompensationErrorLow);
       mWantedAngle = mPeriodicIO.gyro_angle;
       if (DEBUG_MODE) SmartDashboard.putBoolean("Compensation Active", false);
-
     }
 
     // if (/* Motors move and we dont */) {
