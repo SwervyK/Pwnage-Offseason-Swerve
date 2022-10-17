@@ -3,12 +3,12 @@ package com.pwnagerobotics.pwnage2022.lib;
 import com.pwnagerobotics.pwnage2022.Constants;
 import com.team254.lib.drivers.LazySparkMax;
 import com.team254.lib.drivers.SparkMaxFactory;
+import com.team254.lib.util.SynchronousPIDF;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxAlternateEncoder;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.AnalogEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -40,7 +40,7 @@ public class SwerveModule {
   private LazySparkMax mRotationController;
   private RelativeEncoder mDriveEncoder;
   private AnalogEncoder mRotationEncoder;
-  private PIDController mPID;
+  private SynchronousPIDF mPID;
   private double mLastMagnitude = 0;
   private double mLastDrive = 0;
   private double mLastRotation = 0;
@@ -63,8 +63,9 @@ public class SwerveModule {
 
     // mDriveEncoder = new Encoder (mConstants.kDriveEncoderId[0], mConstants.kDriveEncoderId[1]);
     mRotationEncoder = new AnalogEncoder(mConstants.kRotationEncoderId);
-    mPID = new PIDController(mConstants.kp, mConstants.ki, mConstants.kd);
-    mPID.setTolerance(mConstants.kRotationError);
+    mPID = new SynchronousPIDF(mConstants.kp, mConstants.ki, mConstants.kd);
+    mPID.setInputRange(0, 180);
+    mPID.setOutputRange(-1, 1);
   }
   
   /**
@@ -111,8 +112,9 @@ public class SwerveModule {
     if (magnitude == 0) mDriveController.stopMotor();
     else mDriveController.set(ControlType.kDutyCycle, magnitude * Constants.kDriveSlowDown);
     
-    double rotationSpeed = Util.clamp(mPID.calculate(0, -distance), 1, -1, false);
-    if (mPID.atSetpoint()) mRotationController.set(0);
+    mPID.setSetpoint(-distance);
+    double rotationSpeed = Util.clamp(mPID.calculate(0), 1, -1, false);
+    if (mPID.onTarget(mConstants.kRotationError)) mRotationController.set(0);
     else mRotationController.set(ControlType.kDutyCycle, rotationSpeed * Constants.kRotationSlowDown);
 
     mLastMagnitude = magnitude;

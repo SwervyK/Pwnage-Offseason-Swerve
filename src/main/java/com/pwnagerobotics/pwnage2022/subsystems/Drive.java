@@ -8,7 +8,6 @@ import com.pwnagerobotics.pwnage2022.lib.SwerveModule;
 import com.pwnagerobotics.pwnage2022.lib.Util;
 import com.pwnagerobotics.pwnage2022.subsystems.Drive;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.drive.Vector2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -18,6 +17,7 @@ import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
 import com.team254.lib.subsystems.Subsystem;
+import com.team254.lib.util.SynchronousPIDF;
 
 public class Drive extends Subsystem {
 
@@ -41,8 +41,9 @@ public class Drive extends Subsystem {
   }
   private RotationMode mCurrentRotationMode = RotationMode.ROBOT;
 
-  private PIDController mFieldCentricRotationPID = new PIDController(Constants.kRotationP, Constants.kRotationI, Constants.kRotationD);
-  private PIDController mCompensationPID = new PIDController(Constants.kCompensationP, Constants.kCompensationI, Constants.kCompensationD);
+  private SynchronousPIDF mFieldCentricRotationPID = new SynchronousPIDF(Constants.kRotationP, Constants.kRotationI, Constants.kRotationD);
+  private SynchronousPIDF mCompensationPID = new SynchronousPIDF(Constants.kCompensationP, Constants.kCompensationI, Constants.kCompensationD);
+  private double mCompensationPIDTollerance = Constants.kCompensationErrorLow;
   private SwerveModule[] mModules = new SwerveModule[4];
   private AHRS mNavX = new AHRS();
   private PowerDistribution PDP = new PowerDistribution(0, ModuleType.kCTRE);
@@ -59,8 +60,10 @@ public class Drive extends Subsystem {
     mModules[2] = new SwerveModule(Constants.kBackRightModuleConstants);
     mModules[3] = new SwerveModule(Constants.kBackLeftModuleConstants);
 
-    mFieldCentricRotationPID.setTolerance(Constants.kFieldCentricRotationError);
-    mCompensationPID.setTolerance(Constants.kCompensationErrorLow);
+    mFieldCentricRotationPID.setInputRange(-180, 180);
+    mFieldCentricRotationPID.setOutputRange(-1, 1);
+    mCompensationPID.setInputRange(-180, 180);
+    mCompensationPID.setOutputRange(-1, 1);
     
     mNavX.setAngleAdjustment(-Constants.kGyroOffset);
   }
@@ -72,7 +75,7 @@ public class Drive extends Subsystem {
       if (wantedRobotAngle < 0) wantedRobotAngle += 360;
       double distance = Util.getDistance(mPeriodicIO.gyro_angle, wantedRobotAngle);
       rotationX = Util.clamp(mFieldCentricRotationPID.calculate(0, distance), 1, -1, false);
-      if (mFieldCentricRotationPID.atSetpoint()) rotationX = 0;
+      if (mFieldCentricRotationPID.onTarget(Constants.kFieldCentricRotationError)) rotationX = 0;
       if (DEBUG_MODE) SmartDashboard.putNumber("Field Centric Rot", rotationX);
     }
     else { // Make easier to drive
@@ -84,12 +87,12 @@ public class Drive extends Subsystem {
     if (rotationX == 0 && Math.abs(gyroDelta()) < Constants.kMinGyroDelta) {
       double distance = Util.getDistance(mPeriodicIO.gyro_angle, mWantedAngle);
       rotationX = Util.clamp(mCompensationPID.calculate(0, distance), 1, -1, false);
-      if (mCompensationPID.atSetpoint()) {
+      if (mCompensationPID.onTarget(mCompensationPIDTollerance)) {
         rotationX = 0;
-        mCompensationPID.setTolerance(Constants.kCompensationErrorHigh);
+        mCompensationPIDTollerance = Constants.kCompensationErrorHigh;
       }
       if (Math.abs(distance) > Constants.kCompensationErrorHigh) {
-        mCompensationPID.setTolerance(Constants.kCompensationErrorLow);
+        mCompensationPIDTollerance = Constants.kCompensationErrorLow;
       }
       if (DEBUG_MODE) SmartDashboard.putBoolean("Compensation Active", true);
       if (DEBUG_MODE) SmartDashboard.putNumber("Compensation Rot", rotationX);
@@ -97,7 +100,7 @@ public class Drive extends Subsystem {
     }
     else {
       mCompensationPID.reset();
-      mCompensationPID.setTolerance(Constants.kCompensationErrorLow);
+      mCompensationPIDTollerance = Constants.kCompensationErrorLow;
       mWantedAngle = mPeriodicIO.gyro_angle;
       if (DEBUG_MODE) SmartDashboard.putBoolean("Compensation Active", false);
     }
@@ -136,7 +139,7 @@ public class Drive extends Subsystem {
       if (wantedRobotAngle < 0) wantedRobotAngle += 360;
       double distance = Util.getDistance(mPeriodicIO.gyro_angle, wantedRobotAngle);
       rotationX = Util.clamp(mFieldCentricRotationPID.calculate(0, distance), 1, -1, false);
-      if (mFieldCentricRotationPID.atSetpoint()) rotationX = 0;
+      if (mFieldCentricRotationPID.onTarget(Constants.kFieldCentricRotationError)) rotationX = 0;
       if (DEBUG_MODE) SmartDashboard.putNumber("Field Centric Rot", rotationX);
     }
     else { // Make easier to drive
@@ -157,12 +160,12 @@ public class Drive extends Subsystem {
     if (rotationX == 0 && Math.abs(gyroDelta()) < Constants.kMinGyroDelta) {
       double distance = Util.getDistance(mPeriodicIO.gyro_angle, mWantedAngle);
       rotationX = Util.clamp(mCompensationPID.calculate(0, distance), 1, -1, false);
-      if (mCompensationPID.atSetpoint()) {
+      if (mCompensationPID.onTarget(mCompensationPIDTollerance)) {
         rotationX = 0;
-        mCompensationPID.setTolerance(Constants.kCompensationErrorHigh);
+        mCompensationPIDTollerance = Constants.kCompensationErrorHigh;
       }
       if (Math.abs(distance) > Constants.kCompensationErrorHigh) {
-        mCompensationPID.setTolerance(Constants.kCompensationErrorLow);
+        mCompensationPIDTollerance = Constants.kCompensationErrorLow;
       }
       if (DEBUG_MODE) SmartDashboard.putBoolean("Compensation Active", true);
       if (DEBUG_MODE) SmartDashboard.putNumber("Compensation Rot", rotationX);
@@ -170,7 +173,7 @@ public class Drive extends Subsystem {
     }
     else {
       mCompensationPID.reset();
-      mCompensationPID.setTolerance(Constants.kCompensationErrorLow);
+      mCompensationPIDTollerance = Constants.kCompensationErrorLow;
       mWantedAngle = mPeriodicIO.gyro_angle;
       if (DEBUG_MODE) SmartDashboard.putBoolean("Compensation Active", false);
     }
