@@ -52,7 +52,7 @@ public class SwerveModule {
     mDriveController.setSmartCurrentLimit(Constants.kDriveCurrentLimit);
     mDriveController.burnFlash();
 
-    mDriveEncoder = mDriveController.getAlternateEncoder(SparkMaxAlternateEncoder.Type.kQuadrature, (int)Constants.kDriveEncoderCPR);
+    mDriveEncoder = mDriveController.getAlternateEncoder(SparkMaxAlternateEncoder.Type.kQuadrature, (int)Constants.kEncoderCPR);
 
     mRotationController = SparkMaxFactory.createDefaultSparkMax(mConstants.kRotationId);
     mRotationController.enableVoltageCompensation(Constants.kDriveVoltageOpenLoopCompSaturation);
@@ -60,7 +60,7 @@ public class SwerveModule {
     mRotationController.burnFlash();
 
     mRotationEncoder = mRotationController.getEncoder();
-    mRotationEncoder.setPositionConversionFactor((int)Constants.kDriveEncoderCPR);
+    mRotationEncoder.setPositionConversionFactor((int)Constants.kEncoderCPR);
 
     mPID = new SynchronousPIDF(mConstants.kp, mConstants.ki, mConstants.kd);
     mPID.setInputRange(0, 180);
@@ -85,7 +85,7 @@ public class SwerveModule {
     // At higher speeds you need larger angles to flip because of the time is takes to reverse the drive direction
     // TODO make it scale based on speed not controller
     // Module Speed or Robot Speed?    
-    if (magnitude >= 0.75) {
+    if (Math.signum(getDriveVelocity()) != Math.signum(magnitude*((Util.getDistance(currentAngle, wantedAngle)>90)?-1:1))) {
       if (mLastMagnitude < 0) magnitude *= -1; // Without this wheels will only move forward regardless of their last direction
       if (mFlipped) {
         wantedAngle = Util.clamp(wantedAngle-180, 360, 0, true);
@@ -142,7 +142,7 @@ public class SwerveModule {
   }
 
   public double getDrive() {
-    return mDriveEncoder.getPosition() / Constants.kDriveEncoderCPR;
+    return mDriveEncoder.getPosition() / Constants.kEncoderCPR;
   }
 
   public double getDriveDelta() {
@@ -150,7 +150,7 @@ public class SwerveModule {
   }
 
   public double getDriveVelocity() {
-    return mDriveEncoder.getVelocity() / Constants.kDriveEncoderCPR;
+    return mDriveEncoder.getVelocity() / Constants.kEncoderCPR;
   }
 
   public double getRotation() {
@@ -158,11 +158,11 @@ public class SwerveModule {
   }
 
   public double getRotationDelta() {
-    return mLastRotation - getRotation();
+    return mLastRotation - getRotation() / Constants.kEncoderCPR;
   }
   
   public double getRotationVelocity() {
-    return mRotationEncoder.getVelocity();
+    return mRotationEncoder.getVelocity() / Constants.kEncoderCPR;
   }
   
 }

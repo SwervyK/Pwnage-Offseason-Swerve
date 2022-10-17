@@ -178,23 +178,20 @@ public class Drive extends Subsystem {
       if (DEBUG_MODE) SmartDashboard.putBoolean("Compensation Active", false);
     }
 
-    // if (/* Motors move and we dont */) {
-    //   mGyroLagDelay.update(Timer.getFPGATimestamp(), false);
-    // }
-
-    // // When robot is moving slow enough set all module angles to *45 to make us harder to push
-    // if (throttle == 0 && strafe == 0 && rotationX == 0 && rotationY == 0) {
-    //     if (mModules[0].getDeltaDrive() < Constants.kDriveMinSpeed &&
-    //         mModules[1].getDeltaDrive() < Constants.kDriveMinSpeed &&
-    //         mModules[2].getDeltaDrive() < Constants.kDriveMinSpeed &&
-    //         mModules[3].getDeltaDrive() < Constants.kDriveMinSpeed) {
-    //         for (int i = 0; i < mModules.length; i++) {
-    //           mModules[i].setModule(
-    //           getTurnAngle(i%2==0?Constants.kDriveWidth/2:-Constants.kDriveWidth/2, i<2?Constants.kDriveLength/2:-Constants.kDriveLength),0);
-    //         }
-    //     }
-    //   return;
-    // }
+    // When robot is moving slow enough set all module angles to *45 to make us harder to push
+    if (throttle == 0 && strafe == 0 && rotationX == 0 && rotationY == 0) {
+        if (mModules[0].getDriveDelta() < Constants.kDriveMinDeltaSpeed &&
+            mModules[1].getDriveDelta() < Constants.kDriveMinDeltaSpeed &&
+            mModules[2].getDriveDelta() < Constants.kDriveMinDeltaSpeed &&
+            mModules[3].getDriveDelta() < Constants.kDriveMinDeltaSpeed) {
+            for (int i = 0; i < mModules.length; i++) {
+              mModules[i].setModule(
+                getTurnAngle(((i%2==0?1:-1)*Constants.kDriveWidth/2),
+                ((i<2?1:-1)*Constants.kDriveLength/2)),0);
+            }
+        }
+      return;
+    }
       
     if (controllerAngle == 0 && magnitude == 0) { // Dont set module direction to 0 if not moving
       direction = mLastNonZeroRobotAngle;

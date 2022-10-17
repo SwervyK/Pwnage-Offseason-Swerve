@@ -61,8 +61,8 @@ public class Constants {
     public static final double kDriveLength = 21.5; //Width between center of drive modules, inches
     public static final double kDriveSlowDown = 1.0;
     public static final double kRotationSlowDown = 1.0;
-    public static final double kDriveMinSpeed = 5; //Last encoder value - current encoder value
-    public static final double kDriveEncoderCPR = 8192; //Encoder counts per revolution
+    public static final double kDriveMinDeltaSpeed = 5; //Last encoder value - current encoder value
+    public static final double kEncoderCPR = 8192; //Encoder counts per revolution
 
     // Field Centric Rotation
     public static final double kRotationP = 0.008; // 0.005
