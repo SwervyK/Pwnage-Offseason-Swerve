@@ -176,7 +176,6 @@ public class Kinematics {
         wheel_azimuths[1] = Rotation2d.fromRadians(Math.atan2(B, D));
         wheel_azimuths[2] = Rotation2d.fromRadians(Math.atan2(A, D));
         wheel_azimuths[3] = Rotation2d.fromRadians(Math.atan2(A, C));
-
         return new Object[][]{wheel_speeds, wheel_azimuths};
     }
 }
