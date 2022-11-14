@@ -133,7 +133,7 @@ public class Drive extends Subsystem {
     if (DEBUG_MODE) SmartDashboard.putNumber("Controller Dir", direction);
     if (DEBUG_MODE) SmartDashboard.putNumber("Controller Mag", magnitude);
     // Pole Snapping
-    if (magnitude > Constants.kPoleSnappingThreshold) direction = nearestPoleSnap(direction, Constants.kPoleSnappingAngle);
+    if (magnitude > Constants.kPoleSnappingThreshold) direction = nearestPoleSnap(direction-((mCurrentDriveMode == DriveMode.FIELD)?0:mPeriodicIO.gyro_angle), Constants.kPoleSnappingAngle);
 
     // Rotation
     if (mCurrentRotationMode == RotationMode.FIELD) { // Point robot in direction of controller using pid
