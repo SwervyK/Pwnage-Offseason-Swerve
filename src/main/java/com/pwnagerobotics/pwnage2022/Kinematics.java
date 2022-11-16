@@ -2,7 +2,6 @@ package com.pwnagerobotics.pwnage2022;
 
 import org.ejml.simple.SimpleMatrix;
 
-import com.pwnagerobotics.pwnage2022.subsystems.Drive;
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
@@ -12,7 +11,7 @@ import com.team254.lib.geometry.Twist2d;
  * Provides forward and inverse kinematics equations for the robot modeling the wheelbase as a differential drive (with
  * a corrective factor to account for skidding).
  */
-// INFO means refrence
+// INFO means reference
 public class Kinematics {
     private static SimpleMatrix mInverseKinematics = new SimpleMatrix(4 * 2, 3); // INFO SwerveDriveKinematics.m_inverseKinematics
     static {
@@ -133,14 +132,13 @@ public class Kinematics {
      * https://www.chiefdelphi.com/t/paper-4-wheel-independent-drive-independent-steering-swerve/107383
      */
 
-    public static Object[][] inverseKinematics(double forward, double strafe, double rotation, boolean field_relative) {
-        return inverseKinematics(forward, strafe, rotation, field_relative, true);
+    public static Object[][] inverseKinematics(double forward, double strafe, double rotation, double gyroHeading, boolean field_relative) {
+        return inverseKinematics(forward, strafe, rotation, gyroHeading, field_relative, true);
     }
 
-    public static Object[][] inverseKinematics(double forward, double strafe, double rotation, boolean field_relative,
+    public static Object[][] inverseKinematics(double forward, double strafe, double rotation, double gyroHeading, boolean field_relative,
                                                 boolean normalize_outputs) {
         if (field_relative) {
-            double gyroHeading = Drive.getInstance().getGyro();
             double temp = forward * Math.cos(gyroHeading) + strafe * Math.sin(gyroHeading);
             strafe = -forward * Math.sin(gyroHeading) + strafe * Math.cos(gyroHeading);
             forward = temp;
@@ -154,8 +152,8 @@ public class Kinematics {
         Double[] wheel_speeds = new Double[4];
         wheel_speeds[0] = Math.hypot(B, C);
         wheel_speeds[1] = Math.hypot(B, D);
-        wheel_speeds[2] = Math.hypot(A, D);
-        wheel_speeds[3] = Math.hypot(A, C);
+        wheel_speeds[3] = Math.hypot(A, D);
+        wheel_speeds[2] = Math.hypot(A, C);
 
         // normalize wheel speeds if above 1
         if (normalize_outputs) {
@@ -174,8 +172,8 @@ public class Kinematics {
         Rotation2d[] wheel_azimuths = new Rotation2d[4];
         wheel_azimuths[0] = Rotation2d.fromRadians(Math.atan2(B, C));
         wheel_azimuths[1] = Rotation2d.fromRadians(Math.atan2(B, D));
-        wheel_azimuths[2] = Rotation2d.fromRadians(Math.atan2(A, D));
-        wheel_azimuths[3] = Rotation2d.fromRadians(Math.atan2(A, C));
+        wheel_azimuths[3] = Rotation2d.fromRadians(Math.atan2(A, D));
+        wheel_azimuths[2] = Rotation2d.fromRadians(Math.atan2(A, C));
         return new Object[][]{wheel_speeds, wheel_azimuths};
     }
 }

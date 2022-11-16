@@ -102,16 +102,13 @@ public class Drive extends Subsystem {
       if (DEBUG_MODE) SmartDashboard.putBoolean("Compensation Active", false);
     }
 
-    Object[][] module = Kinematics.inverseKinematics(throttle, strafe, rotationX, mCurrentDriveMode == DriveMode.FIELD);
+    Object[][] module = Kinematics.inverseKinematics(throttle, strafe, rotationX, Math.toRadians(mPeriodicIO.gyro_angle), mCurrentDriveMode == DriveMode.FIELD);
 
-    for (int i = 0; i < module.length; i++) {
+    for (int i = 0; i < module[0].length; i++) {
       mPeriodicIO.module_magnitudes[i] = (double)module[0][i]; 
       double rotation = ((Rotation2d)module[1][i]).getDegrees();
       if (rotation < 0) rotation += 360;
       mPeriodicIO.module_angles[i] = rotation;
-      if (i == 0) {
-        System.out.println(rotation);
-      }
     }
   }
 
@@ -363,7 +360,6 @@ public class Drive extends Subsystem {
       mPeriodicIO.rotation_deltas[i] = mModules[i].getRotationDelta();
       mPeriodicIO.rotation_velocities[i] = mModules[i].getRotationVelocity();
     }
-
     mPeriodicIO.gyro_angle = Util.clamp(mNavX.getAngle(), 360, 0, true);
   }
 
