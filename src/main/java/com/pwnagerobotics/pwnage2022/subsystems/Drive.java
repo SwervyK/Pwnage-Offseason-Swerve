@@ -359,7 +359,6 @@ public class Drive extends Subsystem {
 
       mPeriodicIO.rotation_angles[i] = mModules[i].getRotation();
       mPeriodicIO.rotation_deltas[i] = mModules[i].getRotationDelta();
-      mPeriodicIO.rotation_velocities[i] = mModules[i].getRotationVelocity();
     }
 
     mPeriodicIO.gyro_angle = Util.clamp(mNavX.getAngle(), 360, 0, true);

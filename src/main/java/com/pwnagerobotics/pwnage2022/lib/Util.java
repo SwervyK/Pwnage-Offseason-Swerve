@@ -6,9 +6,9 @@ public class Util {
     public static double clamp(double value, double max, double min, boolean wrapAround) {
     if (wrapAround) {
         if (value > max)
-        return (value - (max-min) * ((int)((value-max-1)/(max - min)))) - max + min;
+            return (value - (max-min) * ((int)((value-max-1)/(max - min)))) - max + min;
         else if (value < min)
-        return value + (max-min) * -((((int)((value-max)/(max - min))))+1) - min + max;
+            return value + (max-min) * -((((int)((value-max)/(max - min))))+1) - min + max;
         return value;
     }
     else 
@@ -21,6 +21,6 @@ public class Util {
     public static double getDistance(double current, double wanted) {
         double difference = wanted - current;
         if (Math.abs(difference) > 180) difference += 360 * -Math.signum(difference);
-        return difference;
+            return difference;
     }
 }

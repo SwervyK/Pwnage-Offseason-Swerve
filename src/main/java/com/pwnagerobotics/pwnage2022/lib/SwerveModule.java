@@ -9,6 +9,7 @@ import com.revrobotics.SparkMaxAlternateEncoder;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveModule {
@@ -20,7 +21,6 @@ public class SwerveModule {
     public String kName = "Name";
     public int kDriveId = 0;
     public int kRotationId = 0;
-    public int[] kDriveEncoderId = {0, 0};
     public int kRotationEncoderId = 0;
     public int kPDPId = 0;
     
@@ -38,7 +38,8 @@ public class SwerveModule {
   private LazySparkMax mDriveController;
   private LazySparkMax mRotationController;
   private RelativeEncoder mDriveEncoder;
-  private RelativeEncoder mRotationEncoder;
+  //private RelativeEncoder mRotationEncoder;
+  private DutyCycleEncoder mRotationEncoder;
   private SynchronousPIDF mPID;
   private double mLastMagnitude = 0;
   private double mLastDrive = 0;
@@ -52,15 +53,16 @@ public class SwerveModule {
     mDriveController.setSmartCurrentLimit(Constants.kDriveCurrentLimit);
     mDriveController.burnFlash();
 
-    mDriveEncoder = mDriveController.getAlternateEncoder(SparkMaxAlternateEncoder.Type.kQuadrature, (int)Constants.kDriveEncoderCPR);
+    mDriveEncoder = mDriveController.getAlternateEncoder(SparkMaxAlternateEncoder.Type.kQuadrature, Constants.kDriveEncoderCPR);
 
     mRotationController = SparkMaxFactory.createDefaultSparkMax(mConstants.kRotationId);
     mRotationController.enableVoltageCompensation(Constants.kDriveVoltageOpenLoopCompSaturation);
     mRotationController.setSmartCurrentLimit(Constants.kDriveCurrentLimit);
     mRotationController.burnFlash();
 
-    mRotationEncoder = mRotationController.getEncoder();
-    mRotationEncoder.setPositionConversionFactor((int)Constants.kDriveEncoderCPR);
+    mRotationEncoder = new DutyCycleEncoder(mConstants.kRotationEncoderId);
+    mRotationEncoder.setPositionOffset(mConstants.kRotationOffset);
+    mRotationEncoder.setDutyCycleRange(0, Constants.kRotationEncoderCPR);
 
     mPID = new SynchronousPIDF(mConstants.kp, mConstants.ki, mConstants.kd);
     mPID.setInputRange(0, 180);
@@ -74,7 +76,7 @@ public class SwerveModule {
   */
   public void setModule(double wantedAngle, double magnitude) {
     if (TUNING) tuneRobotRotationPID();
-    double currentAngle = (mRotationEncoder.getPosition() - mConstants.kRotationOffset) * 360; // * 360 is to convert from the 0 to 1 of the encoder to 0 to 360
+    double currentAngle = getRotation() * 360; // * 360 is to convert from the 0 to 1 of the encoder to 0 to 360
     currentAngle = Util.clamp(currentAngle, 360, 0, true);
     double distance = Util.getDistance(currentAngle, wantedAngle);
     if (mConstants.kName.equals("Front Right") && DEBUG_MODE) {
@@ -121,7 +123,7 @@ public class SwerveModule {
   
   public void outputTelemetry() {
     SmartDashboard.putNumber("Current Speed: " + mConstants.kName, mDriveController.get());
-    SmartDashboard.putNumber("Current Angle: " + mConstants.kName, (mRotationEncoder.getPosition() - mConstants.kRotationOffset) * 360);
+    SmartDashboard.putNumber("Current Angle: " + mConstants.kName, getRotation() * 360);
   }
   
   private void tuneRobotRotationPID() {
@@ -137,7 +139,7 @@ public class SwerveModule {
   }
   
   public void zeroEncoders() {
-    mRotationEncoder.setPosition(0);
+    mRotationEncoder.reset();
     mDriveEncoder.setPosition(0);
   }
 
@@ -153,16 +155,11 @@ public class SwerveModule {
     return mDriveEncoder.getVelocity() / Constants.kDriveEncoderCPR;
   }
 
-  public double getRotation() {
-    return mRotationEncoder.getPosition() * 360;
+  public double getRotation() { // Degrees
+    return Util.clamp(mRotationEncoder.getAbsolutePosition() - mRotationEncoder.getPositionOffset(), 1, 0, true) * 360;
   }
 
   public double getRotationDelta() {
     return mLastRotation - getRotation();
   }
-  
-  public double getRotationVelocity() {
-    return mRotationEncoder.getVelocity();
-  }
-  
 }
