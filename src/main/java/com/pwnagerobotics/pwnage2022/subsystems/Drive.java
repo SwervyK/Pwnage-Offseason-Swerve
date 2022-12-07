@@ -104,9 +104,11 @@ public class Drive extends Subsystem {
 
     Object[][] module = Kinematics.inverseKinematics(throttle, strafe, rotationX, Math.toRadians(mPeriodicIO.gyro_angle), mCurrentDriveMode == DriveMode.FIELD);
 
-    for (int i = 0; i < module.length; i++) {
+    for (int i = 0; i < module[0].length; i++) {
       mPeriodicIO.module_magnitudes[i] = (double)module[0][i]; 
-      mPeriodicIO.module_angles[i] = ((Rotation2d)module[1][i]).getDegrees();
+      double rotation = ((Rotation2d)module[1][i]).getDegrees();
+      if (rotation < 0) rotation += 360;
+      mPeriodicIO.module_angles[i] = rotation;
     }
   }
 

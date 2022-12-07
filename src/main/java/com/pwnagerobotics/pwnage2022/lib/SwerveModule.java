@@ -70,7 +70,7 @@ public class SwerveModule {
   * @param wantedAngle Module angle (0 is forward)
   * @param magnitude Speed (-1 to 1)
   */
-  public void setModule(double wantedAngle, double magnitude) {
+  public void setModule(double wantedAngle, double magnitude) { // TODO wantedAngle from -180 to 180
     if (TUNING) tuneRobotRotationPID();
     double currentAngle = getRotationDegrees();
     currentAngle = Util.clamp(currentAngle, 360, 0, true);
