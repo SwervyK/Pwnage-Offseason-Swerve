@@ -21,7 +21,6 @@ public class SwerveModule {
     public int kDriveId = 0;
     public int kRotationId = 0;
     public int kRotationEncoderId = 0;
-    public int kPDPId = 0; // TODO remove
     
     public double kp = 0.03;
     public double ki = 0.0;
@@ -51,7 +50,6 @@ public class SwerveModule {
     mDriveController.burnFlash();
 
     mDriveEncoder = mDriveController.getEncoder();
-    mDriveEncoder.setMeasurementPeriod(1);
 
     mRotationController = SparkMaxFactory.createDefaultSparkMax(mConstants.kRotationId);
     mRotationController.enableVoltageCompensation(Constants.kDriveVoltageOpenLoopCompSaturation);
@@ -74,18 +72,18 @@ public class SwerveModule {
   */
   public void setModule(double wantedAngle, double magnitude) {
     if (TUNING) tuneRobotRotationPID();
-    double currentAngle = getRotation();
+    double currentAngle = getRotationDegrees();
     currentAngle = Util.clamp(currentAngle, 360, 0, true);
     double distance = Util.getDistance(currentAngle, wantedAngle);
+
     if (mConstants.kName.equals("Front Right") && DEBUG_MODE) {
       SmartDashboard.putNumber("Magnitude Initial", magnitude);
       SmartDashboard.putNumber("Controller Initial", wantedAngle);
     }
-    // 90 flip
+
     // At higher speeds you need larger angles to flip because of the time is takes to reverse the drive direction
-    // TODO make it scale based on speed not controller
     // Module Speed or Robot Speed?
-    if (false/*magnitude >= 0.75*/) {
+    if (false /*getDriveVelocity() >= Constants.kDrive180Speed*/) {
       if (mLastMagnitude < 0) magnitude *= -1; // Without this wheels will only move forward regardless of their last direction
       if (mFlipped) {
         wantedAngle = Util.clamp(wantedAngle-180, 360, 0, true);
@@ -103,10 +101,10 @@ public class SwerveModule {
     }
 
     if (mConstants.kName.equals("Front Right") && DEBUG_MODE) {
-      System.out.println(getDriveVelocity());
       SmartDashboard.putNumber("Magnitude Final", magnitude);
       SmartDashboard.putNumber("Controller Final", wantedAngle);
     }
+
     if (magnitude == 0) mDriveController.stopMotor();
     else mDriveController.set(ControlType.kDutyCycle, magnitude * Constants.kDriveSlowDown);
     
@@ -117,12 +115,12 @@ public class SwerveModule {
 
     mLastMagnitude = magnitude;
     mLastDrive = getDrive();
-    mLastRotation = getRotation();
+    mLastRotation = getRotationDegrees();
   }
   
   public void outputTelemetry() {
     SmartDashboard.putNumber("Current Speed: " + mConstants.kName, mDriveController.get());
-    SmartDashboard.putNumber("Current Angle: " + mConstants.kName, getRotation());
+    SmartDashboard.putNumber("Current Angle: " + mConstants.kName, getRotationDegrees());
   }
   
   private void tuneRobotRotationPID() {
@@ -143,7 +141,7 @@ public class SwerveModule {
   }
 
   public double getDrive() {
-    return mDriveEncoder.getPosition() / Constants.kDriveEncoderCPR;
+    return mDriveEncoder.getPosition();
   }
 
   public double getDriveDelta() {
@@ -154,11 +152,11 @@ public class SwerveModule {
     return mDriveEncoder.getVelocity();
   }
 
-  public double getRotation() { // Degrees
+  public double getRotationDegrees() {
     return Util.clamp(mRotationEncoder.getAbsolutePosition() - mRotationEncoder.getPositionOffset(), 1, 0, true) * 360;
   }
 
   public double getRotationDelta() {
-    return mLastRotation - getRotation();
+    return mLastRotation - getRotationDegrees();
   }
 }

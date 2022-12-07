@@ -350,7 +350,7 @@ public class Drive extends Subsystem {
       mPeriodicIO.drive_deltas[i] = mModules[i].getDriveDelta();
       mPeriodicIO.drive_velocities[i] = mModules[i].getDriveVelocity();
 
-      mPeriodicIO.rotation_angles[i] = mModules[i].getRotation();
+      mPeriodicIO.rotation_angles[i] = mModules[i].getRotationDegrees();
       mPeriodicIO.rotation_deltas[i] = mModules[i].getRotationDelta();
     }
 
@@ -460,7 +460,7 @@ public class Drive extends Subsystem {
   public Rotation2d[] getModuleRotations() {
     Rotation2d[] rotations = new Rotation2d[4];
     for (int i = 0; i < rotations.length; i++) {
-      rotations[i] = new Rotation2d(mModules[i].getRotation(), false);
+      rotations[i] = new Rotation2d(mModules[i].getRotationDegrees(), false);
     }
     return rotations;
   }
