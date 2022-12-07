@@ -10,8 +10,6 @@ import com.pwnagerobotics.pwnage2022.subsystems.Drive;
 
 import edu.wpi.first.wpilibj.drive.Vector2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
@@ -34,7 +32,7 @@ public class Drive extends Subsystem {
     ROBOT,
     FIELD
   }
-  private DriveMode mCurrentDriveMode = DriveMode.FIELD;
+  private DriveMode mCurrentDriveMode = DriveMode.ROBOT;
   public enum RotationMode {
     ROBOT,
     FIELD
@@ -43,10 +41,9 @@ public class Drive extends Subsystem {
 
   private SynchronousPIDF mFieldCentricRotationPID = new SynchronousPIDF(Constants.kRotationP, Constants.kRotationI, Constants.kRotationD);
   private SynchronousPIDF mCompensationPID = new SynchronousPIDF(Constants.kCompensationP, Constants.kCompensationI, Constants.kCompensationD);
-  private double mCompensationPIDTollerance = Constants.kCompensationErrorLow;
+  private double mCompensationPIDTolerance = Constants.kCompensationErrorLow;
   private SwerveModule[] mModules = new SwerveModule[4];
   private AHRS mNavX = new AHRS();
-  private PowerDistribution PDP = new PowerDistribution(0, ModuleType.kCTRE);
   private double mWantedAngle = 0.0; // Direction the robot should be pointing
   private double mLastNonZeroRobotAngle = 0;
   private double mLastGyro;
@@ -87,12 +84,12 @@ public class Drive extends Subsystem {
     if (rotationX == 0 && Math.abs(gyroDelta()) < Constants.kMinGyroDelta) {
       double distance = Util.getDistance(mPeriodicIO.gyro_angle, mWantedAngle);
       rotationX = Util.clamp(mCompensationPID.calculate(0, distance), 1, -1, false);
-      if (mCompensationPID.onTarget(mCompensationPIDTollerance)) {
+      if (mCompensationPID.onTarget(mCompensationPIDTolerance)) {
         rotationX = 0;
-        mCompensationPIDTollerance = Constants.kCompensationErrorHigh;
+        mCompensationPIDTolerance = Constants.kCompensationErrorHigh;
       }
       if (Math.abs(distance) > Constants.kCompensationErrorHigh) {
-        mCompensationPIDTollerance = Constants.kCompensationErrorLow;
+        mCompensationPIDTolerance = Constants.kCompensationErrorLow;
       }
       if (DEBUG_MODE) SmartDashboard.putBoolean("Compensation Active", true);
       if (DEBUG_MODE) SmartDashboard.putNumber("Compensation Rot", rotationX);
@@ -100,7 +97,7 @@ public class Drive extends Subsystem {
     }
     else {
       mCompensationPID.reset();
-      mCompensationPIDTollerance = Constants.kCompensationErrorLow;
+      mCompensationPIDTolerance = Constants.kCompensationErrorLow;
       mWantedAngle = mPeriodicIO.gyro_angle;
       if (DEBUG_MODE) SmartDashboard.putBoolean("Compensation Active", false);
     }
@@ -122,7 +119,7 @@ public class Drive extends Subsystem {
   */
   public void setSwerveDrive(final double throttle, final double strafe, double rotationX, double rotationY) {
     if (TUNING) tuneRobotRotationPID();
-    double direction = Math.toDegrees(Math.atan2(strafe, throttle)); // Find what angle we want to drive at
+    double direction = Math.toDegrees(Math.atan2(strafe, throttle)); // Find what angle we want to drive at // TODO -180 to 180
     if (direction < 0) direction += 360; // Convert from (-180 to 180) to (0 to 360)
     double magnitude = Math.hypot(Math.abs(strafe), Math.abs(throttle)); // Get wanted speed of robot
     magnitude = XboxDriver.scaleController(Util.clamp(magnitude, 1, 0, false), Constants.kDriveMaxValue, Constants.kDriveMinValue);
@@ -160,12 +157,12 @@ public class Drive extends Subsystem {
     if (rotationX == 0 && Math.abs(gyroDelta()) < Constants.kMinGyroDelta) {
       double distance = Util.getDistance(mPeriodicIO.gyro_angle, mWantedAngle);
       rotationX = Util.clamp(mCompensationPID.calculate(0, distance), 1, -1, false);
-      if (mCompensationPID.onTarget(mCompensationPIDTollerance)) {
+      if (mCompensationPID.onTarget(mCompensationPIDTolerance)) {
         rotationX = 0;
-        mCompensationPIDTollerance = Constants.kCompensationErrorHigh;
+        mCompensationPIDTolerance = Constants.kCompensationErrorHigh;
       }
       if (Math.abs(distance) > Constants.kCompensationErrorHigh) {
-        mCompensationPIDTollerance = Constants.kCompensationErrorLow;
+        mCompensationPIDTolerance = Constants.kCompensationErrorLow;
       }
       if (DEBUG_MODE) SmartDashboard.putBoolean("Compensation Active", true);
       if (DEBUG_MODE) SmartDashboard.putNumber("Compensation Rot", rotationX);
@@ -173,7 +170,7 @@ public class Drive extends Subsystem {
     }
     else {
       mCompensationPID.reset();
-      mCompensationPIDTollerance = Constants.kCompensationErrorLow;
+      mCompensationPIDTolerance = Constants.kCompensationErrorLow;
       mWantedAngle = mPeriodicIO.gyro_angle;
       if (DEBUG_MODE) SmartDashboard.putBoolean("Compensation Active", false);
     }
@@ -182,19 +179,19 @@ public class Drive extends Subsystem {
     //   mGyroLagDelay.update(Timer.getFPGATimestamp(), false);
     // }
 
-    // // When robot is moving slow enough set all module angles to *45 to make us harder to push
-    // if (throttle == 0 && strafe == 0 && rotationX == 0 && rotationY == 0) {
-    //     if (mModules[0].getDeltaDrive() < Constants.kDriveMinSpeed &&
-    //         mModules[1].getDeltaDrive() < Constants.kDriveMinSpeed &&
-    //         mModules[2].getDeltaDrive() < Constants.kDriveMinSpeed &&
-    //         mModules[3].getDeltaDrive() < Constants.kDriveMinSpeed) {
-    //         for (int i = 0; i < mModules.length; i++) {
-    //           mModules[i].setModule(
-    //           getTurnAngle(i%2==0?Constants.kDriveWidth/2:-Constants.kDriveWidth/2, i<2?Constants.kDriveLength/2:-Constants.kDriveLength),0);
-    //         }
-    //     }
-    //   return;
-    // }
+    // When robot is moving slow enough set all module angles to *45 to make us harder to push
+    if (throttle == 0 && strafe == 0 && rotationX == 0 && rotationY == 0) {
+        if (mModules[0].getDriveVelocity() < Constants.kDriveMinSpeed &&
+            mModules[1].getDriveVelocity() < Constants.kDriveMinSpeed &&
+            mModules[2].getDriveVelocity() < Constants.kDriveMinSpeed &&
+            mModules[3].getDriveVelocity() < Constants.kDriveMinSpeed) {
+            for (int i = 0; i < mModules.length; i++) {
+              mModules[i].setModule(
+              getTurnAngle(i%2==0?Constants.kDriveWidth/2:-Constants.kDriveWidth/2, i<2?Constants.kDriveLength/2:-Constants.kDriveLength),0);
+            }
+        }
+      return;
+    }
       
     if (controllerAngle == 0 && magnitude == 0) { // Dont set module direction to 0 if not moving
       direction = mLastNonZeroRobotAngle;
@@ -230,10 +227,6 @@ public class Drive extends Subsystem {
   
   private void setVectorSwerveDrive(double forwardSpeed, double rotationSpeed, double robotAngle) {
     Vector2d[] vectors = new Vector2d[4];
-    // vectors[0] = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 315);
-    // vectors[1] = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 225);
-    // vectors[2] = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 45);
-    // vectors[3] = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed, 135);
     for (int i = 0; i < mModules.length; i++) {
       vectors[i] = addMovementComponents(forwardSpeed, robotAngle, rotationSpeed,
       getTurnAngle(((i%2==0?1:-1)*Constants.kDriveWidth/2)-mRobotCenterX, 
@@ -441,10 +434,6 @@ public class Drive extends Subsystem {
   
   public void setRotationMode(RotationMode mode) {
     mCurrentRotationMode = mode;
-  }
-
-  public double getCurrent(int port) {
-    return PDP.getCurrent(port);
   }
 
   public void setModule(int module, double angle, double magnitude) {

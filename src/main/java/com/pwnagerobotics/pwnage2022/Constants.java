@@ -48,9 +48,9 @@ public class Constants {
 
     // Controller
     public static final double kDriveMaxValue = 1.0;
-    public static final double kDriveMinValue = 0.08;
+    public static final double kDriveMinValue = 0.0;
     public static final double kRotationMaxValue = 1.0;
-    public static final double kRotationMinValue = 0.1;
+    public static final double kRotationMinValue = 0.0;
     public static final double kLeftStickDeadband = 0.1;
     public static final double kRightStickDeadband = 0.15;
     public static final double kPoleSnappingAngle = 10; // +-10 deg
@@ -59,22 +59,22 @@ public class Constants {
     // Drivetrain
     public static final double kDriveWidth = 21.5; //Width between center of drive modules, inches
     public static final double kDriveLength = 21.5; //Width between center of drive modules, inches
-    public static final double kDriveSlowDown = 1.0;
-    public static final double kRotationSlowDown = 1.0;
-    public static final double kDriveMinSpeed = 5; //Last encoder value - current encoder value
+    public static final double kDriveSlowDown = 0.2;
+    public static final double kRotationSlowDown = 0.5;
+    public static final double kDriveMinSpeed = 20;
     public static final int kDriveEncoderCPR = 8192; //Encoder counts per revolution
     public static final int kRotationEncoderCPR = 8192; //Encoder counts per revolution
 
     // Field Centric Rotation
-    public static final double kRotationP = 0.008; // 0.005
-    public static final double kRotationI = 0.0001; // 0.0005
-    public static final double kRotationD = 0.001; // 0.0
+    public static final double kRotationP = 0.0; // 0.008 // 0.005
+    public static final double kRotationI = 0.0; // 0.0001 // 0.0005
+    public static final double kRotationD = 0.0; // 0.001 // 0.0
     public static final double kFieldCentricRotationError = 2;
 
     // Compensation
-    public static final double kCompensationP = 0.008;
-    public static final double kCompensationI = 0.0001;
-    public static final double kCompensationD = 0.001;
+    public static final double kCompensationP = 0.0;
+    public static final double kCompensationI = 0.0;
+    public static final double kCompensationD = 0.0;
     public static final double kCompensationErrorLow = 2;
     public static final double kCompensationErrorHigh = 10;
 
@@ -87,40 +87,36 @@ public class Constants {
     public static final SwerveModuleConstants kFrontRightModuleConstants = new SwerveModuleConstants();
     static {
         kFrontRightModuleConstants.kName = "Front Right";
-        kFrontRightModuleConstants.kDriveId = 1;
-        kFrontRightModuleConstants.kRotationId = 0;
-        kFrontRightModuleConstants.kRotationOffset =  0.092;
-        kFrontRightModuleConstants.kRotationEncoderId = 2;
-        kFrontRightModuleConstants.kPDPId = 3;
+        kFrontRightModuleConstants.kDriveId = 3;
+        kFrontRightModuleConstants.kRotationId = 4;
+        kFrontRightModuleConstants.kRotationOffset =  199.0/360.0;
+        kFrontRightModuleConstants.kRotationEncoderId = 3;
     }
 
     public static final SwerveModuleConstants kFrontLeftModuleConstants = new SwerveModuleConstants();
     static {
         kFrontLeftModuleConstants.kName = "Front Left";
-        kFrontLeftModuleConstants.kDriveId = 5;
-        kFrontLeftModuleConstants.kRotationId = 4;
-        kFrontLeftModuleConstants.kRotationOffset =  0.126;
-        kFrontLeftModuleConstants.kRotationEncoderId = 0;
-        kFrontLeftModuleConstants.kPDPId = 14;
+        kFrontLeftModuleConstants.kDriveId = 1;
+        kFrontLeftModuleConstants.kRotationId = 2;
+        kFrontLeftModuleConstants.kRotationOffset =  252.0/360.0;
+        kFrontLeftModuleConstants.kRotationEncoderId = 1;
    }
 
     public static final SwerveModuleConstants kBackRightModuleConstants = new SwerveModuleConstants();
     static {
         kBackRightModuleConstants.kName = "Back Right";
-        kBackRightModuleConstants.kDriveId = 3;
-        kBackRightModuleConstants.kRotationId = 2;
-        kBackRightModuleConstants.kRotationOffset =  0.735;
-        kBackRightModuleConstants.kRotationEncoderId = 3;
-        kBackRightModuleConstants.kPDPId = 0;
+        kBackRightModuleConstants.kDriveId = 5;
+        kBackRightModuleConstants.kRotationId = 6;
+        kBackRightModuleConstants.kRotationOffset =  21.0/360.0;
+        kBackRightModuleConstants.kRotationEncoderId = 2;
     }
 
     public static final SwerveModuleConstants kBackLeftModuleConstants = new SwerveModuleConstants();
     static {
         kBackLeftModuleConstants.kName = "Back Left";
-        kBackLeftModuleConstants.kDriveId = 9;
-        kBackLeftModuleConstants.kRotationId = 6;
-        kBackLeftModuleConstants.kRotationOffset =  0.189;
-        kBackLeftModuleConstants.kRotationEncoderId = 1;
-        kBackLeftModuleConstants.kPDPId = 15;
+        kBackLeftModuleConstants.kDriveId = 8;
+        kBackLeftModuleConstants.kRotationId = 7;
+        kBackLeftModuleConstants.kRotationOffset =  83.2/360.0;
+        kBackLeftModuleConstants.kRotationEncoderId = 0;
     }
 }

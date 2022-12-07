@@ -5,7 +5,6 @@ import com.team254.lib.drivers.LazySparkMax;
 import com.team254.lib.drivers.SparkMaxFactory;
 import com.team254.lib.util.SynchronousPIDF;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxAlternateEncoder;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 
@@ -22,23 +21,21 @@ public class SwerveModule {
     public int kDriveId = 0;
     public int kRotationId = 0;
     public int kRotationEncoderId = 0;
-    public int kPDPId = 0;
+    public int kPDPId = 0; // TODO remove
     
-    public double kp = 0.01;
-    public double ki = 0.001;
+    public double kp = 0.03;
+    public double ki = 0.0;
     public double kd = 0.0;
     
     public double kRotationOffset = 0.0;
-    public double kRotationError = 3; // Degrees // TODO tune
+    public double kRotationError = 2; // Degrees // TODO tune
     public double kWheelDiameter = 0.0;
   }
   
   private SwerveModuleConstants mConstants;
-  //private MotorController mDriveController;
   private LazySparkMax mDriveController;
   private LazySparkMax mRotationController;
   private RelativeEncoder mDriveEncoder;
-  //private RelativeEncoder mRotationEncoder;
   private DutyCycleEncoder mRotationEncoder;
   private SynchronousPIDF mPID;
   private double mLastMagnitude = 0;
@@ -53,7 +50,8 @@ public class SwerveModule {
     mDriveController.setSmartCurrentLimit(Constants.kDriveCurrentLimit);
     mDriveController.burnFlash();
 
-    mDriveEncoder = mDriveController.getAlternateEncoder(SparkMaxAlternateEncoder.Type.kQuadrature, Constants.kDriveEncoderCPR);
+    mDriveEncoder = mDriveController.getEncoder();
+    mDriveEncoder.setMeasurementPeriod(1);
 
     mRotationController = SparkMaxFactory.createDefaultSparkMax(mConstants.kRotationId);
     mRotationController.enableVoltageCompensation(Constants.kDriveVoltageOpenLoopCompSaturation);
@@ -65,7 +63,7 @@ public class SwerveModule {
     mRotationEncoder.setDutyCycleRange(0, Constants.kRotationEncoderCPR);
 
     mPID = new SynchronousPIDF(mConstants.kp, mConstants.ki, mConstants.kd);
-    mPID.setInputRange(0, 180);
+    mPID.setInputRange(-180, 180);
     mPID.setOutputRange(-1, 1);
   }
   
@@ -76,7 +74,7 @@ public class SwerveModule {
   */
   public void setModule(double wantedAngle, double magnitude) {
     if (TUNING) tuneRobotRotationPID();
-    double currentAngle = getRotation() * 360; // * 360 is to convert from the 0 to 1 of the encoder to 0 to 360
+    double currentAngle = getRotation();
     currentAngle = Util.clamp(currentAngle, 360, 0, true);
     double distance = Util.getDistance(currentAngle, wantedAngle);
     if (mConstants.kName.equals("Front Right") && DEBUG_MODE) {
@@ -86,8 +84,8 @@ public class SwerveModule {
     // 90 flip
     // At higher speeds you need larger angles to flip because of the time is takes to reverse the drive direction
     // TODO make it scale based on speed not controller
-    // Module Speed or Robot Speed?    
-    if (magnitude >= 0.75) {
+    // Module Speed or Robot Speed?
+    if (false/*magnitude >= 0.75*/) {
       if (mLastMagnitude < 0) magnitude *= -1; // Without this wheels will only move forward regardless of their last direction
       if (mFlipped) {
         wantedAngle = Util.clamp(wantedAngle-180, 360, 0, true);
@@ -105,14 +103,15 @@ public class SwerveModule {
     }
 
     if (mConstants.kName.equals("Front Right") && DEBUG_MODE) {
+      System.out.println(getDriveVelocity());
       SmartDashboard.putNumber("Magnitude Final", magnitude);
       SmartDashboard.putNumber("Controller Final", wantedAngle);
     }
     if (magnitude == 0) mDriveController.stopMotor();
     else mDriveController.set(ControlType.kDutyCycle, magnitude * Constants.kDriveSlowDown);
     
-    mPID.setSetpoint(-distance);
-    double rotationSpeed = Util.clamp(mPID.calculate(0), 1, -1, false);
+    mPID.setSetpoint(distance);
+    double rotationSpeed = mPID.calculate(0);
     if (mPID.onTarget(mConstants.kRotationError)) mRotationController.set(0);
     else mRotationController.set(ControlType.kDutyCycle, rotationSpeed * Constants.kRotationSlowDown);
 
@@ -123,7 +122,7 @@ public class SwerveModule {
   
   public void outputTelemetry() {
     SmartDashboard.putNumber("Current Speed: " + mConstants.kName, mDriveController.get());
-    SmartDashboard.putNumber("Current Angle: " + mConstants.kName, getRotation() * 360);
+    SmartDashboard.putNumber("Current Angle: " + mConstants.kName, getRotation());
   }
   
   private void tuneRobotRotationPID() {
@@ -152,7 +151,7 @@ public class SwerveModule {
   }
 
   public double getDriveVelocity() {
-    return mDriveEncoder.getVelocity() / Constants.kDriveEncoderCPR;
+    return mDriveEncoder.getVelocity();
   }
 
   public double getRotation() { // Degrees

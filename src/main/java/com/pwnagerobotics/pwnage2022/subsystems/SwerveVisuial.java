@@ -132,7 +132,7 @@ public class SwerveVisuial {
 
             double motorValue = 0;
             // PID
-            motorValue = pidController.calculate(0, -distance);
+            motorValue = 0;//pidController.calculate(0, -distance);
             motorValue /= 64;
             if (pidController.atSetpoint()) motorValue = 0;
             
