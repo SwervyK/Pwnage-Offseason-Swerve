@@ -133,14 +133,13 @@ public class Kinematics {
      * https://www.chiefdelphi.com/t/paper-4-wheel-independent-drive-independent-steering-swerve/107383
      */
 
-    public static Object[][] inverseKinematics(double forward, double strafe, double rotation, boolean field_relative) {
-        return inverseKinematics(forward, strafe, rotation, field_relative, true);
+    public static Object[][] inverseKinematics(double forward, double strafe, double rotation, double gyroHeading, boolean field_relative) {
+        return inverseKinematics(forward, strafe, rotation, gyroHeading, field_relative, true);
     }
 
-    public static Object[][] inverseKinematics(double forward, double strafe, double rotation, boolean field_relative,
+    public static Object[][] inverseKinematics(double forward, double strafe, double rotation, double gyroHeading, boolean field_relative,
                                                 boolean normalize_outputs) {
         if (field_relative) {
-            double gyroHeading = Drive.getInstance().getGyro();
             double temp = forward * Math.cos(gyroHeading) + strafe * Math.sin(gyroHeading);
             strafe = -forward * Math.sin(gyroHeading) + strafe * Math.cos(gyroHeading);
             forward = temp;
@@ -154,8 +153,8 @@ public class Kinematics {
         Double[] wheel_speeds = new Double[4];
         wheel_speeds[0] = Math.hypot(B, C);
         wheel_speeds[1] = Math.hypot(B, D);
-        wheel_speeds[2] = Math.hypot(A, D);
-        wheel_speeds[3] = Math.hypot(A, C);
+        wheel_speeds[3] = Math.hypot(A, D);
+        wheel_speeds[2] = Math.hypot(A, C);
 
         // normalize wheel speeds if above 1
         if (normalize_outputs) {
@@ -174,8 +173,8 @@ public class Kinematics {
         Rotation2d[] wheel_azimuths = new Rotation2d[4];
         wheel_azimuths[0] = Rotation2d.fromRadians(Math.atan2(B, C));
         wheel_azimuths[1] = Rotation2d.fromRadians(Math.atan2(B, D));
-        wheel_azimuths[2] = Rotation2d.fromRadians(Math.atan2(A, D));
-        wheel_azimuths[3] = Rotation2d.fromRadians(Math.atan2(A, C));
+        wheel_azimuths[3] = Rotation2d.fromRadians(Math.atan2(A, D));
+        wheel_azimuths[2] = Rotation2d.fromRadians(Math.atan2(A, C));
 
         return new Object[][]{wheel_speeds, wheel_azimuths};
     }

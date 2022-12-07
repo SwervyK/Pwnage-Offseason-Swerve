@@ -102,7 +102,7 @@ public class Drive extends Subsystem {
       if (DEBUG_MODE) SmartDashboard.putBoolean("Compensation Active", false);
     }
 
-    Object[][] module = Kinematics.inverseKinematics(throttle, strafe, rotationX, mCurrentDriveMode == DriveMode.FIELD);
+    Object[][] module = Kinematics.inverseKinematics(throttle, strafe, rotationX, Math.toRadians(mPeriodicIO.gyro_angle), mCurrentDriveMode == DriveMode.FIELD);
 
     for (int i = 0; i < module.length; i++) {
       mPeriodicIO.module_magnitudes[i] = (double)module[0][i]; 
