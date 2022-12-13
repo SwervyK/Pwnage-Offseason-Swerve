@@ -62,21 +62,21 @@ public class XboxDriver {
 
     /**
     * Returns value if value is greater that deadband or opposite is greater that deadband and squares it
-    * @param value Value to modify
-    * @param opposite Opposite controller value
+    * @param controllerValue Controller value
+    * @param oppositeControllerValue Opposite controller value
     * @param deadband Minimum value controller needs to read to be considered valid
     * @return Modified value
     */
-    private static double modifyAxis(double value, double opposite, double deadband) {
+    private static double modifyAxis(double controllerValue, double oppositeControllerValue, double deadband) {
         // Deadband
-        if (Math.abs(value) < deadband && Math.abs(opposite) < deadband) {
+        if (Math.abs(controllerValue) < deadband && Math.abs(oppositeControllerValue) < deadband) {
             return 0;
         }
-        value = ((Math.abs(value) * (1-deadband)) + deadband) * Math.signum(value);
+        controllerValue = ((Math.abs(controllerValue) * (1-deadband)) + deadband) * Math.signum(controllerValue);
         
         // Square the axis
-        value = Math.copySign(value * value, value);
+        controllerValue = Math.copySign(controllerValue * controllerValue, controllerValue);
         
-        return value;
+        return controllerValue;
     }
 }

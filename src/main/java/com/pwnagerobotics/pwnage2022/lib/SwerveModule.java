@@ -37,6 +37,7 @@ public class SwerveModule {
   private RelativeEncoder mDriveEncoder;
   private DutyCycleEncoder mRotationEncoder;
   private SynchronousPIDF mPID;
+
   private double mLastMagnitude = 0;
   private double mLastDrive = 0;
   private double mLastRotation = 0;
@@ -72,9 +73,8 @@ public class SwerveModule {
   */
   public void setModule(double wantedAngle, double magnitude) { // TODO wantedAngle from -180 to 180
     if (TUNING) tuneRobotRotationPID();
-    double currentAngle = getRotationDegrees();
-    currentAngle = Util.clamp(currentAngle, 360, 0, true);
-    double distance = Util.getDistance(currentAngle, wantedAngle);
+    double currentAngle = SwerveDriveHelper.clamp(getRotationDegrees(), 360, 0, true); // Gets current angle from rotation encoder
+    double distance = SwerveDriveHelper.getDistance(currentAngle, wantedAngle);
 
     if (mConstants.kName.equals("Front Right") && DEBUG_MODE) {
       SmartDashboard.putNumber("Magnitude Initial", magnitude);
@@ -82,17 +82,16 @@ public class SwerveModule {
     }
 
     // At higher speeds you need larger angles to flip because of the time is takes to reverse the drive direction
-    // Module Speed or Robot Speed?
     if (false /*getDriveVelocity() >= Constants.kDrive180Speed*/) {
       if (mLastMagnitude < 0) magnitude *= -1; // Without this wheels will only move forward regardless of their last direction
       if (mFlipped) {
-        wantedAngle = Util.clamp(wantedAngle-180, 360, 0, true);
-        distance = Util.getDistance(currentAngle, wantedAngle);
+        wantedAngle = SwerveDriveHelper.clamp(wantedAngle-180, 360, 0, true);
+        distance = SwerveDriveHelper.getDistance(currentAngle, wantedAngle);
       }
     }
     else if (Math.abs(distance) > 90) { // Makes sure the robot is taking the most optimal path when rotating modules
-      wantedAngle = Util.clamp(wantedAngle-180, 360, 0, true);
-      distance = Util.getDistance(currentAngle, wantedAngle);
+      wantedAngle = SwerveDriveHelper.clamp(wantedAngle-180, 360, 0, true);
+      distance = SwerveDriveHelper.getDistance(currentAngle, wantedAngle);
       magnitude *= -1;
       mFlipped = true;
     }
@@ -153,7 +152,7 @@ public class SwerveModule {
   }
 
   public double getRotationDegrees() {
-    return Util.clamp(mRotationEncoder.getAbsolutePosition() - mRotationEncoder.getPositionOffset(), 1, 0, true) * 360;
+    return SwerveDriveHelper.clamp(mRotationEncoder.getAbsolutePosition() - mRotationEncoder.getPositionOffset(), 1, 0, true) * 360;
   }
 
   public double getRotationDelta() {
