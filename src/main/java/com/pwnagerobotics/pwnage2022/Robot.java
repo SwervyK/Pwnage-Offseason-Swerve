@@ -153,8 +153,7 @@ public class Robot extends TimedRobot {
     //mDrive.setDriveMode(wantFieldCentricDrive ? DriveMode.FIELD : DriveMode.ROBOT);
     //mDrive.jukeMove(jukeRight, jukeLeft);
     //mDrive.setRotationMode(wantFieldCentricRotation ? RotationMode.FIELD : RotationMode.ROBOT);
-    mDrive.setSwerveDrive(throttle, strafe, rotationX, rotationY);
-    //mDrive.setKinematicsDrive(throttle, strafe, rotationX, rotationY);
+    mDrive.setKinematicsDrive(throttle, strafe, rotationX, rotationY);
     
     if (wantGyroReset) {
       mDrive.zeroSensors();

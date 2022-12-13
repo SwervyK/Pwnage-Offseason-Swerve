@@ -125,23 +125,33 @@ public class Kinematics {
         return new Translation2d[] {frontRight, frontLeft, backRight, backLeft};
     }
 
-    /**
-     * Provides forward and inverse kinematics equations for the robot modeling the
-     * wheelbase as a swerve drive.
-     * <p>
-     * Equations extrapolated through papers by Ether, then corrected for our frame of reference:
-     * https://www.chiefdelphi.com/t/paper-4-wheel-independent-drive-independent-steering-swerve/107383
-     */
 
-    public static Object[][] inverseKinematics(double forward, double strafe, double rotation, double gyroHeading, boolean field_relative) {
-        return inverseKinematics(forward, strafe, rotation, gyroHeading, field_relative, true);
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public static Object[][] inverseKinematics(double[] controllerInputs, double gyroHeadingRadians, boolean field_relative) {
+        return inverseKinematics(controllerInputs[0], controllerInputs[1], controllerInputs[2], gyroHeadingRadians, field_relative, true);
     }
 
-    public static Object[][] inverseKinematics(double forward, double strafe, double rotation, double gyroHeading, boolean field_relative,
+    public static Object[][] inverseKinematics(double forward, double strafe, double rotation, double gyroHeadingRadians, boolean field_relative) {
+        return inverseKinematics(forward, strafe, rotation, gyroHeadingRadians, field_relative, true);
+    }
+
+    public static Object[][] inverseKinematics(double forward, double strafe, double rotation, double gyroHeadingRadians, boolean field_relative,
                                                 boolean normalize_outputs) {
         if (field_relative) {
-            double temp = forward * Math.cos(gyroHeading) + strafe * Math.sin(gyroHeading);
-            strafe = -forward * Math.sin(gyroHeading) + strafe * Math.cos(gyroHeading);
+            double temp = forward * Math.cos(gyroHeadingRadians) + strafe * Math.sin(gyroHeadingRadians);
+            strafe = -forward * Math.sin(gyroHeadingRadians) + strafe * Math.cos(gyroHeadingRadians);
             forward = temp;
         }
 
