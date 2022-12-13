@@ -89,7 +89,7 @@ public class SwerveDriveHelper {
     // direction, magnitude
     public static double[] applyControlEffects(double throttle, double strafe, double rotationX, double rotationY, DriveMode mode, double gyroDegrees) {
         double direction = Math.toDegrees(Math.atan2(strafe, throttle)); // Find what angle we want to drive at // TODO -180 to 180
-        if (direction < 0) direction += 360; // Convert from (-180 to 180) to (0 to 360)
+        if (direction < 0) direction += 360; // Convert from (-180 to 180) to (0 to 360) // TODO use vecotrs
         double magnitude = Math.hypot(Math.abs(strafe), Math.abs(throttle)); // Get wanted speed of robot
         magnitude = XboxDriver.scaleController(SwerveDriveHelper.clamp(magnitude, 1, 0, false), Constants.kDriveMaxValue, Constants.kDriveMinValue);
 
