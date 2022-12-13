@@ -4,6 +4,8 @@
 
 package com.pwnagerobotics.pwnage2022;
 
+import org.opencv.core.Mat;
+
 import com.pwnagerobotics.pwnage2022.auto.Action;
 import com.pwnagerobotics.pwnage2022.auto.Action.RobotState;
 import com.pwnagerobotics.pwnage2022.auto.Autos;
@@ -15,6 +17,10 @@ import com.pwnagerobotics.pwnage2022.subsystems.Drive.DriveMode;
 import com.pwnagerobotics.pwnage2022.subsystems.Drive.RotationMode;
 import com.pwnagerobotics.pwnage2022.subsystems.RobotStateEstimator;
 import com.team254.lib.drivers.LazySparkMax;
+import com.team254.lib.geometry.Pose2d;
+import com.team254.lib.geometry.Rotation2d;
+import com.team254.lib.geometry.Translation2d;
+import com.team254.lib.geometry.Twist2d;
 import com.team254.lib.subsystems.SubsystemManager;
 
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
@@ -172,6 +178,39 @@ public class Robot extends TimedRobot {
   
   @Override
   public void testInit() {
+    double x = 1;
+    double y = 1;
+    Rotation2d rotation = new Rotation2d(0, false); // Radians
+
+    {
+      Pose2d robotVelocity = new Pose2d(x, y, rotation);
+      Translation2d[] modules = Kinematics.inverseKinematics(robotVelocity);
+      System.out.println("Kinematics.inverseKinematics");
+      System.out.println("Angle: " + modules[0].direction().getDegrees()); // front right
+      System.out.println("Mag: " + modules[0].norm());
+    }
+    {
+      Translation2d[] moduleStates = new Translation2d[4];
+      for (int i = 0; i < moduleStates.length; i++) moduleStates[i] = new Translation2d(x, y);
+      Pose2d robot  = Kinematics.forwardKinematics(moduleStates);
+      System.out.println("Kinematics.forwardKinematics Pose");
+      System.out.println("X: " + robot.getTranslation().x());
+      System.out.println("Y: " + robot.getTranslation().y());
+      System.out.println("rot" + robot.getRotation().getDegrees());
+    }
+    {
+      double[] wheel_speeds = new double[4];
+      Rotation2d[] wheel_azimuths = new Rotation2d[4];
+      for (int i = 0; i < wheel_speeds.length; i++) {
+        wheel_speeds[i] = Math.hypot(x, y);
+        wheel_azimuths[i] = new Rotation2d(x, y, false);
+      } 
+      Twist2d robot  = Kinematics.forwardKinematics(wheel_speeds, wheel_azimuths);
+      System.out.println("Kinematics.forwardKinematics Twist");
+      System.out.println("X: " + robot.dx);
+      System.out.println("Y: " + robot.dy);
+      System.out.println("rot" + robot.dtheta);
+    }
   }
 
   @Override
