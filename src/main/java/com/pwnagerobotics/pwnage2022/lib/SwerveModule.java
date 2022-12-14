@@ -1,5 +1,6 @@
 package com.pwnagerobotics.pwnage2022.lib;
 
+import com.ctre.phoenix.sensors.WPI_CANCoder;
 import com.pwnagerobotics.pwnage2022.Constants;
 import com.team254.lib.drivers.LazySparkMax;
 import com.team254.lib.drivers.SparkMaxFactory;
@@ -8,7 +9,6 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveModule {
@@ -35,7 +35,8 @@ public class SwerveModule {
   private LazySparkMax mDriveController;
   private LazySparkMax mRotationController;
   private RelativeEncoder mDriveEncoder;
-  private DutyCycleEncoder mRotationEncoder;
+  private WPI_CANCoder mRotationEncoder;
+
   private SynchronousPIDF mPID;
 
   private double mLastMagnitude = 0;
@@ -57,9 +58,8 @@ public class SwerveModule {
     mRotationController.setSmartCurrentLimit(Constants.kDriveCurrentLimit);
     mRotationController.burnFlash();
 
-    mRotationEncoder = new DutyCycleEncoder(mConstants.kRotationEncoderId);
-    mRotationEncoder.setPositionOffset(mConstants.kRotationOffset);
-    mRotationEncoder.setDutyCycleRange(0, Constants.kRotationEncoderCPR);
+    mRotationEncoder = new WPI_CANCoder(0);
+    mRotationEncoder.configMagnetOffset(mConstants.kRotationOffset);
 
     mPID = new SynchronousPIDF(mConstants.kp, mConstants.ki, mConstants.kd);
     mPID.setInputRange(-180, 180);
@@ -135,7 +135,7 @@ public class SwerveModule {
   }
   
   public void zeroEncoders() {
-    mRotationEncoder.reset();
+    mRotationEncoder.setPosition(0);
     mDriveEncoder.setPosition(0);
   }
 
@@ -158,7 +158,7 @@ public class SwerveModule {
   }
 
   public double getRotationDegrees() {
-    return SwerveDriveHelper.clamp(mRotationEncoder.getAbsolutePosition() - mRotationEncoder.getPositionOffset(), 1, 0, true) * 360;
+    return SwerveDriveHelper.clamp(mRotationEncoder.getAbsolutePosition() - mRotationEncoder.getPosition(), 1, 0, true) * 360;
   }
 
   public double getRotationDelta() {
