@@ -66,11 +66,8 @@ public class SwerveDriveHelper {
             poleSin = Math.signum(sin);
         }
         double pole = Math.atan2(poleSin, poleCos);
-        if (pole < 0) pole += 2*Math.PI;
-        if (angle > Math.PI && poleCos == 1) pole = 2*Math.PI;
         if (Math.abs(pole - angle) <= threshold) {
-            double result = Math.atan2(poleSin, poleCos);
-            return result;
+            return pole;
         }
         else {
             return angle;
