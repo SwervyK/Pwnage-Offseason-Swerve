@@ -11,7 +11,7 @@ import com.team254.lib.geometry.Twist2d;
  * Provides forward and inverse kinematics equations for the robot modeling the wheelbase as a differential drive (with
  * a corrective factor to account for skidding).
  */
-// INFO means refrence
+// INFO means reference
 public class Kinematics {
     private static SimpleMatrix mInverseKinematics = new SimpleMatrix(4 * 2, 3); // INFO SwerveDriveKinematics.m_inverseKinematics
     static {
@@ -138,26 +138,26 @@ public class Kinematics {
     // WORKS //
 
 
-    public static Object[][] inverseKinematics(double[] controllerInputs, double gyroHeadingRadians, boolean field_relative) {
-        return inverseKinematics(controllerInputs[0], controllerInputs[1], controllerInputs[2], gyroHeadingRadians, field_relative, true);
+    public static Object[][] inverseKinematics(double[] controllerInputs, double gyroHeadingRadians, boolean field_relative, double[] robotCenterDisplacement) {
+        return inverseKinematics(controllerInputs[0], controllerInputs[1], controllerInputs[2], gyroHeadingRadians, field_relative, true, robotCenterDisplacement);
     }
 
-    public static Object[][] inverseKinematics(double forward, double strafe, double rotation, double gyroHeadingRadians, boolean field_relative) {
-        return inverseKinematics(forward, strafe, rotation, gyroHeadingRadians, field_relative, true);
+    public static Object[][] inverseKinematics(double forward, double strafe, double rotation, double gyroHeadingRadians, boolean field_relative, double[] robotCenterDisplacement) {
+        return inverseKinematics(forward, strafe, rotation, gyroHeadingRadians, field_relative, true, robotCenterDisplacement);
     }
 
     public static Object[][] inverseKinematics(double forward, double strafe, double rotation, double gyroHeadingRadians, boolean field_relative,
-                                                boolean normalize_outputs) {
+                                                boolean normalize_outputs, double[] robotCenterDisplacement) {
         if (field_relative) {
             double temp = forward * Math.cos(gyroHeadingRadians) + strafe * Math.sin(gyroHeadingRadians);
             strafe = -forward * Math.sin(gyroHeadingRadians) + strafe * Math.cos(gyroHeadingRadians);
             forward = temp;
         }
 
-        double A = strafe - rotation * L / R;
-        double B = strafe + rotation * L / R;
-        double C = forward - rotation * W / R;
-        double D = forward + rotation * W / R;
+        double A = strafe - rotation * L / R + robotCenterDisplacement[0];
+        double B = strafe + rotation * L / R + robotCenterDisplacement[0];
+        double C = forward - rotation * W / R + robotCenterDisplacement[1];
+        double D = forward + rotation * W / R + robotCenterDisplacement[1];
 
         Double[] wheel_speeds = new Double[4];
         wheel_speeds[0] = Math.hypot(B, C);
