@@ -180,7 +180,7 @@ public class Robot extends TimedRobot {
   public void testInit() {
     double x = 1;
     double y = 1;
-    Rotation2d rotation = new Rotation2d(0, false); // Radians
+    Rotation2d rotation = new Rotation2d(Math.PI, false); // Radians
 
     {
       Pose2d robotVelocity = new Pose2d(x, y, rotation);
