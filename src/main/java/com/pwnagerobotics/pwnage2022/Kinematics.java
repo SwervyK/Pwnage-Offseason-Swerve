@@ -113,8 +113,8 @@ public class Kinematics {
     public static Translation2d[] inverseKinematics(Pose2d velocity) { // https://www.chiefdelphi.com/t/paper-4-wheel-independent-drive-independent-steering-swerve/107383
         double x = velocity.getTranslation().x();
         double y = velocity.getTranslation().y();
-        double rl = velocity.getRotation().getDegrees()*Constants.kDriveLength/2;
-        double rw =velocity.getRotation().getDegrees()*Constants.kDriveWidth/2;
+        double rl = velocity.getRotation().getDegrees()*L/2;
+        double rw =velocity.getRotation().getDegrees()*W/2;
 
         Translation2d frontRight = new Translation2d(x + rl, y + rw);
         Translation2d frontLeft = new Translation2d(x + rl, y - rw);
@@ -167,12 +167,10 @@ public class Kinematics {
 
         // normalize wheel speeds if above 1
         if (normalize_outputs) {
-            double max_speed = 1;
-            for (int i = 0; i < wheel_speeds.length; i++) {
-                if (Math.abs(wheel_speeds[i]) > max_speed) {
-                    max_speed = Math.abs(wheel_speeds[i]);
-                }
-            }
+            double max_speed = Math.max(wheel_speeds[0],
+                                Math.max(wheel_speeds[1],
+                                Math.max(wheel_speeds[2],
+                                Math.max(wheel_speeds[3], 1))));
 
             for (var i = 0; i < wheel_speeds.length; i++) {
                 wheel_speeds[i] /= max_speed;
