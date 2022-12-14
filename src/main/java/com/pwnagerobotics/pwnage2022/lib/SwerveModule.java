@@ -71,10 +71,10 @@ public class SwerveModule {
   * @param wantedAngle Module angle (0 is forward)
   * @param magnitude Speed (-1 to 1)
   */
-  public void setModule(double wantedAngle, double magnitude) { // TODO wantedAngle from -180 to 180
+  public void setModuleDegrees(double wantedAngle, double magnitude) { // TODO wantedAngle from -180 to 180
     if (TUNING) tuneRobotRotationPID();
     double currentAngle = SwerveDriveHelper.clamp(getRotationDegrees(), 360, 0, true); // Gets current angle from rotation encoder
-    double distance = SwerveDriveHelper.getAngularDistance(currentAngle, wantedAngle);
+    double distance = SwerveDriveHelper.getAngularDistance(currentAngle, wantedAngle, 360);
 
     if (mConstants.kName.equals("Front Right") && DEBUG_MODE) {
       SmartDashboard.putNumber("Magnitude Initial", magnitude);
@@ -86,12 +86,12 @@ public class SwerveModule {
       if (mLastMagnitude < 0) magnitude *= -1; // Without this wheels will only move forward regardless of their last direction
       if (mFlipped) {
         wantedAngle = SwerveDriveHelper.clamp(wantedAngle-180, 360, 0, true);
-        distance = SwerveDriveHelper.getAngularDistance(currentAngle, wantedAngle);
+        distance = SwerveDriveHelper.getAngularDistance(currentAngle, wantedAngle, 360);
       }
     }
     else if (Math.abs(distance) > 90) { // Makes sure the robot is taking the most optimal path when rotating modules
       wantedAngle = SwerveDriveHelper.clamp(wantedAngle-180, 360, 0, true);
-      distance = SwerveDriveHelper.getAngularDistance(currentAngle, wantedAngle);
+      distance = SwerveDriveHelper.getAngularDistance(currentAngle, wantedAngle, 360);
       magnitude *= -1;
       mFlipped = true;
     }

@@ -24,25 +24,16 @@ public class SwerveDriveHelper {
     }
 
     // Get shortest distance between 2 points
-    // Pass in a value between 0 and 360
-    // Returns a value between 0 and 180
-    public static double getAngularDistance(double current, double wanted) {
+    // Pass in a value between 0 and maxAngle
+    // Returns a value between 0 and maxAngle/2
+    public static double getAngularDistance(double current, double wanted, double maxAngle) {
         double difference = wanted - current;
-        if (Math.abs(difference) > 180) difference += 360 * -Math.signum(difference);
+        if (Math.abs(difference) > maxAngle/2) difference += maxAngle * -Math.signum(difference);
             return difference;
     }
 
-    // Get module rotation angles using x and y position relative to center of robot
-    // EX: on a square robot everything is 45 degrees
-    public static double getTurnAngle(double xPos, double yPos) {
-        double theta = Math.toDegrees(Math.atan2(yPos, xPos));
-        if (theta > 0) theta -= 360;
-        return Math.abs(theta);
-    }
-
     public static double[] jukeMove(boolean jukeRight, boolean jukeLeft, double direction, double centerX, double centerY) {
-        if (direction < 0) direction += 360;
-        int side = (int)(nearestPoleSnap(direction, 45)/90);
+        int side = (int)(nearestPoleSnapRadians(direction, Math.PI/4)/Math.PI/2);
         if (jukeRight && centerX == 0 && centerY == 0) {
             centerX = Constants.kDriveWidth*(side<2?1:-1);
             centerY = Constants.kDriveLength*(side==0||side==3?1:-1);
@@ -61,40 +52,40 @@ public class SwerveDriveHelper {
     }
 
     // Get nearest pole of an angle (N S E W)
-    private static double nearestPoleSnap(double angle, double threshold) {
+    private static double nearestPoleSnapRadians(double angle, double threshold) {
         double poleSin = 0.0;
         double poleCos = 0.0;
-        double sin = Math.sin(Math.toRadians(angle));
-        double cos = Math.cos(Math.toRadians(angle));
+        double sin = Math.sin(angle);
+        double cos = Math.cos(angle);
         if (Math.abs(cos) > Math.abs(sin)) {
-        poleCos = Math.signum(cos);
-        poleSin = 0.0;
+            poleCos = Math.signum(cos);
+            poleSin = 0.0;
         } 
         else {
-        poleCos = 0.0;
-        poleSin = Math.signum(sin);
+            poleCos = 0.0;
+            poleSin = Math.signum(sin);
         }
         double pole = Math.atan2(poleSin, poleCos);
         if (pole < 0) pole += 2*Math.PI;
-        if (Math.toRadians(angle) > Math.PI && poleCos == 1) pole = 2*Math.PI;
-        if (Math.abs(pole - Math.toRadians(angle)) <= Math.toRadians(threshold)) {
-        double result = Math.toDegrees(Math.atan2(poleSin, poleCos));
-        if (result < 0) result += 360;
-        return result;
+        if (angle > Math.PI && poleCos == 1) pole = 2*Math.PI;
+        if (Math.abs(pole - angle) <= threshold) {
+            double result = Math.atan2(poleSin, poleCos);
+            return result;
         }
-        else 
-        return angle;
+        else {
+            return angle;
+        }
     }
 
     // direction, magnitude
-    public static double[] applyControlEffects(double throttle, double strafe, double rotationX, double rotationY, DriveMode mode, double gyroDegrees) {
-        double direction = Math.toDegrees(Math.atan2(strafe, throttle)); // Find what angle we want to drive at // TODO -180 to 180
-        if (direction < 0) direction += 360; // Convert from (-180 to 180) to (0 to 360) // TODO use vectors
+    public static double[] applyControlEffects(double throttle, double strafe, double rotationX, double rotationY, DriveMode mode, double gyroRadians) {
+        // TODO use vectors
+        double direction = Math.atan2(strafe, throttle); // Find what angle we want to drive at
         double magnitude = Math.hypot(Math.abs(strafe), Math.abs(throttle)); // Get wanted speed of robot
         magnitude = XboxDriver.scaleController(SwerveDriveHelper.clamp(magnitude, 1, 0, false), Constants.kDriveMaxValue, Constants.kDriveMinValue);
 
         // Pole Snapping
-        if (magnitude > Constants.kPoleSnappingThreshold) direction = nearestPoleSnap(direction-((mode == DriveMode.FIELD)?0:gyroDegrees), Constants.kPoleSnappingAngle);
+        if (magnitude > Constants.kPoleSnappingThreshold) direction = nearestPoleSnapRadians(direction-((mode == DriveMode.FIELD)?0:gyroRadians), Constants.kPoleSnappingAngle);
         return new double[] {direction, magnitude};
     }
 

@@ -53,7 +53,7 @@ public class Constants {
     public static final double kRotationMinValue = 0.0;// TUNE
     public static final double kLeftStickDeadband = 0.1;
     public static final double kRightStickDeadband = 0.15;
-    public static final double kPoleSnappingAngle = 10; // +-10 deg
+    public static final double kPoleSnappingAngle = Math.toRadians(10); // +-10 deg
     public static final double kPoleSnappingThreshold = 0.5; // mag > threshold
 
     // Drivetrain

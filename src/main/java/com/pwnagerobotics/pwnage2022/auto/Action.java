@@ -42,12 +42,10 @@ public class Action {
         public double kRobotAngle;
 
         public ControllerState(double throttle, double strafe, double rotationX, double rotationY) {
-            kDirection = Math.toDegrees(Math.atan2(strafe, throttle));
-            if (kDirection < 0) kDirection += 360;
+            kDirection = Math.atan2(strafe, throttle);
             kMagnitude = Math.hypot(Math.abs(strafe), Math.abs(throttle));
             kRotationSpeed = rotationX;
-            kRobotAngle = Math.toDegrees(Math.atan2(rotationX, rotationY));
-            if (kRobotAngle < 0) kRobotAngle += 360;
+            kRobotAngle = Math.atan2(rotationX, rotationY);
         }
     }
 
@@ -64,12 +62,12 @@ public class Action {
     }
 
     public double[] getDrive() { // throttle and strafe
-        return new double[] {kMagnitude*Math.sin(Math.toRadians(kDirection)), kMagnitude*Math.cos(Math.toRadians(kDirection))};
+        return new double[] {kMagnitude*Math.sin(kDirection), kMagnitude*Math.cos(kDirection)};
     }
 
     public double[] getRotation() { // rotationX and rotationY
         if (kFieldCentricRotation) {
-            return new double[] {Math.cos(Math.toRadians(kRobotAngle)), Math.sin(Math.toRadians(kRobotAngle))};
+            return new double[] {Math.cos(kRobotAngle), Math.sin(kRobotAngle)};
         } else {
             return new double[] {kRotationSpeed, 0};
         }

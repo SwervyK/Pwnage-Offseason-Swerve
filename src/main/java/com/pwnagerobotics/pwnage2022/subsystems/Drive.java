@@ -43,7 +43,7 @@ public class Drive extends Subsystem {
   private double mCompensationPIDTolerance = Constants.kCompensationErrorLow;
   private SwerveModule[] mModules = new SwerveModule[4];
   private AHRS mNavX = new AHRS();
-  private double mWantedAngle = 0.0; // Direction the robot should be pointing
+  private double mWantedRobotAngleRadians = 0.0; // Direction the robot should be pointing
   private double mLastNonZeroRobotAngle = 0;
   private double mLastGyro = 0;
   private double mRobotCenterDisplacementX = 0;
@@ -67,16 +67,15 @@ public class Drive extends Subsystem {
   public void setKinematicsDrive(final double throttle, final double strafe, final double rotationX, final double rotationY) {
     if (TUNING) tuneRobotRotationPID();
     // Apply effects to inputs
-    double[] effects = SwerveDriveHelper.applyControlEffects(throttle, strafe, rotationX, rotationY, mCurrentDriveMode, mPeriodicIO.gyro_angle);
+    double[] effects = SwerveDriveHelper.applyControlEffects(throttle, strafe, rotationX, rotationY, mCurrentDriveMode, mPeriodicIO.gyro_angle_radians);
     double direction = effects[0];
     double magnitude = effects[1];
     double rotation = rotationX;
 
     // Rotation
     if (mCurrentRotationMode == RotationMode.FIELD) { // Point robot in direction of controller using pid
-      double wantedRobotAngle = Math.toDegrees(Math.atan2(rotationX, rotationY));
-      if (wantedRobotAngle < 0) wantedRobotAngle += 360;
-      double distance = SwerveDriveHelper.getAngularDistance(mPeriodicIO.gyro_angle, wantedRobotAngle);
+      double wantedRobotAngle = Math.atan2(rotationX, rotationY);
+      double distance = SwerveDriveHelper.getAngularDistance(mPeriodicIO.gyro_angle_radians, wantedRobotAngle, Math.PI*2);
       rotation = SwerveDriveHelper.clamp(mFieldCentricRotationPID.calculate(0, distance), 1, -1, false);
       if (mFieldCentricRotationPID.onTarget(Constants.kFieldCentricRotationError)) rotation = 0;
       if (DEBUG_MODE) SmartDashboard.putNumber("Field Centric Rot", rotationX);
@@ -88,7 +87,7 @@ public class Drive extends Subsystem {
     
     // Drive Compensation
     if (rotationX == 0 && Math.abs(gyroDelta()) < Constants.kMinGyroDelta) {
-      double distance = SwerveDriveHelper.getAngularDistance(mPeriodicIO.gyro_angle, mWantedAngle);
+      double distance = SwerveDriveHelper.getAngularDistance(mPeriodicIO.gyro_angle_radians, mWantedRobotAngleRadians, Math.PI*2);
       rotation = SwerveDriveHelper.clamp(mCompensationPID.calculate(0, distance), 1, -1, false);
       if (mCompensationPID.onTarget(mCompensationPIDTolerance)) {
         rotation = 0;
@@ -104,7 +103,7 @@ public class Drive extends Subsystem {
     else {
       mCompensationPID.reset();
       mCompensationPIDTolerance = Constants.kCompensationErrorLow;
-      mWantedAngle = mPeriodicIO.gyro_angle;
+      mWantedRobotAngleRadians = mPeriodicIO.gyro_angle_radians;
       if (DEBUG_MODE) SmartDashboard.putBoolean("Compensation Active", false);
     }
     
@@ -121,7 +120,7 @@ public class Drive extends Subsystem {
       
     // Forward, Strafe, Rotation
     double[] controllerInputs = SwerveDriveHelper.convertControlEffects(magnitude, direction, rotation);
-    Object[][] module = Kinematics.inverseKinematics(controllerInputs, Math.toRadians(mPeriodicIO.gyro_angle), mCurrentDriveMode == DriveMode.FIELD, new double[]{mRobotCenterDisplacementX, mRobotCenterDisplacementY});
+    Object[][] module = Kinematics.inverseKinematics(controllerInputs, mPeriodicIO.gyro_angle_radians, mCurrentDriveMode == DriveMode.FIELD, new double[]{mRobotCenterDisplacementX, mRobotCenterDisplacementY});
     
     for (int i = 0; i < module[0].length; i++) {
       mPeriodicIO.module_magnitudes[i] = (double)module[0][i]; 
@@ -130,11 +129,11 @@ public class Drive extends Subsystem {
       mPeriodicIO.module_angles[i] = moduleRotation;
     }
     
-    mLastGyro = mPeriodicIO.gyro_angle;
+    mLastGyro = mPeriodicIO.gyro_angle_radians;
   }
     
   public void jukeMove(boolean jukeRight, boolean jukeLeft) {
-    double[] robotCenter = SwerveDriveHelper.jukeMove(jukeRight, jukeLeft, mLastNonZeroRobotAngle - mPeriodicIO.gyro_angle, mRobotCenterDisplacementX, mRobotCenterDisplacementY);
+    double[] robotCenter = SwerveDriveHelper.jukeMove(jukeRight, jukeLeft, mLastNonZeroRobotAngle - mPeriodicIO.gyro_angle_radians, mRobotCenterDisplacementX, mRobotCenterDisplacementY);
     mRobotCenterDisplacementX = robotCenter[0];
     mRobotCenterDisplacementY = robotCenter[1];
   }
@@ -157,7 +156,7 @@ public class Drive extends Subsystem {
     public double[] rotation_deltas = new double[4];
     public double[] rotation_velocities = new double[4];
     
-    public double gyro_angle;
+    public double gyro_angle_radians;
     
     // Outputs
     public double[] module_angles = new double[4];
@@ -175,12 +174,12 @@ public class Drive extends Subsystem {
       mPeriodicIO.rotation_deltas[i] = mModules[i].getRotationDelta();
     }
     
-    mPeriodicIO.gyro_angle = SwerveDriveHelper.clamp(mNavX.getAngle(), 360, 0, true);
+    mPeriodicIO.gyro_angle_radians = SwerveDriveHelper.clamp(Math.toRadians(mNavX.getAngle()), Math.PI*2, 0, true);
   }
   
   @Override
   public void writePeriodicOutputs() {
-    for (int i = 0; i < mModules.length; i++) mModules[i].setModule(mPeriodicIO.module_angles[i], mPeriodicIO.module_magnitudes[i]);
+    for (int i = 0; i < mModules.length; i++) mModules[i].setModuleDegrees(mPeriodicIO.module_angles[i], mPeriodicIO.module_magnitudes[i]);
   }
   
   @Override
@@ -221,7 +220,7 @@ public class Drive extends Subsystem {
     SmartDashboard.putNumber("Front Left Angle", mPeriodicIO.rotation_angles[1]);
     SmartDashboard.putNumber("Back Right Angle", mPeriodicIO.rotation_angles[2]);
     SmartDashboard.putNumber("Back Left Angle", mPeriodicIO.rotation_angles[3]);
-    SmartDashboard.putNumber("Gyro Angle", mPeriodicIO.gyro_angle);
+    SmartDashboard.putNumber("Gyro Angle", mPeriodicIO.gyro_angle_radians);
     SmartDashboard.putNumber("Raw Gyro Angle", mNavX.getYaw());
     for (SwerveModule m : mModules) m.outputTelemetry();
   }
@@ -229,7 +228,7 @@ public class Drive extends Subsystem {
   @Override
   public void zeroSensors() {
     mNavX.setAngleAdjustment(-mNavX.getYaw());
-    mWantedAngle = 0;
+    mWantedRobotAngleRadians = 0;
   }
   
   @Override
@@ -258,13 +257,13 @@ public class Drive extends Subsystem {
     mCurrentRotationMode = mode;
   }
   
-  public void setModule(int module, double angle, double magnitude) {
+  public void setModuleDegrees(int module, double angle, double magnitude) {
     mPeriodicIO.module_angles[module] = angle;
     mPeriodicIO.module_magnitudes[module] = magnitude;
   }
   
   public Rotation2d getRobotAngle() {
-    return new Rotation2d(Math.toRadians(mPeriodicIO.gyro_angle), false);
+    return new Rotation2d(mPeriodicIO.gyro_angle_radians, false);
   }
   
   public Translation2d getModuleState(int module) {
@@ -288,11 +287,11 @@ public class Drive extends Subsystem {
   }
   
   public double gyroDelta() {
-    return mLastGyro - mPeriodicIO.gyro_angle;
+    return mLastGyro - mPeriodicIO.gyro_angle_radians;
   }
   
-  public double getGyro() {
-    return mPeriodicIO.gyro_angle;
+  public double getGyroRadians() {
+    return mPeriodicIO.gyro_angle_radians;
   }
 }
   
