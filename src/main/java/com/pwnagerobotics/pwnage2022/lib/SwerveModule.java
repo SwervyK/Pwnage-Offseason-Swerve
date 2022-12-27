@@ -55,7 +55,6 @@ public class SwerveModule {
     mRotationController = SparkMaxFactory.createDefaultSparkMax(mConstants.kRotationId);
     mRotationController.enableVoltageCompensation(Constants.kDriveVoltageOpenLoopCompSaturation);
     mRotationController.setSmartCurrentLimit(Constants.kDriveCurrentLimit);
-    mRotationController.burnFlash();
 
     mRotationEncoder = new DutyCycleEncoder(mConstants.kRotationEncoderId);
     mRotationEncoder.setPositionOffset(mConstants.kRotationOffset);
