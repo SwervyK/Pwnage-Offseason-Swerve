@@ -19,7 +19,7 @@ import com.team254.lib.util.SynchronousPIDF;
 public class Drive extends Subsystem {
   
   public boolean DEBUG_MODE = true;
-  public boolean TUNING = false;
+  public boolean TUNING = true;
   
   public static Drive mInstance;
   public synchronized static Drive getInstance() {
@@ -76,9 +76,11 @@ public class Drive extends Subsystem {
     if (mCurrentRotationMode == RotationMode.FIELD) { // Point robot in direction of controller using pid
       double wantedRobotAngle = Math.atan2(rotationX, rotationY);
       double distance = SwerveDriveHelper.getAngularDistance(mPeriodicIO.gyro_angle_radians, wantedRobotAngle, Math.PI*2);
-      rotation = SwerveDriveHelper.clamp(mFieldCentricRotationPID.calculate(0, distance), 1, -1, false);
+      mFieldCentricRotationPID.setSetpoint(distance);
+      rotation = SwerveDriveHelper.clamp(mFieldCentricRotationPID.calculate(0), 1, -1, false);
       if (mFieldCentricRotationPID.onTarget(Constants.kFieldCentricRotationError)) rotation = 0;
-      if (DEBUG_MODE) SmartDashboard.putNumber("Field Centric Rot", rotationX);
+      if (DEBUG_MODE) SmartDashboard.putNumber("Field Centric Rot Rot", rotation);
+      if (DEBUG_MODE) SmartDashboard.putNumber("Field Centric Rot Distance", distance);
     }
     else { // Make easier to drive
       rotation = XboxDriver.scaleController(rotationX, Constants.kRotationMaxValue, Constants.kRotationMinValue); // Adjust controller
@@ -88,7 +90,8 @@ public class Drive extends Subsystem {
     // Drive Compensation
     if (rotationX == 0 && Math.abs(gyroDelta()) < Constants.kMinGyroDelta) {
       double distance = SwerveDriveHelper.getAngularDistance(mPeriodicIO.gyro_angle_radians, mWantedRobotAngleRadians, Math.PI*2);
-      rotation = SwerveDriveHelper.clamp(mCompensationPID.calculate(0, distance), 1, -1, false);
+      mCompensationPID.setSetpoint(distance);
+      rotation = SwerveDriveHelper.clamp(mCompensationPID.calculate(0), 1, -1, false);
       if (mCompensationPID.onTarget(mCompensationPIDTolerance)) {
         rotation = 0;
         mCompensationPIDTolerance = Constants.kCompensationErrorHigh;
@@ -117,7 +120,7 @@ public class Drive extends Subsystem {
     if (magnitude != 0) {
       mLastNonZeroRobotAngle = direction;
     }
-      
+
     // Forward, Strafe, Rotation
     double[] controllerInputs = SwerveDriveHelper.convertControlEffects(magnitude, direction, rotation);
     Object[][] module = Kinematics.inverseKinematics(controllerInputs, mPeriodicIO.gyro_angle_radians, mCurrentDriveMode == DriveMode.FIELD, new double[]{mRobotCenterDisplacementX, mRobotCenterDisplacementY});
@@ -287,7 +290,7 @@ public class Drive extends Subsystem {
   }
   
   public double gyroDelta() {
-    return mLastGyro - mPeriodicIO.gyro_angle_radians;
+    return Math.abs(mLastGyro - mPeriodicIO.gyro_angle);
   }
   
   public double getGyroRadians() {

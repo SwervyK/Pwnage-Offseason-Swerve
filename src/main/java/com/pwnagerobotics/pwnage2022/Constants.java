@@ -53,21 +53,21 @@ public class Constants {
     public static final double kRotationMinValue = 0.0;// TUNE
     public static final double kLeftStickDeadband = 0.1;
     public static final double kRightStickDeadband = 0.15;
-    public static final double kPoleSnappingAngle = Math.toRadians(10); // +-10 deg
+    public static final double kPoleSnappingAngle = Math.toRadians(5); // +-10 deg
     public static final double kPoleSnappingThreshold = 0.5; // mag > threshold
 
     // Drivetrain
     public static final double kDriveWidth = 21.5; //Width between center of drive modules, inches // TUNE
     public static final double kDriveLength = 21.5; //Width between center of drive modules, inches // TUNE
-    public static final double kDriveSlowDown = 0.2;
-    public static final double kRotationSlowDown = 0.5;
+    public static final double kDriveSlowDown = 1.0;
+    public static final double kRotationSlowDown = 1.0;
     public static final double kDriveMinSpeed = 20;
     public static final double kDrive180Speed = 0; // TUNE
     public static final int kRotationEncoderCPR = 8192; //Encoder counts per revolution
 
     // Field Centric Rotation
-    public static final double kRotationP = 0.0; // 0.008 // 0.005 // TUNE
-    public static final double kRotationI = 0.0; // 0.0001 // 0.0005 // TUNE
+    public static final double kRotationP = 0.005; // 0.008 // 0.005 // TUNE
+    public static final double kRotationI = 0.01; // 0.0001 // 0.0005 // TUNE
     public static final double kRotationD = 0.0; // 0.001 // 0.0 // TUNE
     public static final double kFieldCentricRotationError = 2; // TUNE
 
@@ -81,7 +81,7 @@ public class Constants {
     // Gyro
     public static final double kGyroOffset = 0.0;
     public static final double kGyroLag = 0.0; // When moving compensate for gyro lag // TUNE
-    public static final double kMinGyroDelta = 5; // Gyro delta to consider robot not rotating // TUNE
+    public static final double kMinGyroDelta = 1.5; // Gyro delta to consider robot not rotating // TUNE
 
     // Modules
     public static final SwerveModuleConstants kFrontRightModuleConstants = new SwerveModuleConstants();
@@ -89,7 +89,7 @@ public class Constants {
         kFrontRightModuleConstants.kName = "Front Right";
         kFrontRightModuleConstants.kDriveId = 3;
         kFrontRightModuleConstants.kRotationId = 4;
-        kFrontRightModuleConstants.kRotationOffset =  199.0/360.0;
+        kFrontRightModuleConstants.kRotationOffset = 201.2/360.0;
         kFrontRightModuleConstants.kRotationEncoderId = 3;
     }
 
@@ -98,7 +98,7 @@ public class Constants {
         kFrontLeftModuleConstants.kName = "Front Left";
         kFrontLeftModuleConstants.kDriveId = 1;
         kFrontLeftModuleConstants.kRotationId = 2;
-        kFrontLeftModuleConstants.kRotationOffset =  252.0/360.0;
+        kFrontLeftModuleConstants.kRotationOffset = 252.9/360.0;
         kFrontLeftModuleConstants.kRotationEncoderId = 1;
    }
 
@@ -107,7 +107,7 @@ public class Constants {
         kBackRightModuleConstants.kName = "Back Right";
         kBackRightModuleConstants.kDriveId = 5;
         kBackRightModuleConstants.kRotationId = 6;
-        kBackRightModuleConstants.kRotationOffset =  21.0/360.0;
+        kBackRightModuleConstants.kRotationOffset = 19.6/360.0;
         kBackRightModuleConstants.kRotationEncoderId = 2;
     }
 
@@ -116,7 +116,7 @@ public class Constants {
         kBackLeftModuleConstants.kName = "Back Left";
         kBackLeftModuleConstants.kDriveId = 8;
         kBackLeftModuleConstants.kRotationId = 7;
-        kBackLeftModuleConstants.kRotationOffset =  83.2/360.0;
+        kBackLeftModuleConstants.kRotationOffset = 82.1/360.0;
         kBackLeftModuleConstants.kRotationEncoderId = 0;
     }
 }

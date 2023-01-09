@@ -156,9 +156,9 @@ public class Robot extends TimedRobot {
     boolean jukeLeft = mDriver.wantJukeLeft();
     boolean wantGyroReset = mDriver.getDPad() == 180;
     
-    //mDrive.setDriveMode(wantFieldCentricDrive ? DriveMode.FIELD : DriveMode.ROBOT);
+    mDrive.setDriveMode(wantFieldCentricDrive ? DriveMode.FIELD : DriveMode.ROBOT);
     //mDrive.jukeMove(jukeRight, jukeLeft);
-    //mDrive.setRotationMode(wantFieldCentricRotation ? RotationMode.FIELD : RotationMode.ROBOT);
+    mDrive.setRotationMode(wantFieldCentricRotation ? RotationMode.FIELD : RotationMode.ROBOT);
     mDrive.setKinematicsDrive(throttle, strafe, rotationX, rotationY);
     
     if (wantGyroReset) {
