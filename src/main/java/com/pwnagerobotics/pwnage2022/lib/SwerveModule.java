@@ -22,7 +22,7 @@ public class SwerveModule {
     public int kRotationId = 0;
     public int kRotationEncoderId = 0;
     
-    public double kp = 0.03;
+    public double kp = 0.01;
     public double ki = 0.0;
     public double kd = 0.0;
     
@@ -134,7 +134,6 @@ public class SwerveModule {
   }
   
   public void zeroEncoders() {
-    mRotationEncoder.reset();
     mDriveEncoder.setPosition(0);
   }
 

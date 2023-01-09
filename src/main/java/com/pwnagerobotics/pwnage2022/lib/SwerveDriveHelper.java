@@ -101,6 +101,6 @@ public class SwerveDriveHelper {
     // throttle, strafe, rotation
     public static double[] convertControlEffects(double magnitude, double angle, double rotation) {
         angle = Math.toRadians(angle);
-        return new double[] { magnitude * Math.sin(angle), magnitude * Math.cos(angle), rotation };
+        return new double[] { magnitude * Math.cos(angle), magnitude * Math.sin(angle), rotation };
     }
 }
