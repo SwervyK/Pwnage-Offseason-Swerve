@@ -35,13 +35,12 @@ public class SwerveDriveHelper {
     public static double[] jukeMove(boolean jukeRight, boolean jukeLeft, double direction, double centerX, double centerY) {
         int side = (int)(nearestPoleSnapRadians(direction, Math.PI/4)/Math.PI/2);
         if (jukeRight && centerX == 0 && centerY == 0) {
-            centerX = Constants.kDriveWidth*(side<2?1:-1);
-            centerY = Constants.kDriveLength*(side==0||side==3?1:-1);
+            centerX = 1.5*Constants.kDriveWidth/Constants.kDriveHypot*(side==0||side==3?1:-1);
+            centerY = 1.5*Constants.kDriveLength/Constants.kDriveHypot*(side==0||side==1?1:-1);
         }
         else if (jukeLeft && centerX == 0 && centerY == 0) {
-          if (++side > 3) side -= 3;
-          centerX = Constants.kDriveWidth*(side<2?-1:1);
-          centerY = Constants.kDriveLength*(side==1||side==3?-1:1);
+          centerX = 1.5*Constants.kDriveWidth/Constants.kDriveHypot*(side==2||side==3?1:-1);
+          centerY = 1.5*Constants.kDriveLength/Constants.kDriveHypot*(side==0||side==3?1:-1);
         }
         else if (!jukeRight && !jukeLeft ) {
             centerX = 0;

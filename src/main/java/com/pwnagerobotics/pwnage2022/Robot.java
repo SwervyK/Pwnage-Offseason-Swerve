@@ -157,7 +157,7 @@ public class Robot extends TimedRobot {
     boolean wantGyroReset = mDriver.getDPad() == 180;
     
     mDrive.setDriveMode(wantFieldCentricDrive ? DriveMode.FIELD : DriveMode.ROBOT);
-    //mDrive.jukeMove(jukeRight, jukeLeft);
+    mDrive.jukeMove(jukeRight, jukeLeft);
     mDrive.setRotationMode(wantFieldCentricRotation ? RotationMode.FIELD : RotationMode.ROBOT);
     mDrive.setKinematicsDrive(throttle, strafe, rotationX, rotationY);
     
