@@ -27,7 +27,7 @@ public class SwerveModule {
     public double kd = 0.0;
     
     public double kRotationOffset = 0.0;
-    public double kRotationError = 2; // Degrees // TODO tune
+    public double kRotationError = 0.5; // *Degrees
     public double kWheelDiameter = 0.0;
   }
   
@@ -79,9 +79,8 @@ public class SwerveModule {
       SmartDashboard.putNumber("Magnitude Initial", magnitude);
       SmartDashboard.putNumber("Controller Initial", wantedAngle);
     }
-
     // At higher speeds you need larger angles to flip because of the time is takes to reverse the drive direction
-    if (false /*getDriveVelocity() >= Constants.kDrive180Speed*/) {
+    if (Math.abs(getDriveVelocity()) >= Constants.kDrive180Speed) {
       if (mLastMagnitude < 0) magnitude *= -1; // Without this wheels will only move forward regardless of their last direction
       if (mFlipped) {
         wantedAngle = SwerveDriveHelper.clamp(wantedAngle-180, 360, 0, true);
@@ -108,7 +107,7 @@ public class SwerveModule {
     
     mPID.setSetpoint(distance);
     double rotationSpeed = mPID.calculate(0);
-    if (mPID.onTarget(mConstants.kRotationError)) mRotationController.set(0);
+    if (mPID.onTarget(mConstants.kRotationError) || magnitude == 0) mRotationController.set(0);
     else mRotationController.set(ControlType.kDutyCycle, rotationSpeed * Constants.kRotationSlowDown);
 
     mLastMagnitude = magnitude;

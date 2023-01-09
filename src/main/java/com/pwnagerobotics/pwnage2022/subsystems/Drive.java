@@ -19,7 +19,7 @@ import com.team254.lib.util.SynchronousPIDF;
 public class Drive extends Subsystem {
   
   public boolean DEBUG_MODE = true;
-  public boolean TUNING = true;
+  public boolean TUNING = false;
   
   public static Drive mInstance;
   public synchronized static Drive getInstance() {
@@ -44,7 +44,6 @@ public class Drive extends Subsystem {
   private SwerveModule[] mModules = new SwerveModule[4];
   private AHRS mNavX = new AHRS();
   private double mWantedAngle = 0.0; // Direction the robot should be pointing
-  private double mLastNonZeroRobotAngle = 0;
   private double mLastGyro = 0;
   private double mRobotCenterDisplacementX = 0;
   private double mRobotCenterDisplacementY = 0;
@@ -114,13 +113,6 @@ public class Drive extends Subsystem {
     // if (/* Motors move and we dont */) {
     //   mGyroLagDelay.update(Timer.getFPGATimestamp(), false);
     // }
-      
-    if (magnitude == 0) { // Dont set module direction to 0 if not moving
-    direction = mLastNonZeroRobotAngle;
-    }
-    if (magnitude != 0) {
-      mLastNonZeroRobotAngle = direction;
-    }
 
     // Forward, Strafe, Rotation
     double[] controllerInputs = SwerveDriveHelper.convertControlEffects(magnitude, direction, rotation);
@@ -136,7 +128,7 @@ public class Drive extends Subsystem {
   }
     
   public void jukeMove(boolean jukeRight, boolean jukeLeft) {
-    double[] robotCenter = SwerveDriveHelper.jukeMove(jukeRight, jukeLeft, mLastNonZeroRobotAngle - mPeriodicIO.gyro_angle, mRobotCenterDisplacementX, mRobotCenterDisplacementY);
+    double[] robotCenter = SwerveDriveHelper.jukeMove(jukeRight, jukeLeft, mPeriodicIO.gyro_angle, mRobotCenterDisplacementX, mRobotCenterDisplacementY);
     mRobotCenterDisplacementX = robotCenter[0];
     mRobotCenterDisplacementY = robotCenter[1];
   }

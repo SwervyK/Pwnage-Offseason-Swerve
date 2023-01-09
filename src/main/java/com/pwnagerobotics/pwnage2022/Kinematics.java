@@ -154,10 +154,10 @@ public class Kinematics {
             forward = temp;
         }
 
-        double A = strafe - rotation * L / R;// + robotCenterDisplacement[0];
-        double B = strafe + rotation * L / R;// + robotCenterDisplacement[0];
-        double C = forward - rotation * W / R;// + robotCenterDisplacement[1];
-        double D = forward + rotation * W / R;// + robotCenterDisplacement[1];
+        double A = strafe - rotation * L/R - rotation * robotCenterDisplacement[1];
+        double B = strafe + rotation * L/R - rotation * robotCenterDisplacement[1];
+        double C = forward - rotation * W/R + rotation * robotCenterDisplacement[0];
+        double D = forward + rotation * W/R + rotation * robotCenterDisplacement[0];
 
         Double[] wheel_speeds = new Double[4];
         wheel_speeds[0] = Math.hypot(B, C);
