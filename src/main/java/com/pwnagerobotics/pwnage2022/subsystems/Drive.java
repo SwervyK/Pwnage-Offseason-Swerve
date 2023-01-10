@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
+import com.team254.lib.geometry.Twist2d;
 import com.team254.lib.subsystems.Subsystem;
 import com.team254.lib.util.SynchronousPIDF;
 
@@ -271,6 +272,11 @@ public class Drive extends Subsystem {
       velocities[i] = mModules[i].getDriveVelocity();
     }
     return velocities;
+  }
+
+  public Twist2d getRobotVelocity() {
+    Twist2d robotVelocity = Kinematics.forwardKinematics(getModuleVelocities(), getModuleRotations());
+    return robotVelocity;
   }
   
   public Rotation2d[] getModuleRotations() {
