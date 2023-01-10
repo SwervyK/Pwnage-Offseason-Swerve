@@ -76,18 +76,17 @@ public class SwerveDriveHelper {
     // direction, magnitude
     public static double[] applyControlEffects(double throttle, double strafe, double rotationX, double rotationY, DriveMode mode, double gyroRadians) {
         // TODO use vectors
-        double direction = Math.atan2(strafe, throttle); // Find what angle we want to drive at
+        double directionRadians = Math.atan2(strafe, throttle); // Find what angle we want to drive at
         double magnitude = Math.hypot(Math.abs(strafe), Math.abs(throttle)); // Get wanted speed of robot
         magnitude = XboxDriver.scaleController(SwerveDriveHelper.clamp(magnitude, 1, 0, false), Constants.kDriveMaxValue, Constants.kDriveMinValue);
 
         // Pole Snapping
-        if (magnitude > Constants.kPoleSnappingThreshold) direction = nearestPoleSnapRadians(direction-((mode == DriveMode.FIELD)?0:gyroRadians), Constants.kPoleSnappingAngle);
-        return new double[] {direction, magnitude};
+        if (magnitude > Constants.kPoleSnappingThreshold) directionRadians = nearestPoleSnapRadians(directionRadians-((mode == DriveMode.FIELD)?0:gyroRadians), Constants.kPoleSnappingAngle);
+        return new double[] {directionRadians, magnitude};
     }
 
     // throttle, strafe, rotation
     public static double[] convertControlEffects(double magnitude, double angle, double rotation) {
-        angle = Math.toRadians(angle);
         return new double[] { magnitude * Math.cos(angle), magnitude * Math.sin(angle), rotation };
     }
 }

@@ -70,18 +70,17 @@ public class Constants {
     public static final double kRotationP = 0.005; // 0.008 // 0.005
     public static final double kRotationI = 0.01; // 0.0001 // 0.0005
     public static final double kRotationD = 0.0; // 0.001 // 0.0
-    public static final double kFieldCentricRotationError = 2;
+    public static final double kFieldCentricRotationError = Math.toRadians(2);
 
     // Compensation
     public static final double kCompensationP = 0.005;
     public static final double kCompensationI = 0.001;
     public static final double kCompensationD = 0.0;
-    public static final double kCompensationErrorLow = 2;
-    public static final double kCompensationErrorHigh = 5;
+    public static final double kCompensationError = Math.toRadians(2);
 
     // Gyro
     public static final double kGyroOffset = 0.0;
-    public static final double kMinGyroDelta = 1.5; // Gyro delta to consider robot not rotating
+    public static final double kMinGyroDelta = Math.toRadians(2); // Gyro delta to consider robot not rotating
 
     // Modules
     public static final SwerveModuleConstants kFrontRightModuleConstants = new SwerveModuleConstants();

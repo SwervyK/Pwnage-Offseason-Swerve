@@ -40,7 +40,6 @@ public class Drive extends Subsystem {
   
   private SynchronousPIDF mFieldCentricRotationPID = new SynchronousPIDF(Constants.kRotationP, Constants.kRotationI, Constants.kRotationD);
   private SynchronousPIDF mCompensationPID = new SynchronousPIDF(Constants.kCompensationP, Constants.kCompensationI, Constants.kCompensationD);
-  private double mCompensationPIDTolerance = Constants.kCompensationErrorLow;
   private SwerveModule[] mModules = new SwerveModule[4];
   private AHRS mNavX = new AHRS();
   private double mWantedRobotAngleRadians = 0.0; // Direction the robot should be pointing
@@ -67,7 +66,7 @@ public class Drive extends Subsystem {
     if (TUNING) tuneRobotRotationPID();
     // Apply effects to inputs
     double[] effects = SwerveDriveHelper.applyControlEffects(throttle, strafe, rotationX, rotationY, mCurrentDriveMode, mPeriodicIO.gyro_angle_radians);
-    double direction = effects[0];
+    double directionRadians = effects[0];
     double magnitude = effects[1];
     double rotation = rotationX;
 
@@ -75,7 +74,7 @@ public class Drive extends Subsystem {
     if (mCurrentRotationMode == RotationMode.FIELD) { // Point robot in direction of controller using pid
       double wantedRobotAngle = Math.atan2(rotationX, rotationY);
       double distance = SwerveDriveHelper.getAngularDistance(mPeriodicIO.gyro_angle_radians, wantedRobotAngle, Math.PI*2);
-      mFieldCentricRotationPID.setSetpoint(distance);
+      mFieldCentricRotationPID.setSetpoint(Math.toDegrees(distance));
       rotation = SwerveDriveHelper.clamp(mFieldCentricRotationPID.calculate(0), 1, -1, false);
       if (mFieldCentricRotationPID.onTarget(Constants.kFieldCentricRotationError)) rotation = 0;
       if (DEBUG_MODE) SmartDashboard.putNumber("Field Centric Rot Rot", rotation);
@@ -87,25 +86,24 @@ public class Drive extends Subsystem {
     }
     
     // Drive Compensation
-    if (rotationX == 0 && Math.abs(gyroDelta()) < Constants.kMinGyroDelta) {
+    if (rotationX == 0 && gyroDelta() < Constants.kMinGyroDelta && mWantedRobotAngleRadians == -1) {
+      mWantedRobotAngleRadians = mPeriodicIO.gyro_angle_radians;
+      mCompensationPID.reset();
+    }
+    if (rotationX != 0) {
+      mWantedRobotAngleRadians = -1; 
+    }
+    if (rotationX == 0 && mWantedRobotAngleRadians != -1) {
       double distance = SwerveDriveHelper.getAngularDistance(mPeriodicIO.gyro_angle_radians, mWantedRobotAngleRadians, Math.PI*2);
-      mCompensationPID.setSetpoint(distance);
+      if (DEBUG_MODE) SmartDashboard.putNumber("Angle to follow", mWantedRobotAngleRadians);
+      mCompensationPID.setSetpoint(Math.toDegrees(distance));
       rotation = SwerveDriveHelper.clamp(mCompensationPID.calculate(0), 1, -1, false);
-      if (mCompensationPID.onTarget(mCompensationPIDTolerance)) {
-        rotation = 0;
-        mCompensationPIDTolerance = Constants.kCompensationErrorHigh;
-      }
-      if (Math.abs(distance) > Constants.kCompensationErrorHigh) {
-        mCompensationPIDTolerance = Constants.kCompensationErrorLow;
-      }
+      if (mCompensationPID.onTarget(Constants.kCompensationError)) rotation = 0;
       if (DEBUG_MODE) SmartDashboard.putBoolean("Compensation Active", true);
-      if (DEBUG_MODE) SmartDashboard.putNumber("Compensation Rot", rotationX);
+      if (DEBUG_MODE) SmartDashboard.putNumber("Compensation Rot", rotation);
       if (DEBUG_MODE) SmartDashboard.putNumber("Compensation Distance", distance);
     }
     else {
-      mCompensationPID.reset();
-      mCompensationPIDTolerance = Constants.kCompensationErrorLow;
-      mWantedRobotAngleRadians = mPeriodicIO.gyro_angle_radians;
       if (DEBUG_MODE) SmartDashboard.putBoolean("Compensation Active", false);
     }
     
@@ -114,7 +112,7 @@ public class Drive extends Subsystem {
     // }
 
     // Forward, Strafe, Rotation
-    double[] controllerInputs = SwerveDriveHelper.convertControlEffects(magnitude, direction, rotation);
+    double[] controllerInputs = SwerveDriveHelper.convertControlEffects(magnitude, directionRadians, rotation);
     Object[][] module = Kinematics.inverseKinematics(controllerInputs, mPeriodicIO.gyro_angle_radians, mCurrentDriveMode == DriveMode.FIELD, new double[]{mRobotCenterDisplacementX, mRobotCenterDisplacementY});
     
     for (int i = 0; i < module[0].length; i++) {

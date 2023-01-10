@@ -27,7 +27,7 @@ public class SwerveModule {
     public double kd = 0.0;
     
     public double kRotationOffset = 0.0;
-    public double kRotationError = 0.5; // *Degrees
+    public double kRotationError = 0.5;
     public double kWheelDiameter = 0.0;
   }
   
@@ -68,29 +68,29 @@ public class SwerveModule {
   
   /**
   * Set module speed and rotation
-  * @param wantedAngle Module angle (0 is forward)
+  * @param wantedAngleDegrees Module angle (0 is forward)
   * @param magnitude Speed (-1 to 1)
   */
-  public void setModuleDegrees(double wantedAngle, double magnitude) { // TODO wantedAngle from -180 to 180
+  public void setModuleDegrees(double wantedAngleDegrees, double magnitude) { // TODO wantedAngle from -180 to 180
     if (TUNING) tuneRobotRotationPID();
     double currentAngle = SwerveDriveHelper.clamp(getRotationDegrees(), 360, 0, true); // Gets current angle from rotation encoder
-    double distance = SwerveDriveHelper.getAngularDistance(currentAngle, wantedAngle, 360);
+    double distance = SwerveDriveHelper.getAngularDistance(currentAngle, wantedAngleDegrees, 360);
 
     if (mConstants.kName.equals("Front Right") && DEBUG_MODE) {
       SmartDashboard.putNumber("Magnitude Initial", magnitude);
-      SmartDashboard.putNumber("Controller Initial", wantedAngle);
+      SmartDashboard.putNumber("Controller Initial", wantedAngleDegrees);
     }
     // At higher speeds you need larger angles to flip because of the time is takes to reverse the drive direction
     if (Math.abs(getDriveVelocity()) >= Constants.kDrive180Speed) {
       if (mLastMagnitude < 0) magnitude *= -1; // Without this wheels will only move forward regardless of their last direction
       if (mFlipped) {
-        wantedAngle = SwerveDriveHelper.clamp(wantedAngle-180, 360, 0, true);
-        distance = SwerveDriveHelper.getAngularDistance(currentAngle, wantedAngle, 360);
+        wantedAngleDegrees = SwerveDriveHelper.clamp(wantedAngleDegrees-180, 360, 0, true);
+        distance = SwerveDriveHelper.getAngularDistance(currentAngle, wantedAngleDegrees, 360);
       }
     }
     else if (Math.abs(distance) > 90) { // Makes sure the robot is taking the most optimal path when rotating modules
-      wantedAngle = SwerveDriveHelper.clamp(wantedAngle-180, 360, 0, true);
-      distance = SwerveDriveHelper.getAngularDistance(currentAngle, wantedAngle, 360);
+      wantedAngleDegrees = SwerveDriveHelper.clamp(wantedAngleDegrees-180, 360, 0, true);
+      distance = SwerveDriveHelper.getAngularDistance(currentAngle, wantedAngleDegrees, 360);
       magnitude *= -1;
       mFlipped = true;
     }
@@ -100,7 +100,7 @@ public class SwerveModule {
 
     if (mConstants.kName.equals("Front Right") && DEBUG_MODE) {
       SmartDashboard.putNumber("Magnitude Final", magnitude);
-      SmartDashboard.putNumber("Controller Final", wantedAngle);
+      SmartDashboard.putNumber("Controller Final", wantedAngleDegrees);
     }
 
     if (magnitude == 0) mDriveController.stopMotor();
